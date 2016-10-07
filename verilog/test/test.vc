@@ -1,0 +1,23 @@
+
+
+// Headers with definitions
+-f ../headers/headers.vc
+
+// Library functions
+-f ../lib/lib.vc
+
+// PCIe Display link
+-f ../PcieDispLink/PcieDispLink.vc
+
+// PCIe Host top level
+-f ../pcieVHost/pcieVHost.vc
+
+// VProc
+../../../VProc/extradefs.v
+../../../VProc/f_VProc.v
+
+// Display Control
+ContDisps.v
+
+// Top level test module
+test.v

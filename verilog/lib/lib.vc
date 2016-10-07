@@ -1,0 +1,8 @@
+// Paths relative to top level
+
+-v ../lib/Crc16Gen.v
+-v ../lib/Decoder.v
+-v ../lib/RxDP.v
+-v ../lib/ScrambleCodec.v
+-v ../lib/Serialiser.v
+

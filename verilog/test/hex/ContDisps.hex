@@ -1,0 +1,11 @@
+// Example ContDisps.hex file
+// Copy to the appropriate test directory, and edit as necessary.
+// See pciedispheader.v for more details
+
+//                     +8              +4              +2              +1
+// ,-->  7 - 4:    DispRawSym         DispPL         DispDL          DispTL
+// |,->  3 - 0:    unused             DispStop       DispFinish      DispAll
+// || ,-> Time (clock cycles, decimal)
+// || |                          
+   70 000000000000
+   02 009999999999
