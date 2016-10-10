@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: PcieDispLinkLane.v,v 1.3 2016/10/07 08:34:28 simon Exp $
+// $Id: PcieDispLinkLane.v,v 1.4 2016/10/10 11:47:34 simon Exp $
 // $Source: /home/simon/CVS/src/HDL/pcieVHost/verilog/PcieDispLink/PcieDispLinkLane.v,v $
 //
 //=============================================================
@@ -118,9 +118,9 @@ begin
         TSBuf[TSIdx] = RxByte;
         if (SeenOS === 1 && ^RxByte === 1'bx)
         begin
-`ifndef DISABLE_PCIE_DEAF_ON_X
+`ifndef DISABLE_PCIE_FATAL_ON_X
             $display("PCIE%c%0d %0d: ***Error --- Seen X after synchronisation", FwdName, NodeNum, LaneNum);
-            `deaf
+            `fatal
 `else
         TSIdx = 0;
         SeenOS = 0;
@@ -161,6 +161,8 @@ begin
                 $write  ("Loopback ");
             if (((TSBuf[`TSX_LINKCONTROL] & `TSX_LNKCTRL_NOSCRAMBLE_MASK) != 8'h00) ? 1'b1 : 1'b0)
                 $write  ("NoScramble ");
+            if ((RxTrainingSeq[0] == 1'b0) && (((TSBuf[`TSX_LINKCONTROL] & `TSX_LNKCTRL_COMPL_RX_MASK) != 8'h00) ? 1'b1 : 1'b0))
+                $write  ("Compliance RX ");
             $display("");
             SeenOS = 1;
         end

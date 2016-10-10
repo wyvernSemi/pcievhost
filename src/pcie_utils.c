@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: pcie_utils.c,v 1.3 2016-10-07 13:59:07 simon Exp $
+// $Id: pcie_utils.c,v 1.4 2016/10/10 11:45:59 simon Exp $
 // $Source: /home/simon/CVS/src/HDL/pcieVHost/src/pcie_utils.c,v $
 //
 //=============================================================
@@ -60,12 +60,12 @@ static uint32 CalcNewRxCredits(const uint32 rxfc, const uint32 currfc, const uin
     if (hdrcheck && newfc >= currfc + 127) /* Checks for 2.6.1 PCIE 1.1 pg 110 */
     {
         VPrint("CalcNewRxCredits(): ***Error --- Received Hdr FC advertising more than 127 credits NewFC %d OldFC %d\n", newfc, currfc);
-        VWrite(PVH_DEAF, 0, 0, node);
+        VWrite(PVH_FATAL, 0, 0, node);
     }
     else if (newfc >= currfc + 2047)
     {
         VPrint("CalcNewRxCredits(): ***Error --- Received Data FC advertising more than 2047 credits NewFC %d OldFC %d\n", newfc, currfc);
-        VWrite(PVH_DEAF, 0, 0, node);
+        VWrite(PVH_FATAL, 0, 0, node);
     }
 
     return newfc;
@@ -99,7 +99,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
             if (flw->RxHdrCredits[0][FC_POST] > flw->ConsumedHdrCredits[0][FC_POST])
             {
                 VPrint("ProcessRxFlowControl(): ***Error --- Overflow on Posted header Credits");
-                VWrite(PVH_DEAF, 0, 0, node);
+                VWrite(PVH_FATAL, 0, 0, node);
             }
         }
         if (flw->ConsumedDataCredits[0][FC_POST])
@@ -108,7 +108,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
             if (flw->RxDataCredits[0][FC_POST] > flw->ConsumedDataCredits[0][FC_POST])
             {
                 VPrint("ProcessRxFlowControl(): ***Error --- Overflow on Posted Data Credits");
-                VWrite(PVH_DEAF, 0, 0, node);
+                VWrite(PVH_FATAL, 0, 0, node);
             }
         }
 
@@ -121,7 +121,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
             if (flw->RxHdrCredits[0][FC_POST] > flw->ConsumedHdrCredits[0][FC_POST])
             {
                 VPrint("ProcessRxFlowControl(): ***Error --- Overflow on Posted header Credits");
-                VWrite(PVH_DEAF, 0, 0, node);
+                VWrite(PVH_FATAL, 0, 0, node);
             }
         }
         break;
@@ -133,7 +133,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
             if (flw->RxHdrCredits[0][FC_CMPL] > flw->ConsumedHdrCredits[0][FC_CMPL])
             {
                 VPrint("ProcessRxFlowControl(): ***Error --- Overflow on Completion header Credits");
-                VWrite(PVH_DEAF, 0, 0, node);
+                VWrite(PVH_FATAL, 0, 0, node);
             }
         }
         break;
@@ -145,7 +145,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
             if (flw->RxHdrCredits[0][FC_CMPL] > flw->ConsumedHdrCredits[0][FC_CMPL])
             {
                 VPrint("ProcessRxFlowControl(): ***Error --- Overflow on Completion header Credits");
-                VWrite(PVH_DEAF, 0, 0, node);
+                VWrite(PVH_FATAL, 0, 0, node);
             }
         }
         if (flw->ConsumedDataCredits[0][FC_CMPL])
@@ -154,7 +154,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
             if (flw->RxDataCredits[0][FC_CMPL] > flw->ConsumedDataCredits[0][FC_CMPL])
             {
                 VPrint("ProcessRxFlowControl(): ***Error --- Overflow on Completion data Credits");
-                VWrite(PVH_DEAF, 0, 0, node);
+                VWrite(PVH_FATAL, 0, 0, node);
             }
         }
         break;
@@ -171,7 +171,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
             if (flw->RxHdrCredits[0][FC_NONPOST] > flw->ConsumedHdrCredits[0][FC_NONPOST])
             {
                 VPrint("ProcessRxFlowControl(): ***Error --- Overflow on Non-posted header Credits");
-                VWrite(PVH_DEAF, 0, 0, node);
+                VWrite(PVH_FATAL, 0, 0, node);
             }
         }
         debug_io_printf ("flw->ConsumedHdrCredits[0][FC_NONPOST] %d, flw->RxHdrCredits[0][FC_NONPOST] %d\n", flw->ConsumedHdrCredits[0][FC_NONPOST], flw->RxHdrCredits[0][FC_NONPOST]);
@@ -183,7 +183,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
             if (flw->RxHdrCredits[0][FC_NONPOST] > flw->ConsumedHdrCredits[0][FC_NONPOST])
             {
                 VPrint("ProcessRxFlowControl(): ***Error --- Overflow on Non-posted header Credits");
-                VWrite(PVH_DEAF, 0, 0, node);
+                VWrite(PVH_FATAL, 0, 0, node);
             }
         }
         if (flw->ConsumedDataCredits[0][FC_NONPOST])
@@ -192,7 +192,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
             if (flw->RxDataCredits[0][FC_NONPOST] > flw->ConsumedDataCredits[0][FC_NONPOST])
             {
                 VPrint("ProcessRxFlowControl(): ***Error --- Overflow on Non-posted data Credits");
-                VWrite(PVH_DEAF, 0, 0, node);
+                VWrite(PVH_FATAL, 0, 0, node);
             }
         }
         break;
@@ -701,7 +701,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
             if (ReadRamByteBlock (addr, buff, length*4, state->thisnode))
             {
                 VPrint("ProcessInput: ***Error --- ReadRamByteBlock for address %llx returned bad status at node %d\n", addr, state->thisnode);
-                VWrite(PVH_DEAF, 0, 0, state->thisnode);
+                VWrite(PVH_FATAL, 0, 0, state->thisnode);
             }
 
             if (!state->usrconf.CompletionRate)
@@ -754,7 +754,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
 
             if (type == TL_CFGRD0)
             {
-		// Read a word (4 bytes) from the config space and put in buffer
+                // Read a word (4 bytes) from the config space and put in buffer
                 ReadConfigSpaceBuf((uint32)(addr & 0xfff), buff, 4, state->thisnode);
 
                 if (!state->usrconf.CompletionRate)
@@ -840,6 +840,7 @@ static void ProcessOS(const pLinkEventCount_t const linkevent, const int lane, c
     else if (type == 0)
     {
         DebugVPrint("ProcessOS: OS/TS sequence broken on lane %d at node %d\n", lane, node);
+        linkevent->FlaggedIdle[lane]++;
     }
     else if (type == IDL)
     {
@@ -992,7 +993,7 @@ static pPkt_t PcieSortQueue (const pPkt_t const head_p, pPkt_t* end, const int n
     if (idx == (MAX_HDR_CREDITS+1) && tmp_p != NULL)
     {
         VPrint("PcieSortQueue(): ***Error --- completion queue overflow\n");
-        VWrite(PVH_DEAF, 0, 0, node);
+        VWrite(PVH_FATAL, 0, 0, node);
     }
 
     // If less than 2 elements, no need to sort
@@ -1592,6 +1593,7 @@ int CheckCredits(const int DisableFc, const uint32 fc_state, const uint32 hdr_cr
 {
     return (DisableFc || ((((hdr_credits - tx_hdr) > 0) || !hdr_credits) /* && (fc_state == INITFC_FI2)*/  && 
            (((data_credits - tx_data) >= (payload_len/4 + ((payload_len%4)?1:0))) || !data_credits)));
+
 }
 
 // -------------------------------------------------------------------------
@@ -1684,7 +1686,8 @@ void InitPcieState(const pPcieModelState_t const state, const int node)
     state->RxActive               = 0;
     state->RxDataIdx              = 0;
 
-    state->draining_queue         = 0;
+    state->draining_queue         = false;
+    state->tx_disabled            = false;
 
     // Initialise this node's physical layer coder/decoder state
     InitCodec(node);
@@ -1892,11 +1895,7 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
         {
             // If not processing an OS/TS, flag to ProcessOS() an 'idle' status
             // in case it is checking for consecutive ordered sets
-            if (!linkevent->FlaggedIdle[idx])
-            {
-                ProcessOS(linkevent, idx, 0, NULL, state->vuser_os_cb, state->usrptr, state->thisnode);
-                linkevent->FlaggedIdle[idx] = true;
-            }
+            ProcessOS(linkevent, idx, 0, NULL, state->vuser_os_cb, state->usrptr, state->thisnode);
         }
 
         // ----- Extracting DLLP/TLPs across lanes -----
@@ -1906,7 +1905,7 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
             if (state->RxActive)
             {
                 VPrint( "ExtractPhyInput: ***Error --- New STP/SDP (lane %d) whilst packet active at node %d\n", idx, state->thisnode);
-                VWrite(PVH_DEAF, 0, 0, state->thisnode);
+                VWrite(PVH_FATAL, 0, 0, state->thisnode);
             }
             state->RxActive = true;
             state->RxDataIdx = 0;
@@ -1914,7 +1913,7 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
             if ((state->pRxPktData = (PktData_t *)calloc((MAX_RAW_PKT_SIZE) * sizeof(PktData_t), 1)) == NULL)
             {
                 VPrint( "ExtractPhyInput: ***Error --- memory allocation failure at node %d\n", state->thisnode);
-                VWrite(PVH_DEAF, 0, 0, state->thisnode);
+                VWrite(PVH_FATAL, 0, 0, state->thisnode);
             }
         }
 
@@ -1929,7 +1928,7 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
             else
             {
                 VPrint( "ExtractPhyInput: ***Error --- packet overflow at node %d\n", state->thisnode);
-                VWrite(PVH_DEAF, 0, 0, state->thisnode);
+                VWrite(PVH_FATAL, 0, 0, state->thisnode);
             }
 
             // If we've reached the end of a packet...
@@ -1942,13 +1941,13 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
                 if ((state->pRxPktData = (PktData_t *)realloc(state->pRxPktData, state->RxDataIdx * sizeof(PktData_t))) == NULL)
                 {
                     VPrint( "ExtractPhyInput: ***Error --- memory reallocation failure at node %d\n", state->thisnode);
-                    VWrite(PVH_DEAF, 0, 0, state->thisnode);
+                    VWrite(PVH_FATAL, 0, 0, state->thisnode);
                 }
 
                 if ((pkt = calloc(sizeof(sPkt_t), 1)) == NULL)
                 {
                     VPrint( "ExtractPhyInput: ***Error --- memory allocation failure\n");
-                    VWrite(PVH_DEAF, 0, 0, state->thisnode);
+                    VWrite(PVH_FATAL, 0, 0, state->thisnode);
                 }
 
                 pkt->NextPkt = NULL;
@@ -1992,15 +1991,27 @@ void TxFcInitInt (const pFlowControl_t const flw, const pUserConfig_t const usrc
         SendFC(DL_INITFC1_P,   0, usrcfg->InitFcHdrCr[0][FC_POST],    usrcfg->InitFcDataCr[0][FC_POST],    QUEUE, node);
         SendFC(DL_INITFC1_NP,  0, usrcfg->InitFcHdrCr[0][FC_NONPOST], usrcfg->InitFcDataCr[0][FC_NONPOST], QUEUE, node);
         SendFC(DL_INITFC1_CPL, 0, usrcfg->InitFcHdrCr[0][FC_CMPL],    usrcfg->InitFcDataCr[0][FC_CMPL],    SEND,  node);
-        SendIdle(INITFC_DELAY, node);
+	if (INITFC_DELAY != 0)
+	{
+            SendIdle(INITFC_DELAY, node);
+	}
     }
 
-    while (flw->fc_state[0] == INITFC_FI1)
+    while (flw->fc_state[0] == INITFC_FI1 || flw->fc_state[0] == INITFC_FI2) 
     {
         SendFC(DL_INITFC2_P,   0, usrcfg->InitFcHdrCr[0][FC_POST],    usrcfg->InitFcDataCr[0][FC_POST],    QUEUE, node);
         SendFC(DL_INITFC2_NP,  0, usrcfg->InitFcHdrCr[0][FC_NONPOST], usrcfg->InitFcDataCr[0][FC_NONPOST], QUEUE, node);
         SendFC(DL_INITFC2_CPL, 0, usrcfg->InitFcHdrCr[0][FC_CMPL],    usrcfg->InitFcDataCr[0][FC_CMPL],    SEND,  node);
-        SendIdle(INITFC_DELAY, node);
+	if (INITFC_DELAY != 0)
+	{
+            SendIdle(INITFC_DELAY, node);
+        }
+
+	// Ensure that at least one InitFC2 set is transmitted, even if at INITFC_FI2 already
+	if (flw->fc_state[0] == INITFC_FI2)
+	{
+	    break;
+        }
     }
 }
 

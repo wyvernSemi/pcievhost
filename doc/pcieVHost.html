@@ -126,9 +126,10 @@ leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
   <ul>
   <li><a href="#OpGen">User Output Generation</a>
   <li><a href="#IpProc">Input processing</a>
+  <li><a href="#Training">Link Training</a>
   <li><a href="#AuxFunc">Auxiliary Functions</a>
   <li><a href="#IntMemAcc">Internal Memory Access</a>
-  <li><a href="#Config">Initialisation and Configuration</a>
+  <li><a href="#Config">Model Initialisation and Configuration</a>
   <li><a href="#UsrProgStruct">Structure of a User Program</a>
   <li><a href="#ApiSumm">Summary of API Functions</a>
   </ul>
@@ -396,7 +397,7 @@ delay argument for the part-completion function, added to control whether the co
 is added to the normal queue, or whether it is added to a special delayed queue. 
 The <tt>CompletionDelay()</tt> function always has the delay, queue and digest flags active.
 The delay is controlled by user configuration, via <tt>CONFIG_CPL_DELAY_RATE</tt> and 
-<tt>CONFIG_CPL_DELAY_SPREAD</tt> (see <a href="#Config">Initialisation and Configuration</a>).
+<tt>CONFIG_CPL_DELAY_SPREAD</tt> (see <a href="#Config">Model Initialisation and Configuration</a>).
 </p>
 <p>
 All the output functions have a 'digest' equivalent. These are basically
@@ -654,6 +655,62 @@ as defined in <tt>pcie.h</tt>, are as follows:
  <li><tt>PKT_STATUS_NULLIFIED</tt>
 </ul>
 
+<a name="Training"></a>
+<h3>Link Training</h3>
+<p>
+A couple of high level functions are provided in the pcieVHost API, which can be used
+to do initial link training and flow control initialisation. These are not meant to be full
+implementations, covering all exceptions and eventualities, but can be used to go from a cold start,
+power up to L0 state, and set initial flow control values for P, NP and Cpl packets. The
+example <a href="#test">test environment</a> instantiates two pcieVHost modules back-to-back,
+and calls these API functions from the two test programs to do just this.
+</p>
+<p>
+To go from a 'Detect' state to 'L0' state, the users program must call <tt>InitLink()</tt>. In
+addition to the <tt>node</tt> argument (common to all API functions) a <tt>linkwidth</tt> argument is
+required. This is not left to a default value, as it is essential that the training sequence
+matches the actual linkwidth that exists on the pcieVHost that the program making the call
+is running from. Other parameters can be set separately with <tt>ConfigurePcie()</tt>
+(see <a href="#Config">Model Initialisation and Configuration</a> section),
+which can be left to default values if required, or configured to different settings. 
+<tt>CONFIG_LTSSM_LINKNUM</tt> defaults to 0, which
+is a likely scenario, but this can be updated to be between 0 and 255. The number of fast training sequences
+set with <tt>CONFIG_LTSSM_N_FTS</tt>, defaults to 255, and has the same range as the link number. The five
+bit training sequence control field, for hot resets, loopbacks scrambling control etc., can be set 
+via <tt>CONFIG_LTSSM_TS_CTL</tt>. The LTSSM function has abbreviated sequences, due to the time required for
+some steps (e.g. 24ms). The detect state timeout can be updated with <tt>CONFIG_LTSSM_DETECT_QUIET_TO</tt>. Its
+units are in clock cycles.
+</p>
+<p>
+The <tt>CONFIG_LTSSM_ENABLE_TESTS</tt> and <tt>CONFIG_LTSSM_FORCE_TESTS</tt> configuration types
+control certain useful test behaviours of the LTSSM. The difference between the enable and force 
+configurations is that the enable will only do the behaviour on average once in every three iterations, 
+whereas a force enables the feature constantly, and thus overrides any equivalent enable setting. 
+The configuration settings are a bit mask, with supported values as listed below:
+</p>
+
+<ul>
+  <li><tt>ENABLE_DISABLE</tt>
+  <li><tt>ENABLE_COMPLIANCE</tt>
+  <li><tt>ENABLE_LOOPBACK</tt>
+</ul>
+
+<p>
+The <tt>ENABLE_DISABLE</tt> setting enables/forces going to the 'Disabled' state from 
+configuration start. The <tt>ENABLE_COMPLIANCE</tt> bit forces/enables going to
+polling compliance when entering polling state, instead of polling active. Finally,
+<tt>ENABLE_LOOPBACK</tt> force/enables going to 'Loopback' state from configurations
+start. Use of these controls is at the discretion of the user, as setting them interrupts
+the transition from 'Detect' to 'L0' states.
+</p>
+<p>
+Once a link has been trained, and reached state L0, the initialisation of flow control values
+over the link can be set with a call to <tt>InitFc()</tt>. The values advertised are configured
+via <tt>ConfigurePcie()</tt>, with relevant types <tt>CONFIG_&lt;type&gt;_HDR_CR</tt> and 
+<tt>CONFIG_&lt;type&gt;_DATA_CR</tt>, with <tt>&lt;type&gt;</tt> being one of <tt>POST</tt>,
+<tt>NONPOST</tt> or <tt>CPL</tt>.
+</p>
+
 <a name="AuxFunc"></a>
 <h3>Auxiliary Functions</h3>
 <p>
@@ -696,7 +753,7 @@ uninitialised memory blocks.
 </p>
 
 <a name="Config"></a>
-<h3>Initialisation and Configuration</h3>
+<h3>Model Initialisation and Configuration</h3>
 <p>
 A single function provides all the initialistion required by the model.
 <tt>InitilisePcie()</tt> <em>must</em> be called from the user code before any other API 
@@ -738,7 +795,15 @@ A list of valid types, and whether requiring a value, is given below.
  <tr><td><tt>CONFIG_CPL_DATA_CR</tt>&dagger;</td>     <td align=center>yes</td> <td>credits</td> <td>Initial advertised non-posted data credits (default &infin;)</td></tr>
  <tr><td><tt>CONFIG_CPL_DELAY_RATE</tt>&dagger;</td>  <td align=center>yes</td> <td>cycles</td><td>Auto completion delay rate (default 0)</td></tr>
  <tr><td><tt>CONFIG_CPL_DELAY_SPREAD</tt>&dagger;</td><td align=center>yes</td> <td>cycles</td><td>Auto completion delay randomised spread (default 0)</td></tr>
- <tr><td colspan=4>&dagger; Call immediately after <tt style="font-size:8pt;">InitialisePcie()</tt> to take effect from time 0</td></tr>
+ <tr><td><tt>CONFIG_LTSSM_LINKNUM</tt>&dagger;&dagger;</td><td align=center>yes</td> <td>integer</td><td>Training sequence advertised link number (default 0)</td></tr>
+ <tr><td><tt>CONFIG_LTSSM_N_FTS</tt>&dagger;&dagger;</td><td align=center>yes</td> <td>integer</td><td>Training sequence number of fast training seqences (default 255)</td></tr>
+ <tr><td><tt>CONFIG_LTSSM_TS_CTL</tt>&dagger;&dagger;</td><td align=center>yes</td> <td>integer</td><td>Five bit TS control field (default 0)</td></tr>
+ <tr><td><tt>CONFIG_LTSSM_DETECT_QUIET_TO</tt>&dagger;&dagger;</td><td align=center>yes</td> <td>cyles</td><td> Detect quite timeout</td></tr>
+ <tr><td><tt>CONFIG_LTSSM_ENABLE_TESTS</tt>&dagger;&dagger;</td><td align=center>yes</td> <td>bit mask</td><td>Enable LTSSM test exceptions (default 0)</td></tr>
+ <tr><td><tt>CONFIG_LTSSM_FORCE_TESTS</tt>&dagger;&dagger;</td><td align=center>yes</td> <td>bit mask</td><td>Force LTSSM test exceptions (default 0)</td></tr>
+ <tr><td colspan=4>&dagger; Call immediately after <tt style="font-size:8pt;">InitialisePcie()</tt> to take effect from time 0<br>
+                   &dagger;&dagger; Call before calling <tt style="font-size:8pt;">InitLink()</tt> to take effect in training sequences. 
+		                    (see  <a href="#Training">Link Training</a> section.)</td></tr>
 </table>
 
 <a name="UsrProgStruct"></a>
@@ -757,7 +822,7 @@ outline of a basic VUserMain program for the model:
     
     #define RST_DEASSERT_INT 4
     
-    static int node = 0;
+    static int node               = 0;
     static unsigned int Interrupt = 0;
     
     static int ResetDeasserted(void)
@@ -765,10 +830,8 @@ outline of a basic VUserMain program for the model:
         Interrupt |= RST_DEASSERT_INT;
     }
     
-    static void VUserInput(pPkt_t pkt, int pkt_status) 
+    static void VUserInput(pPkt_t pkt, int status, void* usrptr) 
     {
-        pPktData_t payload = GET_TLP_PAYLOAD_PTR(pkt->data);
-
         /* ---- User processing of received packets here ---- */ 
 
         DISCARD_PACKET(pkt);
@@ -776,25 +839,23 @@ outline of a basic VUserMain program for the model:
     
     void VUserMain0() 
     {
-        int idx;
-        PktData_t buff[MAX_PAYLOAD_BYTES];      // Tx data Buffer
-        uint64 addr;                            // Memory request address
-    
         VRegInterrupt(RST_DEASSERT_INT, ResetDeasserted, node);
         InitialisePcie(VUserInput, node);
     
         do
-            SendOs(SKP, node);
+        {
+            SendOs(IDL, node);
+        }
         while (!Interrupt);
+
         Interrupt &= ~RST_DEASSERT_INT;
-    
-        SendOs(SKP, node);
-        TxFcInit(node);
+
+	InitLink(16, node);
+        InitFc(node);
 
         /* ---- User calls to packet generation functions here ---- */
     
-        for (idx = 0; idx < 10; idx ++)
-            SendIdle(1, node);
+        SendIdle(100, node);
         
         VWrite(PVH_FINISH, 0, 0, node);
     }
@@ -806,10 +867,12 @@ to <tt>VRegInterrupt()</tt> connects the callback function <tt>ResetDeasserted()
 reset interrupt so that we can wait until after reset is removed, whilst the <tt>InitialisePcie()</tt>
 sets up the model for this node and registers <tt>VUserInput()</tt> as the callback for
 unhandled packets. With no link training startup code, the program simply
-outputs <tt>SKIP</tt> ordered sets (<tt>SendOs()</tt>) until reset is deasserted, and then one
-more to ensure scrambler synchronisation at the other and of the link and
-with the PcieDispLink modules. Flow control initialisation is instigated 
-with <tt>TxFcInit()</tt>, and then the model is ready to go. 
+outputs <tt>IDL</tt> ordered sets (<tt>SendOs()</tt>) until reset is deasserted.
+A link initialisation is instifated with a call to <tt>InitLink()</tt>, followed by
+Flow control initialisation with <tt>InitFc()</tt>, and then the model is ready to go. 
+If either link initialiasation or configuration needs non-conformant sequences, or
+different values for testing, etc., the the calls to these functions can be skipped,
+and replaced with user code to output different patterns as required.
 </p><p>
 At this point other user functions may be called to implement behaviour, or 
 the user code simply inserted directly into <tt>VUserMain()</tt>. At its simplest, 
@@ -894,7 +957,7 @@ and proper resynchronisation should be employed.
 <pre style="font-size:8pt">
     void SendIdle (int Ticks, int node);
     void SendOs   (int Type, int node);
-    void SendTs   (int identifier, int lane_num, int link_num, int n_fts, int control, int node, bool is_gen2);
+    void SendTs   (int identifier, int lane_num, int link_num, int n_fts, int control, bool is_gen2, int node);
 </pre>
 
 <h4>Low Level Input</h4>
@@ -902,6 +965,12 @@ and proper resynchronisation should be employed.
     int  ResetEventCount (int type, int node);
     int  ReadEventCount  (int type, uint32 *ts_data, int node);
     TS_t GetTS           (int lane, int node);
+</pre>
+
+<h4>Link Training</h4>
+<pre style="font-size:8pt">
+    void InitLink       (int linkwidth, int node);
+    void InitFc         (int node);
 </pre>
 
 <h4>Miscellaneous Functions</h4>
@@ -966,8 +1035,7 @@ through the source code.
  <tr><td><tt style="font-size:8pt">InitPcieState()</tt></td>        <td>Initialises internal model state to defaults. Called from InitialisePcie()</td></tr>
  <tr><td><tt style="font-size:8pt">CalcNewRand()</tt></td>          <td>Platform independent random number function.</td></tr>
  <tr><td><tt style="font-size:8pt">CheckFree()</tt></td>            <td>stdlib free() function with pre-checking for NULL</td></tr>
- <tr><td><tt style="font-size:8pt">TxFcInit()</tt></td>             <td>Instigates transmission of FC initialisation packets (used in conjunction with RxFcInit())</td></tr>
- <tr><td><tt style="font-size:8pt">RxFcInit()</tt></td>             <td>Processes received FC initialisation packets (used in conjunction with TxFcInit())
+ <tr><td><tt style="font-size:8pt">InitFc()</tt></td>               <td>Instigates transmission of FC initialisation packets</td></tr>
 </table>
 
 <a name="IntMem"></a>

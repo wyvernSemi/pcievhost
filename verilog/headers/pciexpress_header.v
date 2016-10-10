@@ -19,10 +19,13 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: pciexpress_header.v,v 1.2 2016/10/07 08:35:06 simon Exp $
+// $Id: pciexpress_header.v,v 1.3 2016/10/10 11:49:43 simon Exp $
 // $Source: /home/simon/CVS/src/HDL/pcieVHost/verilog/headers/pciexpress_header.v,v $
 //
 //=============================================================
+
+`ifndef _PCIEXPRESS_HEADER_V_
+`define _PCIEXPRESS_HEADER_V_
 
 ///////////////////////////////
 // Physical layer definitions
@@ -64,6 +67,7 @@
 `define TSX_LNKCTRL_DISABLE_MASK    8'b00000010
 `define TSX_LNKCTRL_LOOPBACK_MASK   8'b00000100
 `define TSX_LNKCTRL_NOSCRAMBLE_MASK 8'b00001000
+`define TSX_LNKCTRL_COMPL_RX_MASK   8'b00010000
 
 // Training sequence ordered set data rate values
 `define TSX_DATARATE_GEN1           8'h02
@@ -224,3 +228,4 @@
 `define TXN_2_12_2                  34
 `define TXN_2_21_8                  35
 
+`endif

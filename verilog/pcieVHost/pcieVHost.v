@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: pcieVHost.v,v 1.1 2016-10-04 15:47:38 simon Exp $
+// $Id: pcieVHost.v,v 1.2 2016/10/10 11:52:47 simon Exp $
 // $Source: /home/simon/CVS/src/HDL/pcieVHost/verilog/pcieVHost/pcieVHost.v,v $
 //
 //=============================================================
@@ -84,7 +84,9 @@ wire  [31:0] EP        = EndPoint;
 wire         Update;
 wire   [9:0] In [0:15];
 
+ // --------------------------------
  // Virtual Processor
+ // --------------------------------
  VProc vp (.Clk            (Clk), 
            .Addr           (Addr), 
            .WE             (WE), 
@@ -160,29 +162,27 @@ begin
             DataIn = {15'h0000, ~notReset};
         end
 
-
         `LINK_STATE:  
         begin
             if (WE === 1'b1) 
                 ElecIdleOut = DataOut[15:0] ;  
             DataIn = {RxDetect, ElecIdleIn};
         end
+
         `PVH_INVERT:  
         begin
             if (WE === 1'b1) 
                 {ReverseOut, ReverseIn, InvertOut, InvertIn} = DataOut[3:0] ;  
             DataIn = {28'h0000000, ReverseOut, ReverseIn, InvertOut, InvertIn}; 
         end
-`ifdef VCS
-        `PVH_SAVE:    if (WE === 1'b1) $save("simv.snapshot");
-`endif
+
         `PVH_STOP:    if (WE === 1'b1) $stop;
         `PVH_FINISH:  if (WE === 1'b1) $finish;
-        `PVH_DEAF:    if (WE === 1'b1) `deaf
+        `PVH_FATAL:   if (WE === 1'b1) `fatal
         default:
         begin
             $display("%m: ***Error. PcieVhost---access to invalid address (%h) from VProc", Addr);
-            `deaf
+            `fatal
         end
         endcase
     end

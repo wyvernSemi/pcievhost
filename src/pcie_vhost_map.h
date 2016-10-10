@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: pcie_vhost_map.h,v 1.1 2016/10/04 15:47:33 simon Exp $
+// $Id: pcie_vhost_map.h,v 1.2 2016/10/10 11:46:51 simon Exp $
 // $Source: /home/simon/CVS/src/HDL/pcieVHost/src/pcie_vhost_map.h,v $
 //
 //=============================================================
@@ -53,8 +53,7 @@
 #define LINK_STATE      205
 #define RESET_STATE     206
 
-#define PVH_SAVE        0xfffffffc
 #define PVH_STOP        0xfffffffd
 #define PVH_FINISH      0xfffffffe
-#define PVH_DEAF        0xffffffff 
+#define PVH_FATAL       0xffffffff 
 

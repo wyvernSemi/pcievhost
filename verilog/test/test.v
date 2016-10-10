@@ -19,29 +19,18 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: test.v,v 1.2 2016/10/07 08:35:51 simon Exp $
+// $Id: test.v,v 1.3 2016/10/10 11:55:14 simon Exp $
 // $Source: /home/simon/CVS/src/HDL/pcieVHost/verilog/test/test.v,v $
 //
 //=============================================================
 
 `WsTimeScale
 
-`define ClkPeriod 2000
-`define StopCount 300000000
-
-`ifndef PCIE_NUM_PHY_LANES
-`define PCIE_NUM_PHY_LANES 16
-`endif
-
-`ifndef VPCIE_NODE_NUM
-`define VPCIE_NODE_NUM      0
-`endif
-
 //-------------------------------------------------------------
 //-------------------------------------------------------------
 module test;
 
-reg Clk;
+reg     Clk;
 integer Count;
 
 wire #`RegDel notReset = (Count > 10);
@@ -72,8 +61,8 @@ wire [`DispDataOutBits] DispDataOut;
 wire [`DispBits]        DispVal;
 
 wire [31:0] LinkWidth            = `PCIE_NUM_PHY_LANES;
-wire [31:0] NodeNumDown          = `VPCIE_NODE_NUM;
-wire [31:0] NodeNumUp            = `VPCIE_NODE_NUM+1;
+wire [31:0] NodeNumDown          = `VPCIE_HOST_NODE_NUM;
+wire [31:0] NodeNumUp            = `VPCIE_EP_NODE_NUM;
 
 wire        DisableScrambleDown  = 1'b0;
 wire        DisableScrambleUp    = 1'b0;
@@ -111,7 +100,7 @@ wire [15:0] InvertTxPolarityUp   = 16'h0000;
 
 
  // Host
- PcieVhost #(`PCIE_NUM_PHY_LANES, `VPCIE_NODE_NUM, 0) 
+ PcieVhost #(`PCIE_NUM_PHY_LANES, `VPCIE_HOST_NODE_NUM, 0) 
                                       host (.Clk              (Clk), 
                                             .notReset         (notReset),
 
@@ -151,7 +140,7 @@ wire [15:0] InvertTxPolarityUp   = 16'h0000;
                                             );
 
  // Endpoint
- PcieVhost #(`PCIE_NUM_PHY_LANES, `VPCIE_NODE_NUM+1, 1) 
+ PcieVhost #(`PCIE_NUM_PHY_LANES, `VPCIE_EP_NODE_NUM, 1) 
                                       ep   (.Clk              (Clk), 
                                             .notReset         (notReset),
 
@@ -199,22 +188,25 @@ begin
     
     #0                  // Ensure first x->1 clock edge is complete before initialisation
     Count = 0;
-    forever # (`ClkPeriod/2) Clk = ~Clk;
+    forever # (`CLK_PERIOD/2) Clk = ~Clk;
 end
 
 always @(posedge Clk)
 begin
     Count = Count + 1;
-    if (Count == `StopCount)
+    if (Count == `TIMEOUT_COUNT)
     begin
-        $stop;
+        `fatal
     end
 end
 
-task DispEverythingAndFinish;
+// Top level fatal task, which can be called from anywhere in verilog code.
+// via the `fatal definition in pciedispheader.v. Any data logging, error 
+// message displays etc., on a fatal, should be placed in here.
+task Fatal;
 begin
-    $display("***Deafed!");
-    $stop;
+    $display("***FATAL ERROR...calling $finish!");
+    $finish;
 end
 endtask
 endmodule

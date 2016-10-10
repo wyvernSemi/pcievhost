@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: codec.c,v 1.2 2016/10/07 08:33:38 simon Exp $
+// $Id: codec.c,v 1.4 2016/10/10 13:07:51 simon Exp $
 // $Source: /home/simon/CVS/src/HDL/pcieVHost/src/codec.c,v $
 //
 //=============================================================
@@ -29,6 +29,8 @@
 // -------------------------------------------------------------------------
 
 #include "codec.h"
+#include "pci_express.h"
+#include "pcie_vhost_map.h"
 
 // -------------------------------------------------------------------------
 // STATICS
@@ -392,7 +394,7 @@ void InitCodec (const int node)
     if ((this = malloc(sizeof(CodecState_t))) == NULL)
     {
         VPrint( "InitCodec: ***Error --- memory allocation failed at node %d\n", node);
-        VWrite(PVH_DEAF, 0, 0, node);
+        VWrite(PVH_FATAL, 0, 0, node);
     }
 
     for (idx = 0; idx < MAX_LINK_WIDTH; idx++)

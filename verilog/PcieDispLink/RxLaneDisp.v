@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: RxLaneDisp.v,v 1.1 2016/10/04 15:47:35 simon Exp $
+// $Id: RxLaneDisp.v,v 1.2 2016/10/10 11:48:03 simon Exp $
 // $Source: /home/simon/CVS/src/HDL/pcieVHost/verilog/PcieDispLink/RxLaneDisp.v,v $
 //
 //=============================================================
@@ -28,7 +28,6 @@
 // A PCI-Express Physical (logical) layer Rx lane
 // See Base Specification Revision 1.0a section 4.2
 //=============================================================
-
 
 `WsTimeScale
 
@@ -142,12 +141,4 @@ begin
     OutByteRaw  <= #`RegDel DecodeByte;
 end
 
-`ifdef TEST_HARNESS
-task DispState;
-begin
-    $display("RxByte=%h OutByteSc=%h",
-              OutByteRaw, OutByteSc);
-end
-endtask
-`endif
 endmodule

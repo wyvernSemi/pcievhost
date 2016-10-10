@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: Decoder.v,v 1.1 2016/10/04 15:47:37 simon Exp $
+// $Id: Decoder.v,v 1.2 2016/10/10 11:51:57 simon Exp $
 // $Source: /home/simon/CVS/src/HDL/pcieVHost/verilog/lib/Decoder.v,v $
 //
 //=============================================================
@@ -98,14 +98,5 @@ begin
     Output  <= #`RegDel OutputRaw;
     Control <= #`RegDel ControlRaw;
 end
-
-`ifdef TEST_HARNESS
-task DispState;
-begin
-   $display("InVal=%h Output=%h InvertMask5=%b InvertMask3=%b",
-             InVal, Output, InvertMask5, InvertMask3);
-end
-endtask
-`endif
 
 endmodule

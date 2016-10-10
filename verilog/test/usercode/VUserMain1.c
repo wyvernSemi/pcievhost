@@ -19,13 +19,13 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: VUserMain1.c,v 1.2 2016/10/07 08:39:55 simon Exp $
+// $Id: VUserMain1.c,v 1.3 2016/10/10 11:56:07 simon Exp $
 // $Source: /home/simon/CVS/src/HDL/pcieVHost/verilog/test/usercode/VUserMain1.c,v $
 //
 //=============================================================
 
 //=============================================================
-// VUserMain9.c
+// VUserMain1.c
 //=============================================================
 
 #include <stdio.h>
@@ -34,62 +34,89 @@
 
 #define RST_DEASSERT_INT 4
 
-static int node = 1;
-
+static int          node      = 1;
 static unsigned int Interrupt = 0;
 
-int ResetDeasserted_1(void)
+//-------------------------------------------------------------
+// ResetDeasserted()
+//
+// ISR for reset de-assertion. Clears interrupts state.
+//
+//-------------------------------------------------------------
+
+static int ResetDeasserted(void)
 {
     Interrupt |= RST_DEASSERT_INT;
 }
 
-void VUserInput_1(pPkt_t pkt, int status, void* usrptr) 
+//-------------------------------------------------------------
+// VUserInput_1()
+//
+// Consumes the unhandled input Packets
+//-------------------------------------------------------------
+
+static void VUserInput_1(pPkt_t pkt, int status, void* usrptr) 
 {
-    if (pkt->seq == DLLP_SEQ_ID)
+    int idx;
+
+    if (pkt->seq == DLLP_SEQ_ID) 
     {
         VPrint("---> VUserInput_1 received DLLP\n");
-        free(pkt->data);
-        free(pkt);
     }
     else
     {
-        VPrint("---> VUserInput_1 received TLP sequence %d\n", pkt->seq);
-        free(pkt->data);
-        free(pkt);
+        VPrint("---> VUserInput_1 received TLP sequence %d of %d bytes at %d\n", pkt->seq, GET_TLP_LENGTH(pkt->data), pkt->TimeStamp);
     }
+
+    // Once packet is finished with, the allocated space *must* be freed.
+    // All input packets have their own memory space to avoid overwrites
+    // which shared buffers.
+    DISCARD_PACKET(pkt);
 }
+
+//-------------------------------------------------------------
+// VUserMain1()
+//
+// Endpoint complement to VUserMain0. Initialises link and FC
+// before sending idles indefinitely.
+//
+//-------------------------------------------------------------
 
 void VUserMain1() 
 {
-    int idx;
-    PktData_t buff[4096];
-    PktData_t *pkt_p, *data_p;
-    sPkt_t packet;
-    int seq = 0, rid = 1, tag = 0;
-    int tmp, i;
 
-    uint64 addr;
-
+    // Initialise PCIe VHost, with input callback function and no user pointer.
     InitialisePcie(VUserInput_1, NULL, node);
+
+    // Make sure the link is out of electrical idle
     VWrite(LINK_STATE, 0, 0, node);
 
     VPrint("VUserMain: in node %d\n", node);
 
-    VRegInterrupt(RST_DEASSERT_INT, ResetDeasserted_1, node);
+    VRegInterrupt(RST_DEASSERT_INT, ResetDeasserted, node);
 
+    // Use node number as seed
+    PcieSeed(node, node);
+
+    // Send out idles until we recieve an interrupt
     do
     {
-        SendOs(SKP, node);
-    } while (!Interrupt);
+        SendOs(IDL, node);
+    }
+    while (!Interrupt);
 
     Interrupt &= ~RST_DEASSERT_INT;
 
-    // Send at least one SKIP ordered set after reset deasserted
-    // to ensure scrambler is synchronised
-    SendOs(SKP, node);
-   
-    for (i = 0; i < 0x7fffffff; i++)
+    // Initialise the link for 16 lanes
+    InitLink(16, node);
+
+    // Initialise flow control
+    InitFc(node);
+
+    // Send out idels forever
+    while (true)
     {
-        SendIdle(1, node);
+        SendIdle(100, node);
     }
 }
+    

@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 #
-# $Id: makefile,v 1.2 2016-10-07 14:40:10 simon Exp $
+# $Id: makefile,v 1.3 2016/10/10 11:39:54 simon Exp $
 # $Source: /home/simon/CVS/src/HDL/pcieVHost/lib/makefile,v $
 #
 ###################################################################
@@ -28,8 +28,9 @@ SRCDIR    = ../src
 OBJDIR    = obj
 VPROC_TOP = ../../VProc
 
-C_FILES = codec.c mem.c pcie.c pcie_utils.c pcicrc32.c veriuser.c
-CFLAGS  = -c -m32 -I${MODELSIM}/include -I ${VPROC_TOP}/code -DMODELSIM
+C_FILES = codec.c mem.c pcie.c pcie_utils.c pcicrc32.c ltssm.c veriuser.c
+CFLAGS  = -c -m32 -I${MODELSIM}/include -I ${VPROC_TOP}/code -DMODELSIM -DLTSSM_ABBREVIATED 
+
 CC      = gcc
 
 LIB     = libpcievhost.a

@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: pci_express.h,v 1.2 2016/10/07 08:33:39 simon Exp $
+// $Id: pci_express.h,v 1.4 2016/10/10 13:08:54 simon Exp $
 // $Source: /home/simon/CVS/src/HDL/pcieVHost/src/pci_express.h,v $
 //
 //=============================================================
@@ -64,7 +64,8 @@
 #define TS_CNTL_DISABLE_LINK       0x02
 #define TS_CNTL_LOOPBACK           0x04
 #define TS_CNTL_NO_SCRAMBLING      0x08 
-#define TS_CNTL_MAX_VALUE          0x0f
+#define TS_CNTL_COMPLIANCE_RX      0x10 
+#define TS_CNTL_MAX_VALUE          0x1f
 #define TS_N_FTS_MAX_VALUE         0xff
 #define TS_LINK_NUM_MAX_VALUE      0xff
 
@@ -150,5 +151,8 @@
 #define FC_DATA_CREDIT_BYTES       16
 #define FC_INFINITE_CREDITS        0
 #define DEFAULT_FC_TIME            7500
+
+#define OS_LENGTH                  4
+#define TS_LENGTH                  16
 
 #endif

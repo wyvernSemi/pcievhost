@@ -19,14 +19,13 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: pciedispheader.v,v 1.2 2016/10/05 08:41:16 simon Exp $
+// $Id: pciedispheader.v,v 1.3 2016/10/10 11:48:51 simon Exp $
 // $Source: /home/simon/CVS/src/HDL/pcieVHost/verilog/headers/pciedispheader.v,v $
 //
 //=============================================================
 
-//`define deaf begin $display("Everything has gone horribly wrong."); $finish; end
-
-`define deaf test.DispEverythingAndFinish;
+`ifndef _PCIEDISPHEADER_V_
+`define _PCIEDISPHEADER_V_
 
 // Disp Control
 `define DispAll             0
@@ -67,3 +66,5 @@
 
 `define LINEBREAK           22
 `define PADSTR              "..."
+
+`endif

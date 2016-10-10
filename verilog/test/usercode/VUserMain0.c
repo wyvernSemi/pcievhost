@@ -19,13 +19,13 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: VUserMain0.c,v 1.2 2016-10-07 08:38:00 simon Exp $
+// $Id: VUserMain0.c,v 1.3 2016/10/10 11:56:07 simon Exp $
 // $Source: /home/simon/CVS/src/HDL/pcieVHost/verilog/test/usercode/VUserMain0.c,v $
 //
 //=============================================================
 
 //=============================================================
-// VUserMain8.c
+// VUserMain0.c
 //=============================================================
 
 #include <stdio.h>
@@ -34,8 +34,7 @@
 
 #define RST_DEASSERT_INT 4
 
-static int node = 0;
-
+static int          node      = 0;
 static unsigned int Interrupt = 0;
 
 //-------------------------------------------------------------
@@ -45,7 +44,7 @@ static unsigned int Interrupt = 0;
 //
 //-------------------------------------------------------------
 
-int ResetDeasserted(void)
+static int ResetDeasserted(void)
 {
     Interrupt |= RST_DEASSERT_INT;
 }
@@ -56,7 +55,7 @@ int ResetDeasserted(void)
 // Consumes the unhandled input Packets
 //-------------------------------------------------------------
 
-void VUserInput_0(pPkt_t pkt, int status, void* usrptr) 
+static void VUserInput_0(pPkt_t pkt, int status, void* usrptr) 
 {
     int idx;
 
@@ -70,13 +69,13 @@ void VUserInput_0(pPkt_t pkt, int status, void* usrptr)
     {
         VPrint("---> VUserInput_0 received TLP sequence %d of %d bytes at %d\n", pkt->seq, GET_TLP_LENGTH(pkt->data), pkt->TimeStamp);
 
-	// If a complation, extract the TPL payload data and display
+        // If a completion, extract the TPL payload data and display
         if (pkt->ByteCount)
         {
-	    // Get a pointer to the start of the payload data
+            // Get a pointer to the start of the payload data
             pPktData_t payload = GET_TLP_PAYLOAD_PTR(pkt->data);
 
-	    // Display the data
+            // Display the data
             VPrint("---> ");
             for (idx = 0; idx < pkt->ByteCount; idx++)
             {
@@ -93,9 +92,9 @@ void VUserInput_0(pPkt_t pkt, int status, void* usrptr)
             }
         }
 
-	// Once packet is finished with, the allocated space *must* be freed.
+        // Once packet is finished with, the allocated space *must* be freed.
         // All input packets have their own memory space to avoid overwrites
-	// which shared buffers.
+        // which shared buffers.
         DISCARD_PACKET(pkt);
     }
 }
@@ -114,50 +113,44 @@ void VUserMain0()
 {
     int idx;
     PktData_t buff[4096];
-    PktData_t *pkt_p, *data_p;
-    sPkt_t packet;
-    int seq = 0, rid = 1, tag = 0;
-    int tmp, i;
+    int rid = 1, tag = 0;
+    int i;
 
     uint64 addr;
 
+    // Initialise PCIe VHost, with input callback function and no user pointer.
     InitialisePcie(VUserInput_0, NULL, node);
+
+    // Make sure the link is out of electrical idle
     VWrite(LINK_STATE, 0, 0, node);
+
     ConfigurePcie(CONFIG_ENABLE_SKIPS, 20000, node);
 
     VPrint("VUserMain: in node %d\n", node);
 
     VRegInterrupt(RST_DEASSERT_INT, ResetDeasserted, node);
 
+    // Use node number as seed
+    PcieSeed(node, node);
+
+    // Send out idles until we recieve an interrupt
     do
     {
-        SendOs(SKP, node);
+        SendOs(IDL, node);
     }
     while (!Interrupt);
 
     Interrupt &= ~RST_DEASSERT_INT;
 
-    // Send at least one SKIP ordered set after reset deasserted
-    // to ensure scrambler is synchronised
-    SendOs(SKP, node);
-    SendOs(IDL, node);
-    SendOs(FTS, node);
+    // Initialise the link for 16 lanes
+    InitLink(16, node);
 
+    // Initialise flow control
+    InitFc(node);
+
+    // Send out various example transactions for a bit
     for (i = 0; i < 10; i++)
     {
-        // Send out flow controls types that won't be auto-generated in this test,
-        // one at a time
-        switch(i)
-        {
-        case 0: SendFC(DL_INITFC1_P,    0,  0,  0, SEND, node); break;
-        case 1: SendFC(DL_INITFC1_NP,   0, 16, 16, SEND, node); break;
-        case 2: SendFC(DL_INITFC1_CPL,  0,  1,  1, SEND, node); break;
-        case 3: SendFC(DL_INITFC2_P,    0,  0,  0, SEND, node); break;
-        case 4: SendFC(DL_INITFC2_NP,   0, 16, 16, SEND, node); break;
-        case 5: SendFC(DL_INITFC2_CPL,  0,  1,  1, SEND, node); break;
-        case 6: SendFC(DL_UPDATEFC_CPL, 0,  1,  1, SEND, node); break;
-        }
-    
         // These are *expected* to generate warnings by node 1 pcieVHost, but
         // will be displayed by PcieDispLink
         SendPM(DL_PM_ENTER_L1,  SEND, node);
@@ -174,11 +167,11 @@ void VUserMain0()
         buff[2] = 0x70;
         MemWrite (0x12345679, buff, 3, 0, rid, SEND, node);
     
-        VPrint("VUserMain: sent mem write (next seq = %d) from node %d\n", seq, node);
+        DebugVPrint("VUserMain0: sent mem write from node %d\n", node);
     
         MemRead (0x12345679, 1, tag++, rid, SEND, node);
     
-        VPrint("VUserMain: sent mem read (next seq = %d) from node %d\n", seq, node);
+        DebugVPrint("VUserMain0: sent mem read from node %d\n", node);
     
         //---------------------------------------------
     
@@ -188,6 +181,8 @@ void VUserMain0()
         }
         MemWrite (0xa0000001ULL, buff, 256, 0, rid, SEND, node);
     
+        //---------------------------------------------
+    
         buff[0] = 0x55;
         buff[1] = 0xaa;
         buff[2] = 0xf0;
@@ -196,10 +191,14 @@ void VUserMain0()
     
         CfgRead (0x31, 1, tag++, rid, SEND, node);
     
+        //---------------------------------------------
+    
         buff[0] = 0x69;
         IoWrite (0x92658659, buff, 1, tag++, rid, SEND, node);
         IoRead  (0x92658659, 2, tag++, rid, SEND, node);
 
+        //---------------------------------------------
+    
         Message (MSG_ASSERT_INTA,   NULL, 0, 0, rid, SEND, node);
         Message (MSG_ASSERT_INTB,   NULL, 0, 0, rid, SEND, node);
         Message (MSG_ASSERT_INTC,   NULL, 0, 0, rid, SEND, node);
@@ -222,14 +221,12 @@ void VUserMain0()
         buff[2] = 0x73;
         buff[3] = 0x45;
         Message (MSG_SET_PWR_LIMIT, buff, 4, tag++, rid, SEND, node);
-    
-    
-        SendTs(TS1_ID, PAD, PAD, 255, 0, node, false);
-        SendTs(TS2_ID, 0, 0, 255, 0xf, node, true); 
     }
 
+    // Go quiet for a while, before finishing
     SendIdle(100, node);
     
+    // Halt the simulation
     VWrite(PVH_FINISH, 0, 0, node);
     
 }

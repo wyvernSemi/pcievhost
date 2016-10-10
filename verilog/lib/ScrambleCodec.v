@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: ScrambleCodec.v,v 1.1 2016/10/04 15:47:37 simon Exp $
+// $Id: ScrambleCodec.v,v 1.2 2016/10/10 11:51:56 simon Exp $
 // $Source: /home/simon/CVS/src/HDL/pcieVHost/verilog/lib/ScrambleCodec.v,v $
 //
 //=============================================================
@@ -57,15 +57,6 @@ begin
     OutShift <= #`RegDel NextShift;
     XorWord  <= #`RegDel NextXorWord;
 end
-
-`ifdef TEST_HARNESS
-task DispState;
-begin
-   $display("OutShift=%h XorWord=%h MovePipe=%b, notResetPci=%b",
-             OutShift, XorWord, MovePipe, notResetPci);
-end
-endtask
-`endif
 
 endmodule
 

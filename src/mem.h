@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: mem.h,v 1.3 2016-10-07 13:58:45 simon Exp $
+// $Id: mem.h,v 1.4 2016/10/10 13:08:54 simon Exp $
 // $Source: /home/simon/CVS/src/HDL/pcieVHost/src/mem.h,v $
 //
 //=============================================================
@@ -33,7 +33,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "VProc.h"
 #include "VUser.h"
 
 // -------------------------------------------------------------------------
@@ -55,6 +54,9 @@ typedef struct {
     uint64 addr;
     bool   valid;
 } PrimaryTbl_t, *pPrimaryTbl_t;
+
+typedef uint16  PktData_t;
+typedef uint16* pPktData_t;
 
 // -------------------------------------------------------------------------
 // PROTOTYPES

@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: pcie_utils.h,v 1.2 2016/10/07 08:33:39 simon Exp $
+// $Id: pcie_utils.h,v 1.4 2016/10/10 13:08:54 simon Exp $
 // $Source: /home/simon/CVS/src/HDL/pcieVHost/src/pcie_utils.h,v $
 //
 //=============================================================
@@ -42,7 +42,31 @@
 // DEFINES
 // -------------------------------------------------------------------------
 
-#define MAX_DLLP_BYTES  9
+#define NUM_VIRTUAL_CHANNELS         1
+
+#define MAX_DLLP_BYTES               9
+
+#define BIT0MASK                     0x01
+#define BIT1MASK                     0x02
+#define BIT2MASK                     0x04
+#define BIT3MASK                     0x08
+#define BIT4MASK                     0x10
+#define BIT5MASK                     0x20
+#define BIT6MASK                     0x40
+#define BIT7MASK                     0x80
+
+#define USE_DEFAULT                  -1
+
+#define LO_NIBBLE_MASK               0x0f
+#define HI_NIBBLE_MASK               0xf0
+
+#define MASK_4K_BITS                 0xfffULL
+
+#define MAX_LINE_SIZE                1024
+#define MAX_BYTE_BLOCK               4096
+
+#define PENT_BASEADDR                0x0ULL
+
 
 // -------------------------------------------------------------------------
 // MACROS
@@ -217,6 +241,7 @@ typedef struct {
     FlowControl_t flwcntl;
 
     bool draining_queue;
+    bool tx_disabled;
 
 } PcieModelState_t, *pPcieModelState_t;
 

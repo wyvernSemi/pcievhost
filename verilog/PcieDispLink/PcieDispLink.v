@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: PcieDispLink.v,v 1.2 2016/10/05 08:40:57 simon Exp $
+// $Id: PcieDispLink.v,v 1.3 2016/10/10 11:47:17 simon Exp $
 // $Source: /home/simon/CVS/src/HDL/pcieVHost/verilog/PcieDispLink/PcieDispLink.v,v $
 //
 //=============================================================
@@ -858,8 +858,8 @@ begin
     endcase
     $display(" at time %0d", $time);
     firstProtErr = 0;
-`ifndef DISABLE_DEAF_ON_PCI_CHECKLIST
-    `deaf
+`ifndef DISABLE_FATAL_ON_PCI_CHECKLIST
+    `fatal
 `endif
 `endif
 end
@@ -938,7 +938,7 @@ begin
             if (CplSlot == `CmplSaveDepth)
             begin
                 $display("%m Ran out of free completion slots");
-                `deaf
+                `fatal
             end
         end
 

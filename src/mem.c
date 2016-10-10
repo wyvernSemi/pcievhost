@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: mem.c,v 1.3 2016-10-07 13:58:30 simon Exp $
+// $Id: mem.c,v 1.5 2016/10/10 13:09:13 simon Exp $
 // $Source: /home/simon/CVS/src/HDL/pcieVHost/src/mem.c,v $
 //
 //=============================================================
@@ -29,6 +29,7 @@
 // -------------------------------------------------------------------------
 
 #include "pcie.h"
+#include "pcie_vhost_map.h"
 
 // -------------------------------------------------------------------------
 // STATICS
@@ -146,7 +147,7 @@ void WriteRamByteBlock(const uint64 addr, const PktData_t *data, const int fbe, 
     if ((addr & ~TABLEMASK) != ((addr + length - 1) & ~TABLEMASK))
     {
         VPrint("WriteRamByteBlock: ***Error --- block write crosses 4K boundary (addr=0x%llx len=0x%x\n", addr, length);
-        VWrite(PVH_DEAF, 0, 0, node);
+        VWrite(PVH_FATAL, 0, 0, node);
     }
 
     // No primary table, so allocate some space for one and initialise
@@ -155,7 +156,7 @@ void WriteRamByteBlock(const uint64 addr, const PktData_t *data, const int fbe, 
         if ((PrimaryTable[node] = malloc(TABLESIZE * sizeof(PrimaryTbl_t))) == NULL)
         {
             VPrint("WriteRamByteBlock: ***Error --- failed to allocate primary table memory\n");
-            VWrite(PVH_DEAF, 0, 0, node);
+            VWrite(PVH_FATAL, 0, 0, node);
         }
         InitialisePrimaryTable(PrimaryTable[node]);
     }
@@ -169,7 +170,7 @@ void WriteRamByteBlock(const uint64 addr, const PktData_t *data, const int fbe, 
         if (pidx == idx)
         {
             VPrint("WriteRamByteBlock: ***Error --- ran out of primary table space\n");
-            VWrite(PVH_DEAF, 0, 0, node);
+            VWrite(PVH_FATAL, 0, 0, node);
         }
     }
 
@@ -187,7 +188,7 @@ void WriteRamByteBlock(const uint64 addr, const PktData_t *data, const int fbe, 
         if ((PrimaryTable[node][pidx].p = malloc(TABLESIZE * sizeof(uint32 *))) == NULL)
         {
             VPrint("WriteRamByteBlock: ***Error --- failed to allocate secondary table memory\n");
-            VWrite(PVH_DEAF, 0, 0, node);
+            VWrite(PVH_FATAL, 0, 0, node);
         }
         InitialiseTable(PrimaryTable[node][pidx].p);
     }
@@ -198,7 +199,7 @@ void WriteRamByteBlock(const uint64 addr, const PktData_t *data, const int fbe, 
         if (((PrimaryTable[node][pidx].p)[sidx] = malloc(TABLESIZE)) == NULL)
         {
             VPrint("WriteRamByteBlock: ***Error --- failed to allocate memory\n");
-            VWrite(PVH_DEAF, 0, 0, node);
+            VWrite(PVH_FATAL, 0, 0, node);
         }
     }
 
@@ -232,7 +233,7 @@ int ReadRamByteBlock(const uint64 addr, PktData_t *data, const int length, const
     if ((addr & ~TABLEMASK) != ((addr + length) & ~TABLEMASK))
     {
         VPrint("ReadRamByteBlock: ***Error --- block read crosses 4K boundary\n");
-        VWrite(PVH_DEAF, 0, 0, node);
+        VWrite(PVH_FATAL, 0, 0, node);
     }
 
     if (PrimaryTable[node] == NULL)
@@ -250,7 +251,7 @@ int ReadRamByteBlock(const uint64 addr, PktData_t *data, const int length, const
         if (pidx == idx)
         {
             VPrint("ReadRamByteBlock: ***Error --- address does not exist in primary table\n");
-            VWrite(PVH_DEAF, 0, 0, node);
+            VWrite(PVH_FATAL, 0, 0, node);
         }
     }
 
@@ -445,7 +446,7 @@ void WriteConfigSpaceBuf(const uint32 addr, const PktData_t *data, const int fbe
         if ((pCfgSpace = malloc(sizeof(char*) * VP_MAX_NODES)) == NULL)
         {
             VPrint("WriteConfigSpace: ***Error --- failed to allocate config space memory\n");
-            VWrite(PVH_DEAF, 0, 0, node);
+            VWrite(PVH_FATAL, 0, 0, node);
         }
         for (idx = 0; idx < VP_MAX_NODES; idx++)
         {
@@ -460,7 +461,7 @@ void WriteConfigSpaceBuf(const uint32 addr, const PktData_t *data, const int fbe
         if ((pCfgSpace[node] = calloc(TABLESIZE, 1)) == NULL)
         {
             VPrint("WriteConfigSpace: ***Error --- failed to allocate config space memory\n");
-            VWrite(PVH_DEAF, 0, 0, node);
+            VWrite(PVH_FATAL, 0, 0, node);
         }
     }
 
@@ -505,7 +506,7 @@ void ReadConfigSpaceBuf(const uint32 addr, PktData_t * const data, const int len
     if (pCfgSpace == NULL || pCfgSpace[node] == NULL)
     {
         VPrint("ReadConfigSpace: ***Error --- reading from uninitialised config space\n");
-        VWrite(PVH_DEAF, 0, 0, node);
+        VWrite(PVH_FATAL, 0, 0, node);
     }
 
     for (idx = 0; idx < len; idx++)

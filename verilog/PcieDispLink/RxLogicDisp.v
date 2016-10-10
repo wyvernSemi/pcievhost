@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: RxLogicDisp.v,v 1.1 2016/10/04 15:47:35 simon Exp $
+// $Id: RxLogicDisp.v,v 1.2 2016/10/10 11:48:16 simon Exp $
 // $Source: /home/simon/CVS/src/HDL/pcieVHost/verilog/PcieDispLink/RxLogicDisp.v,v $
 //
 //=============================================================
@@ -29,12 +29,7 @@
 // See Base Specification Revision 1.0a section 4.2
 //=============================================================
 
-
-`ifdef resol_10ps
-`timescale 1 ps / 10 ps
-`else
-`timescale 1 ps / 1 ps
-`endif
+`WsTimeScale
 
 module RxLogicDisp (Clk, notReset, DecodeCtrl, DecodeByte, OutByteRaw, 
                     LinkIn, Synced,
@@ -158,26 +153,13 @@ begin
 
 end
 
-`ifdef TESTHARNESS
 always @(posedge Clk)
 begin
     if (Synced && (BadRunLength || BadDisparity))
     begin
         $display ("****RxLogic had bad runlength/disparity error");
-        `deaf
+        `fatal
     end
 end
-`endif
-
-task DispState;
-begin
-    $display("CommaLast=%b RxControl=%b RxCommaReg=%b",
-              CommaLast,  RxControl, RxCommaReg);
-    $display("IdleSetCount=%h FtsSetCount=%h SkpSetCount=%h RxSkpLast=%b RxFtsLast=%b RxIdleLast=%b",
-              IdleSetCount, FtsSetCount, SkpSetCount, RxSkpLast, RxFtsLast, RxIdleLast);
-    $display("RxIdleLast=%b RxTrainingSeq=%b",
-              RxIdleLast, RxTrainingSeq);
-end
-endtask
 
 endmodule

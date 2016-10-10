@@ -1,4 +1,6 @@
 
+// Top level test header. Must define `fatal as a minimum, for use by sub-functions
+test_defs.v
 
 // Headers with definitions
 -f ../headers/headers.vc

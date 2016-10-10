@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: Crc16Gen.v,v 1.1 2016/10/04 15:47:36 simon Exp $
+// $Id: Crc16Gen.v,v 1.2 2016/10/10 11:51:57 simon Exp $
 // $Source: /home/simon/CVS/src/HDL/pcieVHost/verilog/lib/Crc16Gen.v,v $
 //
 //=============================================================
@@ -80,14 +80,6 @@ assign ShiftChain[13]  = ^(DtXorShift & 16'h1622);
 assign ShiftChain[14]  = ^(DtXorShift & 16'h2c44);
 assign ShiftChain[15]  = ^(DtXorShift & 16'h5888);
 
-`ifdef TEST_HARNESS
-task DispState;
-begin
-   $display("%m Crc=%h ShiftChain=%h, Data=%h",
-            Crc, ShiftChain, Data);
-end
-endtask
-`endif
 endmodule
 
 // 16 bit CRC for 32 bit wide input data
@@ -115,13 +107,6 @@ wire [15:0] ShiftChain;
                    .CombCrc    (Crc)
                    );
 
-`ifdef TEST_HARNESS
-task DispState;
-begin
-    crc0.DispState;
-    crc1.DispState;
-end
-`endif
 endtask
 
 

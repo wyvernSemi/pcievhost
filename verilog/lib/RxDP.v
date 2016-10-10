@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: RxDP.v,v 1.1 2016/10/04 15:47:37 simon Exp $
+// $Id: RxDP.v,v 1.2 2016/10/10 11:51:56 simon Exp $
 // $Source: /home/simon/CVS/src/HDL/pcieVHost/verilog/lib/RxDP.v,v $
 //
 //=============================================================
@@ -50,12 +50,4 @@ begin
     OutByteSc   <= #`RegDel DecodeByte ^ (NextScXor & {8{NextScramble}});
 end
 
-`ifdef TEST_HARNESS
-task DispState;
-begin
-    $display("RxByte=%h OutByteSc=%h",
-              OutByteRaw, OutByteSc);
-end
-endtask
-`endif
 endmodule

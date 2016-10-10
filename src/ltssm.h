@@ -19,24 +19,36 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: timescale.v,v 1.2 2016/10/10 11:51:02 simon Exp $
-// $Source: /home/simon/CVS/src/HDL/pcieVHost/verilog/headers/timescale.v,v $
+// $Id: ltssm.h,v 1.2 2016/10/10 13:08:55 simon Exp $
+// $Source: /home/simon/CVS/src/HDL/pcieVHost/src/ltssm.h,v $
 //
 //=============================================================
 
-`ifndef _TIMESCALE_V_
-`define _TIMESCALE_V_
+#ifndef _LTSSM_H_
+#define _LTSSM_H_
 
-`ifdef TIMESCALE_RESOL_10PS
-`define WsTimeScale `timescale 1 ps / 10 ps
-`else
-`define WsTimeScale `timescale 1 ps / 1 ps
-`endif
+#define LINK_INIT_NO_CHANGE  (-1)
 
-`ifndef RegDel
-`define RegDel             1
-`endif
+typedef struct
+{
+    int ltssm_linknum;
+    int ltssm_n_fts;
+    int ltssm_ts_ctl;
+    int ltssm_detect_quiet_to;
+    int ltssm_enable_tests;
+    int ltssm_force_tests;
 
-`define PcieVHostSampleDel 10
+} ConfigLinkInit_t;
 
-`endif
+#define INIT_CFG_LINK_STRUCT(_cfg) {                  \
+  (_cfg).ltssm_linknum         = LINK_INIT_NO_CHANGE; \
+  (_cfg).ltssm_n_fts           = LINK_INIT_NO_CHANGE; \
+  (_cfg).ltssm_ts_ctl          = LINK_INIT_NO_CHANGE; \
+  (_cfg).ltssm_detect_quiet_to = LINK_INIT_NO_CHANGE; \
+  (_cfg).ltssm_enable_tests    = LINK_INIT_NO_CHANGE; \
+  (_cfg).ltssm_force_tests     = LINK_INIT_NO_CHANGE; \
+}
+
+extern void ConfigLinkInit (const ConfigLinkInit_t cfg, const int node);
+
+#endif
