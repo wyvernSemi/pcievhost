@@ -114,7 +114,7 @@ leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
 <!--------------------------------------------------------------------------------------------------->
 <!--------------------------------------------------------------------------------------------------->
 
-<h1 align="center">PCIe Virtual Model Test Component</h1>
+<h1 align="center">PCIe Virtual Host Model Test Component</h1>
 <hr>
 <p>
 <h2>Contents</h2>
@@ -157,7 +157,7 @@ leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
 <h2>Summary</h2>
 
 <p >
-This model of a PCI Express host (with some endpoint features) is based on the Virtual 
+This model of a PCI Express host (or 'root complex'&mdash;with some endpoint features) is based on the Virtual 
 Processor (<a href="https://github.com/wyvernSemi/vproc">VProc</a>) model (see 
 <a href="http://www.anita-simulators.org.uk/wyvernsemi/VProc/index.html">VProc documentation</a>), 
 with a PCIe API sitting atop the VProc's PLI API.
@@ -214,6 +214,8 @@ The C source code files are:
  <li><b>pcie.c</b> : API code</li>
  <li><b>pcie_utils.h</b> : Support function header</li>
  <li><b>pcie_utils.c</b> : Support function code</li>
+ <li><b>ltssm.h</b> : LTSSM link training header</li>
+ <li><b>ltssm.c</b> : LTSSM link training code</li>
  <li><b>codec.h</b> : Header for encode/decoder and scrambler code</li>
  <li><b>codec.c</b> : Encoder/decoder source</li>
  <li><b>mem.h</b> : Local memory header</li>
