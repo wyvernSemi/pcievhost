@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: pcie.h,v 1.4 2016/10/10 13:08:54 simon Exp $
+// $Id: pcie.h,v 1.5 2016/10/17 11:47:02 simon Exp $
 // $Source: /home/simon/CVS/src/HDL/pcieVHost/src/pcie.h,v $
 //
 //=============================================================
@@ -57,8 +57,8 @@
 
 #define MAX_LINK_WIDTH               16
 
-#define QUEUE                        TRUE
-#define SEND                         FALSE
+#define QUEUE                        1
+#define SEND                         0
 
 #define LCRC_TERMINATION_LOOKAHEAD   5
 #define ECRC_TERMINATION_LOOKAHEAD   9
@@ -416,10 +416,10 @@ extern pPktData_t MemWrite             (const uint64 addr, const PktData_t *data
 extern pPktData_t MemRead              (const uint64 addr, const int length, const int tag, const uint32 rid, const bool queue, const int node);
 
 extern pPktData_t Completion           (const uint64 addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int length, 
-                                        const int tag, const uint32 cid, const uint32 rid, const int queue, const int node);
+                                        const int tag, const uint32 cid, const uint32 rid, const bool queue, const int node);
 
 extern pPktData_t PartCompletion       (const uint64 addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int rlength, 
-                                        const int length, const int tag, const uint32 cid, const uint32 rid, const int queue, const int node);
+                                        const int length, const int tag, const uint32 cid, const uint32 rid, const bool queue, const int node);
 
 extern pPktData_t CompletionDelay      (const uint64 addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int length, 
                                         const int tag, const uint32 cid, const uint32 rid, const int node);
@@ -452,21 +452,21 @@ extern pPktData_t CompletionDigest     (const uint64 addr, const PktData_t *data
                                         const int tag, const uint32 cid, const uint32 rid, const bool digest, const bool queue, const int node);
 
 extern pPktData_t PartCompletionDigest (const uint64 addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int rlength, 
-                                        const int length, const tag, const cid, const rid, const digest, const queue, const node);
+                                        const int length, const int tag , const uint32 cid, const uint32 rid, const bool digest, const bool queue, const int node);
 
-extern pPktData_t CfgWriteDigest       (const uint64 addr, const PktData_t *data, const int length, const int tag, const uint32 rid, const int digest,
-                                        const int queue, const int node);
+extern pPktData_t CfgWriteDigest       (const uint64 addr, const PktData_t *data, const int length, const int tag, const uint32 rid, const bool digest,
+                                        const bool queue, const int node);
 
 extern pPktData_t CfgReadDigest        (const uint64 addr, const int length, const int tag, const uint32 rid, const bool digest, const bool queue,
                                         const int node);
 
 extern pPktData_t IoWriteDigest        (const uint64 addr, const PktData_t *data, const int length, const int tag, const uint32 rid, const bool digest,
-                                        const int queue, const int node);
+                                        const bool queue, const int node);
 
-extern pPktData_t IoReadDigest         (const uint64 addr, const int length, const int tag, const uint32 rid, const int digest, const bool queue,
-                                        const bool node);
+extern pPktData_t IoReadDigest         (const uint64 addr, const int length, const int tag, const uint32 rid, const bool digest, const bool queue,
+                                        const int node);
 
-extern pPktData_t MessageDigest        (const int code, const PktData_t *data, const int length, const int tag, const uint32 rid, const int digest, 
+extern pPktData_t MessageDigest        (const int code, const PktData_t *data, const int length, const int tag, const uint32 rid, const bool digest, 
                                         const bool queue, const int node);
 
 

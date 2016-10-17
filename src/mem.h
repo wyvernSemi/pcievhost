@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: mem.h,v 1.4 2016/10/10 13:08:54 simon Exp $
+// $Id: mem.h,v 1.5 2016/10/17 11:41:00 simon Exp $
 // $Source: /home/simon/CVS/src/HDL/pcieVHost/src/mem.h,v $
 //
 //=============================================================
@@ -33,6 +33,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "VUser.h"
 
 // -------------------------------------------------------------------------

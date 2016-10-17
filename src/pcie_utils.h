@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: pcie_utils.h,v 1.4 2016/10/10 13:08:54 simon Exp $
+// $Id: pcie_utils.h,v 1.5 2016/10/17 11:47:01 simon Exp $
 // $Source: /home/simon/CVS/src/HDL/pcieVHost/src/pcie_utils.h,v $
 //
 //=============================================================
@@ -132,7 +132,7 @@ typedef struct {
     // Input ordered Set state
     int        OsState      [MAX_LINK_WIDTH];
     int        OsCount      [MAX_LINK_WIDTH];
-    bool       FlaggedIdle  [MAX_LINK_WIDTH];
+    int        FlaggedIdle  [MAX_LINK_WIDTH];
     TS_t       Tseq         [MAX_LINK_WIDTH];
 } LinkEventCount_t, *pLinkEventCount_t;
 

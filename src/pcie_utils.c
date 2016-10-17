@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: pcie_utils.c,v 1.4 2016/10/10 11:45:59 simon Exp $
+// $Id: pcie_utils.c,v 1.5 2016/10/17 11:47:02 simon Exp $
 // $Source: /home/simon/CVS/src/HDL/pcieVHost/src/pcie_utils.c,v $
 //
 //=============================================================
@@ -1809,7 +1809,7 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
             }
             linkevent->OsState [idx] = COM;
             linkevent->OsCount [idx] = 0;
-            linkevent->FlaggedIdle [idx] = false;
+            linkevent->FlaggedIdle [idx] = 0;
 
         // If active OS from last cycle, check for this cycle...
         }

@@ -19,7 +19,7 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: pcie.c,v 1.3 2016/10/10 11:43:21 simon Exp $
+// $Id: pcie.c,v 1.4 2016/10/17 11:47:01 simon Exp $
 // $Source: /home/simon/CVS/src/HDL/pcieVHost/src/pcie.c,v $
 //
 //=============================================================
@@ -673,7 +673,7 @@ pPktData_t PartCompletionDelay (const uint64 addr, const PktData_t *data, const 
 }
 
 pPktData_t PartCompletionDigest (const uint64 addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int rlength, 
-                                 const int length, const tag, const cid, const rid, const digest, const queue, const node)
+                                 const int length, const int tag , const uint32 cid, const uint32 rid, const bool digest, const bool queue, const int node)
 {
     return PartCompletionDelay (addr, data, status, fbe, lbe, rlength, length, tag, cid, rid, digest, false, queue, node);
 }
@@ -804,7 +804,7 @@ pPktData_t IoRead (const uint64 addr, const int length, const int tag, const uin
     return IoReadDigest (addr, length, tag, rid, true, queue, node);
 }
 
-pPktData_t IoReadDigest (const uint64 addr, const int length, const int tag, const uint32 rid, const bool digest, const int queue, const int node)
+pPktData_t IoReadDigest (const uint64 addr, const int length, const int tag, const uint32 rid, const bool digest, const bool queue, const int node)
 {
     PktData_t *pkt_p, *data_p;
     pPkt_t packet;
