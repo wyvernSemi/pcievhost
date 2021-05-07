@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 #
-# $Id: makefile,v 1.4 2021/05/06 07:59:51 simon Exp $
+# $Id: makefile,v 1.5 2021/05/07 07:36:35 simon Exp $
 # $Source: /home/simon/CVS/src/HDL/pcieVHost/verilog/test/makefile,v $
 #
 ###################################################################
@@ -144,7 +144,7 @@ vproc_lib:
 #------------------------------------------------------
 
 run: verilog pcie_c_lib vproc_lib ${PLI_SO}
-	@vsim -c ${VSIMFLAGS} -do "run -all"
+	@vsim -c ${VSIMFLAGS} -do "sleep 1" -do "run -all"
 
 rungui: verilog pcie_c_lib vproc_lib ${PLI_SO}
 	@if [ -e wave.do ]; then                      \
