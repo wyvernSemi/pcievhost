@@ -1862,8 +1862,8 @@ void WaitForCompletionN (const uint32 count, const int node)
 
     if (count > this->OutstandingCompletions)
     {
-        VPrint("WaitForCompletionN: Warning --- waiting on more completions than outstanding (%d v %d) at node %d\n", count, this->OutstandingCompletions, node);
-        VPrint("                    Simulation may hang at this point.\n");
+        DebugVPrint("WaitForCompletionN: Warning --- waiting on more completions than outstanding (%d v %d) at node %d\n", count, this->OutstandingCompletions, node);
+        DebugVPrint("                    Simulation may hang at this point.\n");
     }
 
     while (this->CompletionEvent < count)
@@ -2210,7 +2210,7 @@ void ConfigurePcie (const int type, const int value, const int node)
         {
             if (flw->ConsumedHdrCredits[0][FC_POST] != usrconf->InitFcHdrCr[0][FC_POST] || flw->AdvertisedHdrCredits[0][FC_POST] != usrconf->InitFcHdrCr[0][FC_POST])
             {
-                VPrint("ConfigurePcie: ***Warning --- posted header FC init value altered after active flow control. May by out of sync with other end of link at node %d\n", node);
+                DebugVPrint("ConfigurePcie: ***Warning --- posted header FC init value altered after active flow control. May by out of sync with other end of link at node %d\n", node);
             }
             usrconf->InitFcHdrCr[0][FC_POST] = value;
             flw->ConsumedHdrCredits[0][FC_POST] = value;
@@ -2228,7 +2228,7 @@ void ConfigurePcie (const int type, const int value, const int node)
         {
             if (flw->ConsumedHdrCredits[0][FC_NONPOST] != usrconf->InitFcHdrCr[0][FC_NONPOST] || flw->AdvertisedHdrCredits[0][FC_NONPOST] != usrconf->InitFcHdrCr[0][FC_NONPOST])
             {
-                VPrint("ConfigurePcie: ***Warning --- non-posted header FC init value altered after active flow control. May by out of sync with other end of link at node %d\n", node);
+                DebugVPrint("ConfigurePcie: ***Warning --- non-posted header FC init value altered after active flow control. May by out of sync with other end of link at node %d\n", node);
             }
             usrconf->InitFcHdrCr[0][FC_NONPOST] = value;
             flw->ConsumedHdrCredits[0][FC_NONPOST] = value;
@@ -2246,7 +2246,7 @@ void ConfigurePcie (const int type, const int value, const int node)
         {
             if (flw->ConsumedHdrCredits[0][FC_CMPL] != usrconf->InitFcHdrCr[0][FC_CMPL] || flw->AdvertisedHdrCredits[0][FC_CMPL] != usrconf->InitFcHdrCr[0][FC_CMPL]) 
             {    
-                VPrint("ConfigurePcie: ***Warning --- completion header FC init value altered after active flow control. May by out of sync with other end of link at node %d\n", node);
+                DebugVPrint("ConfigurePcie: ***Warning --- completion header FC init value altered after active flow control. May by out of sync with other end of link at node %d\n", node);
             }
             usrconf->InitFcHdrCr[0][FC_CMPL] = value;
             flw->ConsumedHdrCredits[0][FC_CMPL] = value;
@@ -2257,14 +2257,14 @@ void ConfigurePcie (const int type, const int value, const int node)
     case CONFIG_POST_DATA_CR:
         if (value > MAX_DATA_CREDITS)
         {
-            VPrint("ConfigurePcie: ***Error --- posted data credits of %d too big at node %d\n", value, node);
+            DebugVPrint("ConfigurePcie: ***Error --- posted data credits of %d too big at node %d\n", value, node);
             VWrite(PVH_FATAL, 0, 0, node);
         }
         else
         {
             if (flw->ConsumedDataCredits[0][FC_POST] != usrconf->InitFcDataCr[0][FC_POST] || flw->AdvertisedDataCredits[0][FC_POST] != usrconf->InitFcDataCr[0][FC_POST]) 
             {    
-                VPrint("ConfigurePcie: ***Warning --- posted data FC init value altered after active flow control. May by out of sync with other end of link at node %d\n", node);
+                DebugVPrint("ConfigurePcie: ***Warning --- posted data FC init value altered after active flow control. May by out of sync with other end of link at node %d\n", node);
             }
             usrconf->InitFcDataCr[0][FC_POST] = value;
             flw->ConsumedDataCredits[0][FC_POST] = value;
@@ -2282,7 +2282,7 @@ void ConfigurePcie (const int type, const int value, const int node)
         {
             if (flw->ConsumedDataCredits[0][FC_NONPOST] != usrconf->InitFcDataCr[0][FC_NONPOST] || flw->AdvertisedDataCredits[0][FC_NONPOST] != usrconf->InitFcDataCr[0][FC_NONPOST]) 
             {    
-                VPrint("ConfigurePcie: ***Warning --- non-posted data FC init value altered after active flow control. May by out of sync with other end of link at node %d\n", node);
+                DebugVPrint("ConfigurePcie: ***Warning --- non-posted data FC init value altered after active flow control. May by out of sync with other end of link at node %d\n", node);
             }
             usrconf->InitFcDataCr[0][FC_NONPOST] = value;
             flw->ConsumedDataCredits[0][FC_NONPOST] = value;
@@ -2300,7 +2300,7 @@ void ConfigurePcie (const int type, const int value, const int node)
         {
             if (flw->ConsumedDataCredits[0][FC_CMPL] != usrconf->InitFcDataCr[0][FC_CMPL] || flw->AdvertisedDataCredits[0][FC_CMPL] != usrconf->InitFcDataCr[0][FC_CMPL]) 
             {
-                VPrint("ConfigurePcie: ***Warning --- completion data FC init value altered after active flow control. May by out of sync with other end of link at node %d\n", node);
+                DebugVPrint("ConfigurePcie: ***Warning --- completion data FC init value altered after active flow control. May by out of sync with other end of link at node %d\n", node);
             }
             usrconf->InitFcDataCr[0][FC_CMPL] = value;
             flw->ConsumedDataCredits[0][FC_CMPL] = value;

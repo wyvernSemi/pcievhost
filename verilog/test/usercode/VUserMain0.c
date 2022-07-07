@@ -61,13 +61,13 @@ static void VUserInput_0(pPkt_t pkt, int status, void* usrptr)
 
     if (pkt->seq == DLLP_SEQ_ID) 
     {
-        VPrint("---> VUserInput_0 received DLLP\n");
+        DebugVPrint("---> VUserInput_0 received DLLP\n");
         free(pkt->data);
         free(pkt);
     }
     else
     {
-        VPrint("---> VUserInput_0 received TLP sequence %d of %d bytes at %d\n", pkt->seq, GET_TLP_LENGTH(pkt->data), pkt->TimeStamp);
+        DebugVPrint("---> VUserInput_0 received TLP sequence %d of %d bytes at %d\n", pkt->seq, GET_TLP_LENGTH(pkt->data), pkt->TimeStamp);
 
         // If a completion, extract the TPL payload data and display
         if (pkt->ByteCount)
@@ -76,19 +76,19 @@ static void VUserInput_0(pPkt_t pkt, int status, void* usrptr)
             pPktData_t payload = GET_TLP_PAYLOAD_PTR(pkt->data);
 
             // Display the data
-            VPrint("---> ");
+            DebugVPrint("---> ");
             for (idx = 0; idx < pkt->ByteCount; idx++)
             {
-                VPrint("%02x ", payload[idx]);
+                DebugVPrint("%02x ", payload[idx]);
                 if ((idx % 16) == 15)
                 {
-                    VPrint("\n---> ");
+                    DebugVPrint("\n---> ");
                 }
             }
 
             if ((idx % 16) != 0)
             {
-                VPrint("\n");
+                DebugVPrint("\n");
             }
         }
 
@@ -126,7 +126,7 @@ void VUserMain0()
 
     ConfigurePcie(CONFIG_ENABLE_SKIPS, 20000, node);
 
-    VPrint("VUserMain: in node %d\n", node);
+    DebugVPrint("VUserMain: in node %d\n", node);
 
     VRegInterrupt(RST_DEASSERT_INT, ResetDeasserted, node);
 

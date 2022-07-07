@@ -534,7 +534,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
                 break;
 
             default:
-                VPrint( "ProcessInput: Warning --- unsupported DLLP received (type = %x) on node %d\n", type, state->thisnode);
+                DebugVPrint( "ProcessInput: Warning --- unsupported DLLP received (type = %x) on node %d\n", type, state->thisnode);
                 status = PKT_STATUS_UNSUPPORTED;
 
                 // Return unsupported packet to user process, if one registered. Otherwise discard.
@@ -553,7 +553,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
         }
         else
         {
-            VPrint( "ProcessInput: Warning --- received bad DLLP on node %d\n", state->thisnode); 
+            DebugVPrint( "ProcessInput: Warning --- received bad DLLP on node %d\n", state->thisnode); 
             status = PKT_STATUS_BAD_DLLP_CRC;
 
             // Return bad packet to user process, if one registered. Otherwise discard.
@@ -890,7 +890,7 @@ static void ProcessOS(const pLinkEventCount_t const linkevent, const int lane, c
     }
     else
     {
-        VPrint("ProcessOS: Warning --- Seen unrecognised OS event on lane %d at node %d\n", lane, node);
+        DebugVPrint("ProcessOS: Warning --- Seen unrecognised OS event on lane %d at node %d\n", lane, node);
     }
 }
 
@@ -1138,7 +1138,7 @@ void CalcEcrc(PktData_t *pkt)
 
     if ((pkt[TLP_TD_BYTE_OFFSET] & TLP_DIGEST_MASK) == 0)
     {
-        VPrint( "CalcEcrc(): Warning --- Digest bit not set. Not adding Ecrc.\n");
+        DebugVPrint( "CalcEcrc(): Warning --- Digest bit not set. Not adding Ecrc.\n");
         return;
     }
 
@@ -1805,7 +1805,7 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
                 (linkevent->OsState [idx] == FTS && linkevent->OsCount [idx] != 3) ||
                 (linkevent->OsState [idx] == SKP && (linkevent->OsCount [idx] > 6 || linkevent->OsCount [idx] < 1))))
             {
-                    VPrint("ExtractPhyInput: Warning --- bad count for ordered sets on lane %d at node %d\n", idx, state->thisnode);
+                    DebugVPrint("ExtractPhyInput: Warning --- bad count for ordered sets on lane %d at node %d\n", idx, state->thisnode);
             }
             linkevent->OsState [idx] = COM;
             linkevent->OsCount [idx] = 0;
@@ -1842,7 +1842,7 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
                     // Since Skip OSs can be any length from 1 to 6, don't print an error
                     // if skip is interrupted
                     if (linkevent->OsState [idx] != SKP)
-                        VPrint("ExtractPhyInput: Warning --- invalid control symbols seen on lane %d at node %d\n", idx, state->thisnode);
+                        DebugVPrint("ExtractPhyInput: Warning --- invalid control symbols seen on lane %d at node %d\n", idx, state->thisnode);
                     linkevent->OsState [idx] = 0;
                     linkevent->OsCount [idx] = 0;
                 }
@@ -1876,7 +1876,7 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
                 case 11: case 12: case 13: case 14: case 15:
                     if (linkevent->Tseq[idx].id != linkin[idx] || (linkin[idx] != TS1_ID && linkin[idx] != TS2_ID))
                     {
-                        VPrint("ExtractPhyInput: Warning --- invalid training sequence seen on at count %d, lane %d at node %d\n", linkevent->OsCount [idx], idx, state->thisnode);
+                        DebugVPrint("ExtractPhyInput: Warning --- invalid training sequence seen on at count %d, lane %d at node %d\n", linkevent->OsCount [idx], idx, state->thisnode);
                         linkevent->OsState [idx] = 0;
                         linkevent->OsCount [idx] = 0;
                     }

@@ -61,11 +61,11 @@ static void VUserInput_1(pPkt_t pkt, int status, void* usrptr)
 
     if (pkt->seq == DLLP_SEQ_ID) 
     {
-        VPrint("---> VUserInput_1 received DLLP\n");
+        DebugVPrint("---> VUserInput_1 received DLLP\n");
     }
     else
     {
-        VPrint("---> VUserInput_1 received TLP sequence %d of %d bytes at %d\n", pkt->seq, GET_TLP_LENGTH(pkt->data), pkt->TimeStamp);
+        DebugVPrint("---> VUserInput_1 received TLP sequence %d of %d bytes at %d\n", pkt->seq, GET_TLP_LENGTH(pkt->data), pkt->TimeStamp);
     }
 
     // Once packet is finished with, the allocated space *must* be freed.
@@ -91,7 +91,7 @@ void VUserMain1()
     // Make sure the link is out of electrical idle
     VWrite(LINK_STATE, 0, 0, node);
 
-    VPrint("VUserMain: in node %d\n", node);
+    DebugVPrint("VUserMain: in node %d\n", node);
 
     VRegInterrupt(RST_DEASSERT_INT, ResetDeasserted, node);
 
