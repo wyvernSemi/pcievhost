@@ -28,7 +28,10 @@ NUM_VPROC     = 2
 
 # Location of VProc directory. Assumes in same directory as pcieVHost.
 # Update if relocated.
-VPROC_TOP     = ../../../VProc
+VPROC_TOP     = ../../../vproc
+
+# Define the github repository URL for the VProc virtual processor 
+VPROC_REPO    = https://github.com/wyvernSemi/vproc.git
 
 #
 # PCIE VHost test defintions
@@ -132,17 +135,23 @@ pcie_c_lib:
 #
 # VProc library.
 #
-vproc_lib:
+vproc_lib: ${VPROC_TOP}
 	@${MAKE} -C ${VPROC_TOP} MAX_NUM_VPROC=${NUM_VPROC} USER_C=""
+
+#
+# Checkout VProc from github if it doesn't exist at the specified location
+#
+${VPROC_TOP}:
+	git clone ${VPROC_REPO} ${VPROC_TOP} --recursive
 
 #------------------------------------------------------
 # EXECUTION RULES
 #------------------------------------------------------
 
-run: verilog pcie_c_lib vproc_lib ${PLI_SO}
+run: vproc_lib pcie_c_lib verilog ${PLI_SO}
 	@vsim -c ${VSIMFLAGS} -do "run -all"
 
-rungui: verilog pcie_c_lib vproc_lib ${PLI_SO}
+rungui: vproc_lib pcie_c_lib verilog ${PLI_SO}
 	@if [ -e wave.do ]; then                     \
          vsim -gui -do wave.do ${VSIMFLAGS};     \
      else                                        \
