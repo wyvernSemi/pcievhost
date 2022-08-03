@@ -1,5 +1,5 @@
 //=============================================================
-// 
+//
 // Copyright (c) 2016 Simon Southwell. All rights reserved.
 //
 // Date: 20th Sep 2016
@@ -55,11 +55,11 @@ static int ResetDeasserted(void)
 // Consumes the unhandled input Packets
 //-------------------------------------------------------------
 
-static void VUserInput_0(pPkt_t pkt, int status, void* usrptr) 
+static void VUserInput_0(pPkt_t pkt, int status, void* usrptr)
 {
     int idx;
 
-    if (pkt->seq == DLLP_SEQ_ID) 
+    if (pkt->seq == DLLP_SEQ_ID)
     {
         DebugVPrint("---> VUserInput_0 received DLLP\n");
         free(pkt->data);
@@ -109,11 +109,11 @@ static void VUserInput_0(pPkt_t pkt, int status, void* usrptr)
 //
 //-------------------------------------------------------------
 
-void VUserMain0() 
+void VUserMain0()
 {
     int idx;
     PktData_t buff[4096];
-    int rid = 1, tag = 0;
+    int rid = node+1, tag = 0;
     int i;
 
     uint64 addr;
@@ -159,46 +159,48 @@ void VUserMain0()
         SendPM(DL_PM_REQ_L1,    SEND, node);
         SendPM(DL_PM_REQ_ACK,   SEND, node);
         SendVendor(SEND, node);
-    
+
         //---------------------------------------------
-    
+
         buff[0] = 0x76;
         buff[1] = 0xa5;
         buff[2] = 0x70;
         MemWrite (0x12345679, buff, 3, 0, rid, SEND, node);
-    
+
         DebugVPrint("VUserMain0: sent mem write from node %d\n", node);
-    
+
         MemRead (0x12345679, 1, tag++, rid, SEND, node);
-    
+
         DebugVPrint("VUserMain0: sent mem read from node %d\n", node);
-    
+
         //---------------------------------------------
-    
+
         for (idx = 0; idx < 256; idx++)
-        {            
+        {
             buff[idx] = rand() & 0xff;
         }
         MemWrite (0xa0000001ULL, buff, 256, 0, rid, SEND, node);
-    
+
+        MemRead  (0xa0000083ULL, 128, tag++, rid, SEND, node);
+
         //---------------------------------------------
-    
+
         buff[0] = 0x55;
         buff[1] = 0xaa;
         buff[2] = 0xf0;
         buff[3] = 0x00;
         CfgWrite (0x30, buff, 4, tag++, rid, SEND, node);
-    
+
         CfgRead (0x31, 1, tag++, rid, SEND, node);
-    
+
         //---------------------------------------------
-    
+
         buff[0] = 0x69;
         IoWrite (0x92658659, buff, 1, tag++, rid, SEND, node);
         IoRead  (0x92658659, 2, tag++, rid, SEND, node);
 
         //---------------------------------------------
-    
+
         Message (MSG_ASSERT_INTA,   NULL, 0, 0, rid, SEND, node);
         Message (MSG_ASSERT_INTB,   NULL, 0, 0, rid, SEND, node);
         Message (MSG_ASSERT_INTC,   NULL, 0, 0, rid, SEND, node);
@@ -215,7 +217,7 @@ void VUserMain0()
         Message (MSG_ERR_NONFATAL,  NULL, 0, 0, rid, SEND, node);
         Message (MSG_ERR_FATAL,     NULL, 0, 0, rid, SEND, node);
         Message (MSG_UNLOCK,        NULL, 0, 0, rid, SEND, node);
-    
+
         buff[0] = 0x71;
         buff[1] = 0x07;
         buff[2] = 0x73;
@@ -225,9 +227,9 @@ void VUserMain0()
 
     // Go quiet for a while, before finishing
     SendIdle(100, node);
-    
+
     // Halt the simulation
     VWrite(PVH_FINISH, 0, 0, node);
-    
+
 }
-    
+

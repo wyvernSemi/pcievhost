@@ -1071,7 +1071,6 @@ pPktData_t CfgReadDigest (const uint64 addr, const int length, const int tag, co
     // Set the tag and sequence number of the packet
     SET_TLP_TAG(tag, pkt_p);
     SET_CFG_RID(rid, pkt_p);
-    SET_CFG_CID((uint32)(addr >> 16), pkt_p);
     SET_DLLP_SEQ(this->seq, pkt_p);
 
     // Calc CRCs

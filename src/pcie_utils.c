@@ -695,7 +695,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
             fbe        = GET_TLP_FBE(pkt->data);
             lbe        = GET_TLP_LBE(pkt->data);
             rid        = GET_TLP_RID(pkt->data);
-            cid        = state->CplId;;
+            cid        = state->CplId;
             tag        = GET_TLP_TAG(pkt->data);
 
             if (ReadRamByteBlock (addr, buff, length*4, state->thisnode))
@@ -771,6 +771,15 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
                 // The device completer ID is always updated on config writes
                 state->CplId = GET_CFG_CID(pkt->data);
                 WriteConfigSpaceBuf((uint32)(addr & 0xfff), pdata, fbe, 0, 4, state->thisnode);
+                
+                if (!state->usrconf.CompletionRate)
+                {
+                    Completion (0, buff, CPL_SUCCESS, 0xf, 0x0, 0, tag, cid, rid, true, state->thisnode);
+                }
+                else
+                {
+                    CompletionDelay (0, buff, CPL_SUCCESS, 0xf, 0x0, 0, tag, cid, rid, state->thisnode);
+                }
             }
 
             CheckFree(pkt->data);
@@ -1042,14 +1051,15 @@ int CalcByteCount (const int len, const int fbe, const int lbe)
         
     if (lbe == 0)
     {
-        return (((fbe & 0x9) == 0x9) ? 4 : 
+        return (((fbe & 0x9) == 0x9)                          ? 4 : 
                (((fbe & 0xd) == 0x5) || ((fbe & 0xb) == 0xa)) ? 3 :
-                 (fbe == 0x3 || fbe == 0x6 || fbe == 0xc) ? 2 : 1);
+                 (fbe == 0x3 || fbe == 0x6 || fbe == 0xc)     ? 2 :
+                                                                1);
     }
     else
     {
-        return (len*4) - (!(fbe & 0x1) ? 1 : !(fbe & 0x2) ? 2 : !(fbe & 0x4) ? 3 : 0) -
-                         (!(lbe & 0x8) ? 1 : !(lbe & 0x4) ? 2 : !(fbe & 0x2) ? 3 : 0);
+        return (len*4) - ((fbe == 0xe) ? 1 : (fbe == 0xc) ? 2 : (fbe == 0x8) ? 3 : 0) -
+                         ((lbe == 0x7) ? 1 : (lbe == 0x3) ? 2 : (lbe == 0x1) ? 3 : 0);
     }
 }
 
@@ -1674,7 +1684,7 @@ void InitPcieState(const pPcieModelState_t const state, const int node)
     state->CompletionEvent        = 0;
     state->vuser_cb               = NULL;
     state->usrptr                 = NULL;
-    state->CplId                  = node;
+    state->CplId                  = 0;
 
     state->vuser_os_cb            = NULL;
 
