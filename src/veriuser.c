@@ -28,9 +28,6 @@
 // 
 //=====================================================================
 
-#if !defined(MODELSIM)
-#include "vxl_veriuser.h"
-#endif
 #include "VSched_pli.h"
 
 extern int PciCrc32(void);

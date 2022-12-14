@@ -107,7 +107,7 @@ wire [15:0] ShiftChain;
                    .CombCrc    (Crc)
                    );
 
-endtask
+//endtask
 
 
 endmodule
