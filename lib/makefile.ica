@@ -1,7 +1,7 @@
 ###################################################################
 # Makefile for Virtual PCIe Host C code in Modelsim
 #
-# Copyright (c) 2005-2010 Simon Southwell.
+# Copyright (c) 2005-2022 Simon Southwell.
 #
 # This file is part of pcieVHost.
 #
@@ -18,30 +18,26 @@
 # You should have received a copy of the GNU General Public License
 # along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 #
-# $Id: makefile,v 1.4 2021/05/06 07:59:51 simon Exp $
-# $Source: /home/simon/CVS/src/HDL/pcieVHost/lib/makefile,v $
-#
 ###################################################################
-
-# $MODELSIM and MODEL_TECH environment variables must be set
-# for pointing to modelsim.ini file and binary dierctory respectively
 
 SRCDIR    = ../src
 OBJDIR    = obj
-VPROC_TOP = ../../VProc
+VPROC_TOP = ../../vproc
 ICADIR    = /usr/include/iverilog
 
-C_FILES = codec.c mem.c pcie.c pcie_utils.c pcicrc32.c ltssm.c veriuser.c
-CFLAGS  = -c -fPIC -Wno-incompatible-pointer-types -Wno-format -I ${ICADIR} -I${VPROC_TOP}/code -DICARUS -DLTSSM_ABBREVIATED 
+C_FILES   = codec.c mem.c pcie.c pcie_utils.c pcicrc32.c ltssm.c veriuser.c
+CFLAGS    = -c -fPIC -Wno-incompatible-pointer-types -Wno-format -I ${ICADIR} -I${VPROC_TOP}/code -DICARUS -DLTSSM_ABBREVIATED 
+CC        = gcc
 
-CC      = gcc
-
-LIB     = libpcievhost.a
-
-OBJS    = ${addprefix ${OBJDIR}/, ${C_FILES:%.c=%.o}}
+OBJS      = ${addprefix ${OBJDIR}/, ${C_FILES:%.c=%.o}}
+LIB       = libpcievhost.a
 
 ${OBJDIR}/%.o: ${SRCDIR}/%.c
 	@${CC} ${CFLAGS} $< -o $@
+
+#------------------------------------------------------
+# BUILD RULES
+#------------------------------------------------------
 
 all: ${LIB}
 
@@ -53,6 +49,9 @@ ${OBJS}: | ${OBJDIR}
 ${OBJDIR}:
 	@mkdir ${OBJDIR}
 
+#------------------------------------------------------
+# CLEANING RULES
+#------------------------------------------------------
 
 clean:
 	@rm -rf ${LIB} ${OBJS}

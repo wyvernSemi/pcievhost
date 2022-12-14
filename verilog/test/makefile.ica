@@ -35,30 +35,39 @@ VPROC_REPO    = https://github.com/wyvernSemi/vproc.git
 PCIE_CLIB_DIR = ../../lib
 SRCDIR        = ../../src
 USRCDIR       = usercode
-WORKDIR       = work
-
 PLI_SO        = VProc.so
 VPROCLIB      = libvproc.a
+PCIELIB       = libpcievhost.a
+SIMEXE        = sim
 
+#
+# Source code
+#
 USER_C        = VUserMain0.c VUserMain1.c
 PCIE_MAP_C    = pcie_vhost_map.h
 
 #
-# Flags for ModelSim
+# Flags for Icarus
 #
 PCIE_TOP      = test
 TOP_VC        = test_ica.vc
 HDRDIR        = ../headers
-
-VSIMFLAGS     = -pli ${PLI_SO} ${PCIE_TOP}
+VSIMFLAGS     = -m ./VProc.so ${SIMEXE}
 VLOGFLAGS     = -DDISP_LINK_WIDE -I${VPROC_TOP} -c ${TOP_VC}
 
+#
+# Auto-generated verilog
+#
 PCIE_MAP_V    = ${PCIE_MAP_C:%.h=${HDRDIR}/%.v}
 
+#
 # Get OS type
+#
 OSTYPE:=$(shell uname)
 
-# Set OS specific variables between Linux and Windows (MinGW)
+#
+# Set OS specific variables between Linux and Windows (MSYS2/mingw64)
+#
 ifeq (${OSTYPE}, Linux)
   CFLAGS_SO   = -shared -pthread -lrt -rdynamic
   ICADIR      = /usr/include/iverilog
@@ -81,7 +90,6 @@ CFLAGS        = -g -fPIC                         \
                 -DICARUS                         \
                 -D_REENTRANT
 
-
 #------------------------------------------------------
 # BUILD RULES
 #------------------------------------------------------
@@ -92,11 +100,8 @@ CFLAGS        = -g -fPIC                         \
 all: ${PLI_SO} verilog
 
 #
-# Verilog. Phony target, as ModelSim does incremental compile
-# and decides what the dependencies are; so always build.
+# Build the verilog
 #
-.PHONY: verilog
-
 verilog: ${PCIE_MAP_V}
 	@iverilog -o sim ${VLOGFLAGS} -s test
 
@@ -109,7 +114,7 @@ ${PCIE_MAP_V} : ${SRCDIR}/${PCIE_MAP_C}
 #
 # PLI shared object
 #
-${PLI_SO}: ${VPROC_TOP}/${VPROCLIB} pcie_c_lib ${USER_C:%.c=${USRCDIR}/%.c}
+${PLI_SO}: ${VPROC_TOP}/${VPROCLIB} ${PCIE_CLIB_DIR}/${PCIELIB} ${USER_C:%.c=${USRCDIR}/%.c}
 	@${CC} ${CFLAGS_SO} ${CFLAGS}                \
 	       -Wl,-whole-archive                    \
  	       ${USER_C:%.c=${USRCDIR}/%.c}          \
@@ -124,14 +129,18 @@ ${PLI_SO}: ${VPROC_TOP}/${VPROCLIB} pcie_c_lib ${USER_C:%.c=${USRCDIR}/%.c}
 #
 # PCIe model library
 #
-pcie_c_lib:
+${PCIE_CLIB_DIR}/${PCIELIB}:
 	@${MAKE} --no-print-directory -C ${PCIE_CLIB_DIR} -f makefile.ica ICADIR=${ICADIR}
 
 #
 # VProc library.
 #
 ${VPROC_TOP}/${VPROCLIB}: ${VPROC_TOP}
-	@${MAKE} --no-print-directory -C ${VPROC_TOP} CFLAGS="${CFLAGS}" PWD=./ MAX_NUM_VPROC=${NUM_VPROC} USER_C="" ${VPROCLIB}
+	@${MAKE} --no-print-directory -C ${VPROC_TOP}        \
+             CFLAGS="${CFLAGS} -Wno-int-to-pointer-cast" \
+             PWD=./ MAX_NUM_VPROC=${NUM_VPROC}           \
+             USER_C=""                                   \
+             ${VPROCLIB}
 
 #
 # Checkout VProc from github if it doesn't exist at the specified location
@@ -144,7 +153,7 @@ ${VPROC_TOP}:
 #------------------------------------------------------
 
 run: verilog ${PLI_SO}
-	@vvp -m ./VProc.so sim
+	@vvp ${VSIMFLAGS}
 
 #------------------------------------------------------
 # CLEANING RULES
@@ -153,6 +162,6 @@ run: verilog ${PLI_SO}
 clean:
 	@${MAKE} --no-print-directory -C ${PCIE_CLIB_DIR} clean
 	@${MAKE} --no-print-directory -C ${VPROC_TOP}     clean
-	@rm -rf ${PLI_SO} ${PCIE_MAP_V} sim
+	@rm -rf ${PLI_SO} ${PCIE_MAP_V} ${SIMEXE}
 
 
