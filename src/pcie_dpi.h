@@ -1,28 +1,25 @@
-//=====================================================================
+//=============================================================
 //
-// VUser.h                                            Date: 2005/01/10 
+// Copyright (c) 2023 Simon Southwell. All rights reserved.
 //
-// Copyright (c) 2005-2010 Simon Southwell.
+// Date: 8th Mar 2023
 //
-// This file is part of VProc.
+// This file is part of the pcieVHost package.
 //
-// VProc is free software: you can redistribute it and/or modify
+// pcieVHost is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// VProc is distributed in the hope that it will be useful,
+// pcieVHost is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with VProc. If not, see <http://www.gnu.org/licenses/>.
+// along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: VUser.h,v 1.5 2021/05/04 15:38:37 simon Exp $
-// $Source: /home/simon/CVS/src/HDL/VProc/code/VUser.h,v $
-//
-//=====================================================================
+//=============================================================
 
 #ifndef _PCIE_DPI_H_
 #define _PCIE_DPI_H_
@@ -45,9 +42,7 @@
 
 #include "svdpi.h"
 
-#ifndef VP_MAX_NODES
 #define VP_MAX_NODES            2
-#endif
 
 #define V_IDLE                  0
 #define V_WRITE                 1
@@ -64,7 +59,7 @@
 
 #define DELTA_CYCLE             -1
 #define GO_TO_SLEEP             0x7fffffff
-                                
+
 #define MAX_INT_LEVEL           7
 #define MIN_INT_LEVEL           1
 
@@ -99,8 +94,8 @@ extern pSchedState_t ns[VP_MAX_NODES];
 extern int notReset;
 
 // VUser function prototypes
-extern int  VWrite        (unsigned int addr, unsigned int  data, int delta, unsigned int node);
-extern int  VRead         (unsigned int addr, unsigned int *data, int delta, unsigned int node);
+extern int  VWrite        (unsigned int addr,  unsigned int  data, int delta, unsigned int node);
+extern int  VRead         (unsigned int addr,  unsigned int *data, int delta, unsigned int node);
 extern int  VTick         (unsigned int ticks, unsigned int node);
 
 # define VPrint(...) printf (__VA_ARGS__)

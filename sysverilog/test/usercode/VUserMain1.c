@@ -1,8 +1,8 @@
 //=============================================================
 // 
-// Copyright (c) 2016 Simon Southwell. All rights reserved.
+// Copyright (c) 2023 Simon Southwell. All rights reserved.
 //
-// Date: 20th Sep 2016
+// Date: 8th Sep 2023
 //
 // This file is part of the pcieVHost package.
 //
@@ -19,9 +19,6 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: VUserMain1.c,v 1.3 2016/10/10 11:56:07 simon Exp $
-// $Source: /home/simon/CVS/src/HDL/pcieVHost/verilog/test/usercode/VUserMain1.c,v $
-//
 //=============================================================
 
 //=============================================================
@@ -33,9 +30,7 @@
 #include "pcie.h"
 #include "dpi_header.h"
 
-#define RST_DEASSERT_INT 4
-
-static int          node      = 1;
+static int node = 1;
 
 //-------------------------------------------------------------
 // VUserInput_1()
@@ -101,7 +96,7 @@ void VUserMain1()
     // Initialise flow control
     InitFc(node);
 
-    // Send out idels forever
+    // Send out idles forever
     while (true)
     {
         SendIdle(100, node);

@@ -1,8 +1,8 @@
 //=============================================================
 // 
-// Copyright (c) 2016 Simon Southwell. All rights reserved.
+// Copyright (c) 2023 Simon Southwell. All rights reserved.
 //
-// Date: 20th Sep 2016
+// Date: 8th Sep 2023
 //
 // This file is part of the pcieVHost package.
 //
@@ -18,9 +18,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
-//
-// $Id: PcieDispLink.v,v 1.3 2016/10/10 11:47:17 simon Exp $
-// $Source: /home/simon/CVS/src/HDL/pcieVHost/verilog/PcieDispLink/PcieDispLink.v,v $
 //
 //=============================================================
 

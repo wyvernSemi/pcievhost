@@ -23,18 +23,22 @@
 
 `WsTimeScale
 
+// Define a uni-directional interface of PCIe lanes (unserialised)
+interface PcieLinkLanes16;
+
+  logic [9:0] Lane0,   Lane1,   Lane2,   Lane3,
+              Lane4,   Lane5,   Lane6,   Lane7,
+              Lane8,   Lane9,   Lane10,  Lane11,
+              Lane12,  Lane13,  Lane14,  Lane15;
+
+endinterface
+
 //-------------------------------------------------------------
+// Root Complex wrapper for PcieVHost
 //-------------------------------------------------------------
 
-module PcieVhostRc (input        Clk,       notReset,
-                    input  [9:0] LinkIn0,   LinkIn1,   LinkIn2,   LinkIn3,
-                                 LinkIn4,   LinkIn5,   LinkIn6,   LinkIn7,
-                                 LinkIn8,   LinkIn9,   LinkIn10,  LinkIn11,
-                                 LinkIn12,  LinkIn13,  LinkIn14,  LinkIn15,
-                    output [9:0] LinkOut0,  LinkOut1,  LinkOut2,  LinkOut3,
-                                 LinkOut4,  LinkOut5,  LinkOut6,  LinkOut7,
-                                 LinkOut8,  LinkOut9,  LinkOut10, LinkOut11,
-                                 LinkOut12, LinkOut13, LinkOut14, LinkOut15);
+module PcieVhostRc (input           Clk,       notReset,
+                    PcieLinkLanes16 LinkIn,    LinkOut);
 
 
 parameter  LinkWidth  = 16;
@@ -56,6 +60,7 @@ begin
   Update <= 1'b0;
 end
 
+// Exported DPI task, called from C code
 export "DPI-C" task PcieUpdate0;
 
 task PcieUpdate0(input int addr, input int wdata, output int rdata, input int rnw, input int ticks);
@@ -70,20 +75,13 @@ task PcieUpdate0(input int addr, input int wdata, output int rdata, input int rn
   rdata      = DataIn;
 endtask
 
+ // Instantiation of the common PcieVHost 
  PcieVhost #(LinkWidth, NodeNum, EndPoint) pcievhost_inst
  (
    .Clk      (Clk),
    .notReset (notReset),
 
-   .LinkIn0  (LinkIn0),    .LinkIn1  (LinkIn1),    .LinkIn2  (LinkIn2),     .LinkIn3  (LinkIn3),
-   .LinkIn4  (LinkIn4),    .LinkIn5  (LinkIn5),    .LinkIn6  (LinkIn6),     .LinkIn7  (LinkIn7),
-   .LinkIn8  (LinkIn8),    .LinkIn9  (LinkIn9),    .LinkIn10 (LinkIn10),    .LinkIn11 (LinkIn11),
-   .LinkIn12 (LinkIn12),   .LinkIn13 (LinkIn13),   .LinkIn14 (LinkIn14),    .LinkIn15 (LinkIn15),
-
-   .LinkOut0  (LinkOut0),  .LinkOut1  (LinkOut1),  .LinkOut2  (LinkOut2),  .LinkOut3  (LinkOut3),
-   .LinkOut4  (LinkOut4),  .LinkOut5  (LinkOut5),  .LinkOut6  (LinkOut6),  .LinkOut7  (LinkOut7),
-   .LinkOut8  (LinkOut8),  .LinkOut9  (LinkOut9),  .LinkOut10 (LinkOut10), .LinkOut11 (LinkOut11),
-   .LinkOut12 (LinkOut12), .LinkOut13 (LinkOut13), .LinkOut14 (LinkOut14), .LinkOut15 (LinkOut15),
+   .LinkIn   (LinkIn),     .LinkOut(LinkOut),
 
    .WE (WE),               .RD (RD),               .Update (Update),       .Addr (Addr),
    .DataOut(DataOut),      .Ticks(Ticks),          .DataIn(DataIn),        .UpdateResponse(UpdateResponse)
@@ -92,17 +90,11 @@ endtask
 endmodule
 
 //-------------------------------------------------------------
+// Enpoint wrapper for PcieVHost
 //-------------------------------------------------------------
 
-module PcieVhostEp (input        Clk,       notReset,
-                    input  [9:0] LinkIn0,   LinkIn1,   LinkIn2,   LinkIn3,
-                                 LinkIn4,   LinkIn5,   LinkIn6,   LinkIn7,
-                                 LinkIn8,   LinkIn9,   LinkIn10,  LinkIn11,
-                                 LinkIn12,  LinkIn13,  LinkIn14,  LinkIn15,
-                    output [9:0] LinkOut0,  LinkOut1,  LinkOut2,  LinkOut3,
-                                 LinkOut4,  LinkOut5,  LinkOut6,  LinkOut7,
-                                 LinkOut8,  LinkOut9,  LinkOut10, LinkOut11,
-                                 LinkOut12, LinkOut13, LinkOut14, LinkOut15);
+module PcieVhostEp (input           Clk,       notReset,
+                    PcieLinkLanes16 LinkIn,    LinkOut);
 
 parameter  LinkWidth  = 16;
 parameter  NodeNum    = 1;
@@ -123,6 +115,7 @@ begin
   Update <= 1'b0;
 end
 
+// Exported DPI task, called from C code
 export "DPI-C" task PcieUpdate1;
 
 task PcieUpdate1(input int addr, input int wdata, output int rdata, input int rnw, input int ticks);
@@ -137,20 +130,13 @@ task PcieUpdate1(input int addr, input int wdata, output int rdata, input int rn
   rdata      = DataIn;
 endtask
 
+ // Instantiation of the common PcieVHost 
  PcieVhost #(LinkWidth, NodeNum, EndPoint) pcievhost_inst
  (
    .Clk      (Clk),
    .notReset (notReset),
 
-   .LinkIn0  (LinkIn0),    .LinkIn1  (LinkIn1),    .LinkIn2  (LinkIn2),     .LinkIn3  (LinkIn3),
-   .LinkIn4  (LinkIn4),    .LinkIn5  (LinkIn5),    .LinkIn6  (LinkIn6),     .LinkIn7  (LinkIn7),
-   .LinkIn8  (LinkIn8),    .LinkIn9  (LinkIn9),    .LinkIn10 (LinkIn10),    .LinkIn11 (LinkIn11),
-   .LinkIn12 (LinkIn12),   .LinkIn13 (LinkIn13),   .LinkIn14 (LinkIn14),    .LinkIn15 (LinkIn15),
-
-   .LinkOut0  (LinkOut0),  .LinkOut1  (LinkOut1),  .LinkOut2  (LinkOut2),  .LinkOut3  (LinkOut3),
-   .LinkOut4  (LinkOut4),  .LinkOut5  (LinkOut5),  .LinkOut6  (LinkOut6),  .LinkOut7  (LinkOut7),
-   .LinkOut8  (LinkOut8),  .LinkOut9  (LinkOut9),  .LinkOut10 (LinkOut10), .LinkOut11 (LinkOut11),
-   .LinkOut12 (LinkOut12), .LinkOut13 (LinkOut13), .LinkOut14 (LinkOut14), .LinkOut15 (LinkOut15),
+   .LinkIn   (LinkIn),     .LinkOut(LinkOut),
 
    .WE (WE),               .RD (RD),               .Update (Update),       .Addr (Addr),
    .DataOut(DataOut),      .Ticks(Ticks),          .DataIn(DataIn),        .UpdateResponse(UpdateResponse)
@@ -164,14 +150,8 @@ endmodule
 //-------------------------------------------------------------
 
 module PcieVhost (input             Clk,       notReset,
-                  input       [9:0] LinkIn0,   LinkIn1,   LinkIn2,   LinkIn3,
-                                    LinkIn4,   LinkIn5,   LinkIn6,   LinkIn7,
-                                    LinkIn8,   LinkIn9,   LinkIn10,  LinkIn11,
-                                    LinkIn12,  LinkIn13,  LinkIn14,  LinkIn15,
-                  output      [9:0] LinkOut0,  LinkOut1,  LinkOut2,  LinkOut3,
-                                    LinkOut4,  LinkOut5,  LinkOut6,  LinkOut7,
-                                    LinkOut8,  LinkOut9,  LinkOut10, LinkOut11,
-                                    LinkOut12, LinkOut13, LinkOut14, LinkOut15,
+
+                  PcieLinkLanes16   LinkIn,    LinkOut,
 
                   input             WE,        RD,        Update,
                   input      [31:0] Addr,      DataOut,
@@ -209,16 +189,16 @@ wire   [9:0] In [0:15];
 // Signal assignments
 // -----------------------------------------------
 // Generate flags for electrical idle stat on input links
-wire [15:0] ElecIdleIn = {LinkIn15 === 10'bzzzzzzzzzz, LinkIn14 === 10'bzzzzzzzzzz, LinkIn13 === 10'bzzzzzzzzzz, LinkIn12 === 10'bzzzzzzzzzz,
-                          LinkIn11 === 10'bzzzzzzzzzz, LinkIn10 === 10'bzzzzzzzzzz, LinkIn9  === 10'bzzzzzzzzzz, LinkIn8  === 10'bzzzzzzzzzz,
-                          LinkIn7  === 10'bzzzzzzzzzz, LinkIn6  === 10'bzzzzzzzzzz, LinkIn5  === 10'bzzzzzzzzzz, LinkIn4  === 10'bzzzzzzzzzz,
-                          LinkIn3  === 10'bzzzzzzzzzz, LinkIn2  === 10'bzzzzzzzzzz, LinkIn1  === 10'bzzzzzzzzzz, LinkIn0  === 10'bzzzzzzzzzz};
+wire [15:0] ElecIdleIn = {LinkIn.Lane15 === 10'bzzzzzzzzzz, LinkIn.Lane14 === 10'bzzzzzzzzzz, LinkIn.Lane13 === 10'bzzzzzzzzzz, LinkIn.Lane12 === 10'bzzzzzzzzzz,
+                          LinkIn.Lane11 === 10'bzzzzzzzzzz, LinkIn.Lane10 === 10'bzzzzzzzzzz, LinkIn.Lane9  === 10'bzzzzzzzzzz, LinkIn.Lane8  === 10'bzzzzzzzzzz,
+                          LinkIn.Lane7  === 10'bzzzzzzzzzz, LinkIn.Lane6  === 10'bzzzzzzzzzz, LinkIn.Lane5  === 10'bzzzzzzzzzz, LinkIn.Lane4  === 10'bzzzzzzzzzz,
+                          LinkIn.Lane3  === 10'bzzzzzzzzzz, LinkIn.Lane2  === 10'bzzzzzzzzzz, LinkIn.Lane1  === 10'bzzzzzzzzzz, LinkIn.Lane0  === 10'bzzzzzzzzzz};
 
 // Generate flags for not valid data on links
-wire [15:0] RxDetect   = {^LinkOut15 === 1'bx, ^LinkOut14 === 1'bx, ^LinkOut13 === 1'bx, ^LinkOut12 === 1'bx,
-                          ^LinkOut11 === 1'bx, ^LinkOut10 === 1'bx, ^LinkOut9  === 1'bx, ^LinkOut8  === 1'bx,
-                          ^LinkOut7  === 1'bx, ^LinkOut6  === 1'bx, ^LinkOut5  === 1'bx, ^LinkOut4  === 1'bx,
-                          ^LinkOut3  === 1'bx, ^LinkOut2  === 1'bx, ^LinkOut1  === 1'bx, ^LinkOut0  === 1'bx};
+wire [15:0] RxDetect   = {^LinkOut.Lane15 === 1'bx, ^LinkOut.Lane14 === 1'bx, ^LinkOut.Lane13 === 1'bx, ^LinkOut.Lane12 === 1'bx,
+                          ^LinkOut.Lane11 === 1'bx, ^LinkOut.Lane10 === 1'bx, ^LinkOut.Lane9  === 1'bx, ^LinkOut.Lane8  === 1'bx,
+                          ^LinkOut.Lane7  === 1'bx, ^LinkOut.Lane6  === 1'bx, ^LinkOut.Lane5  === 1'bx, ^LinkOut.Lane4  === 1'bx,
+                          ^LinkOut.Lane3  === 1'bx, ^LinkOut.Lane2  === 1'bx, ^LinkOut.Lane1  === 1'bx, ^LinkOut.Lane0  === 1'bx};
 
 // -----------------------------------------------
 // Initial process
@@ -240,6 +220,7 @@ begin
     UpdateResponse = 1'b1;
     ClkCount       = 0;
 
+    // Call the user C code fo this node
     PcieInit(NodeNum);
 end
 
@@ -328,177 +309,119 @@ end
 // -----------------------------------------------
 
 // Map the ports to internal variables for VProc access
-assign #`PcieVHostSampleDel In[0]  = (ReverseIn  ? LinkIn15 : LinkIn0)  ^ {10{InvertIn}};
-assign #`PcieVHostSampleDel In[1]  = (ReverseIn  ? LinkIn14 : LinkIn1)  ^ {10{InvertIn}};
-assign #`PcieVHostSampleDel In[2]  = (ReverseIn  ? LinkIn13 : LinkIn2)  ^ {10{InvertIn}};
-assign #`PcieVHostSampleDel In[3]  = (ReverseIn  ? LinkIn12 : LinkIn3)  ^ {10{InvertIn}};
-assign #`PcieVHostSampleDel In[4]  = (ReverseIn  ? LinkIn11 : LinkIn4)  ^ {10{InvertIn}};
-assign #`PcieVHostSampleDel In[5]  = (ReverseIn  ? LinkIn10 : LinkIn5)  ^ {10{InvertIn}};
-assign #`PcieVHostSampleDel In[6]  = (ReverseIn  ? LinkIn9  : LinkIn6)  ^ {10{InvertIn}};
-assign #`PcieVHostSampleDel In[7]  = (ReverseIn  ? LinkIn8  : LinkIn7)  ^ {10{InvertIn}};
-assign #`PcieVHostSampleDel In[8]  = (ReverseIn  ? LinkIn7  : LinkIn8)  ^ {10{InvertIn}};
-assign #`PcieVHostSampleDel In[9]  = (ReverseIn  ? LinkIn6  : LinkIn9)  ^ {10{InvertIn}};
-assign #`PcieVHostSampleDel In[10] = (ReverseIn  ? LinkIn5  : LinkIn10) ^ {10{InvertIn}};
-assign #`PcieVHostSampleDel In[11] = (ReverseIn  ? LinkIn4  : LinkIn11) ^ {10{InvertIn}};
-assign #`PcieVHostSampleDel In[12] = (ReverseIn  ? LinkIn3  : LinkIn12) ^ {10{InvertIn}};
-assign #`PcieVHostSampleDel In[13] = (ReverseIn  ? LinkIn2  : LinkIn13) ^ {10{InvertIn}};
-assign #`PcieVHostSampleDel In[14] = (ReverseIn  ? LinkIn1  : LinkIn14) ^ {10{InvertIn}};
-assign #`PcieVHostSampleDel In[15] = (ReverseIn  ? LinkIn0  : LinkIn15) ^ {10{InvertIn}};
+assign #`PcieVHostSampleDel In[0]  = (ReverseIn  ? LinkIn.Lane15 : LinkIn.Lane0)  ^ {10{InvertIn}};
+assign #`PcieVHostSampleDel In[1]  = (ReverseIn  ? LinkIn.Lane14 : LinkIn.Lane1)  ^ {10{InvertIn}};
+assign #`PcieVHostSampleDel In[2]  = (ReverseIn  ? LinkIn.Lane13 : LinkIn.Lane2)  ^ {10{InvertIn}};
+assign #`PcieVHostSampleDel In[3]  = (ReverseIn  ? LinkIn.Lane12 : LinkIn.Lane3)  ^ {10{InvertIn}};
+assign #`PcieVHostSampleDel In[4]  = (ReverseIn  ? LinkIn.Lane11 : LinkIn.Lane4)  ^ {10{InvertIn}};
+assign #`PcieVHostSampleDel In[5]  = (ReverseIn  ? LinkIn.Lane10 : LinkIn.Lane5)  ^ {10{InvertIn}};
+assign #`PcieVHostSampleDel In[6]  = (ReverseIn  ? LinkIn.Lane9  : LinkIn.Lane6)  ^ {10{InvertIn}};
+assign #`PcieVHostSampleDel In[7]  = (ReverseIn  ? LinkIn.Lane8  : LinkIn.Lane7)  ^ {10{InvertIn}};
+assign #`PcieVHostSampleDel In[8]  = (ReverseIn  ? LinkIn.Lane7  : LinkIn.Lane8)  ^ {10{InvertIn}};
+assign #`PcieVHostSampleDel In[9]  = (ReverseIn  ? LinkIn.Lane6  : LinkIn.Lane9)  ^ {10{InvertIn}};
+assign #`PcieVHostSampleDel In[10] = (ReverseIn  ? LinkIn.Lane5  : LinkIn.Lane10) ^ {10{InvertIn}};
+assign #`PcieVHostSampleDel In[11] = (ReverseIn  ? LinkIn.Lane4  : LinkIn.Lane11) ^ {10{InvertIn}};
+assign #`PcieVHostSampleDel In[12] = (ReverseIn  ? LinkIn.Lane3  : LinkIn.Lane12) ^ {10{InvertIn}};
+assign #`PcieVHostSampleDel In[13] = (ReverseIn  ? LinkIn.Lane2  : LinkIn.Lane13) ^ {10{InvertIn}};
+assign #`PcieVHostSampleDel In[14] = (ReverseIn  ? LinkIn.Lane1  : LinkIn.Lane14) ^ {10{InvertIn}};
+assign #`PcieVHostSampleDel In[15] = (ReverseIn  ? LinkIn.Lane0  : LinkIn.Lane15) ^ {10{InvertIn}};
 
-assign LinkOut0   = ElecIdleOut[0]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[15]  : Out[0])   ^ {10{InvertOut}};
-assign LinkOut1   = ElecIdleOut[1]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[14]  : Out[1])   ^ {10{InvertOut}};
-assign LinkOut2   = ElecIdleOut[2]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[13]  : Out[2])   ^ {10{InvertOut}};
-assign LinkOut3   = ElecIdleOut[3]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[12]  : Out[3])   ^ {10{InvertOut}};
-assign LinkOut4   = ElecIdleOut[4]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[11]  : Out[4])   ^ {10{InvertOut}};
-assign LinkOut5   = ElecIdleOut[5]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[10]  : Out[5])   ^ {10{InvertOut}};
-assign LinkOut6   = ElecIdleOut[6]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[9]   : Out[6])   ^ {10{InvertOut}};
-assign LinkOut7   = ElecIdleOut[7]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[8]   : Out[7])   ^ {10{InvertOut}};
-assign LinkOut8   = ElecIdleOut[8]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[7]   : Out[8])   ^ {10{InvertOut}};
-assign LinkOut9   = ElecIdleOut[9]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[6]   : Out[9])   ^ {10{InvertOut}};
-assign LinkOut10  = ElecIdleOut[10] ? 10'bzzzzzzzzzz : (ReverseOut ? Out[5]   : Out[10])  ^ {10{InvertOut}};
-assign LinkOut11  = ElecIdleOut[11] ? 10'bzzzzzzzzzz : (ReverseOut ? Out[4]   : Out[11])  ^ {10{InvertOut}};
-assign LinkOut12  = ElecIdleOut[12] ? 10'bzzzzzzzzzz : (ReverseOut ? Out[3]   : Out[12])  ^ {10{InvertOut}};
-assign LinkOut13  = ElecIdleOut[13] ? 10'bzzzzzzzzzz : (ReverseOut ? Out[2]   : Out[13])  ^ {10{InvertOut}};
-assign LinkOut14  = ElecIdleOut[14] ? 10'bzzzzzzzzzz : (ReverseOut ? Out[1]   : Out[14])  ^ {10{InvertOut}};
-assign LinkOut15  = ElecIdleOut[15] ? 10'bzzzzzzzzzz : (ReverseOut ? Out[0]   : Out[15])  ^ {10{InvertOut}};
+assign LinkOut.Lane0   = ElecIdleOut[0]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[15]  : Out[0])   ^ {10{InvertOut}};
+assign LinkOut.Lane1   = ElecIdleOut[1]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[14]  : Out[1])   ^ {10{InvertOut}};
+assign LinkOut.Lane2   = ElecIdleOut[2]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[13]  : Out[2])   ^ {10{InvertOut}};
+assign LinkOut.Lane3   = ElecIdleOut[3]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[12]  : Out[3])   ^ {10{InvertOut}};
+assign LinkOut.Lane4   = ElecIdleOut[4]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[11]  : Out[4])   ^ {10{InvertOut}};
+assign LinkOut.Lane5   = ElecIdleOut[5]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[10]  : Out[5])   ^ {10{InvertOut}};
+assign LinkOut.Lane6   = ElecIdleOut[6]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[9]   : Out[6])   ^ {10{InvertOut}};
+assign LinkOut.Lane7   = ElecIdleOut[7]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[8]   : Out[7])   ^ {10{InvertOut}};
+assign LinkOut.Lane8   = ElecIdleOut[8]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[7]   : Out[8])   ^ {10{InvertOut}};
+assign LinkOut.Lane9   = ElecIdleOut[9]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[6]   : Out[9])   ^ {10{InvertOut}};
+assign LinkOut.Lane10  = ElecIdleOut[10] ? 10'bzzzzzzzzzz : (ReverseOut ? Out[5]   : Out[10])  ^ {10{InvertOut}};
+assign LinkOut.Lane11  = ElecIdleOut[11] ? 10'bzzzzzzzzzz : (ReverseOut ? Out[4]   : Out[11])  ^ {10{InvertOut}};
+assign LinkOut.Lane12  = ElecIdleOut[12] ? 10'bzzzzzzzzzz : (ReverseOut ? Out[3]   : Out[12])  ^ {10{InvertOut}};
+assign LinkOut.Lane13  = ElecIdleOut[13] ? 10'bzzzzzzzzzz : (ReverseOut ? Out[2]   : Out[13])  ^ {10{InvertOut}};
+assign LinkOut.Lane14  = ElecIdleOut[14] ? 10'bzzzzzzzzzz : (ReverseOut ? Out[1]   : Out[14])  ^ {10{InvertOut}};
+assign LinkOut.Lane15  = ElecIdleOut[15] ? 10'bzzzzzzzzzz : (ReverseOut ? Out[0]   : Out[15])  ^ {10{InvertOut}};
 
 endmodule
 
 // -----------------------------------------------
-// PcieVhostSerial
+// PcieVhostSerial Root Complex
 // -----------------------------------------------
 
-module PcieVhostRcSerial (Clk, SerClk, notReset,
-                        LinkIn0,   LinkIn1,   LinkIn2,   LinkIn3,
-                        LinkIn4,   LinkIn5,   LinkIn6,   LinkIn7,
-                        LinkIn8,   LinkIn9,   LinkIn10,  LinkIn11,
-                        LinkIn12,  LinkIn13,  LinkIn14,  LinkIn15,
-                        LinkOut0,  LinkOut1,  LinkOut2,  LinkOut3,
-                        LinkOut4,  LinkOut5,  LinkOut6,  LinkOut7,
-                        LinkOut8,  LinkOut9,  LinkOut10, LinkOut11,
-                        LinkOut12, LinkOut13, LinkOut14, LinkOut15);
+module PcieVhostRcSerial (input         Clk, SerClk, notReset,
+                          input  [15:0] SerLinkIn,
+                          output [15:0] SerLinkOut);
 
 parameter LinkWidth = 16;
 parameter NodeNum   = 8;
 parameter EndPoint  = 0;
 
-input      Clk;
-input      SerClk;
-input      notReset;
-input      LinkIn0,    LinkIn1,    LinkIn2,    LinkIn3;
-input      LinkIn4,    LinkIn5,    LinkIn6,    LinkIn7;
-input      LinkIn8,    LinkIn9,    LinkIn10,   LinkIn11;
-input      LinkIn12,   LinkIn13,   LinkIn14,   LinkIn15;
-
-output     LinkOut0,   LinkOut1,   LinkOut2,   LinkOut3;
-output     LinkOut4,   LinkOut5,   LinkOut6,   LinkOut7;
-output     LinkOut8,   LinkOut9,   LinkOut10,  LinkOut11;
-output     LinkOut12,  LinkOut13,  LinkOut14,  LinkOut15;
-
-wire [9:0] PLinkIn0,   PLinkIn1,   PLinkIn2,   PLinkIn3;
-wire [9:0] PLinkIn4,   PLinkIn5,   PLinkIn6,   PLinkIn7;
-wire [9:0] PLinkIn8,   PLinkIn9,   PLinkIn10,  PLinkIn11;
-wire [9:0] PLinkIn12,  PLinkIn13,  PLinkIn14,  PLinkIn15;
-
-wire [9:0] PLinkOut0,  PLinkOut1,  PLinkOut2,  PLinkOut3;
-wire [9:0] PLinkOut4,  PLinkOut5,  PLinkOut6,  PLinkOut7;
-wire [9:0] PLinkOut8,  PLinkOut9,  PLinkOut10, PLinkOut11;
-wire [9:0] PLinkOut12, PLinkOut13, PLinkOut14, PLinkOut15;
+PcieLinkLanes16 LinkIn();
+PcieLinkLanes16 LinkOut();
 
  PcieVhostRc #(LinkWidth, NodeNum, EndPoint) pvh
                    (.Clk      (Clk),
                     .notReset (notReset),
-                    .LinkIn0   (PLinkIn0),   .LinkIn1   (PLinkIn1),   .LinkIn2   (PLinkIn2),   .LinkIn3   (PLinkIn3),
-                    .LinkIn4   (PLinkIn4),   .LinkIn5   (PLinkIn5),   .LinkIn6   (PLinkIn6),   .LinkIn7   (PLinkIn7),
-                    .LinkIn8   (PLinkIn8),   .LinkIn9   (PLinkIn9),   .LinkIn10  (PLinkIn10),  .LinkIn11  (PLinkIn11),
-                    .LinkIn12  (PLinkIn12),  .LinkIn13  (PLinkIn13),  .LinkIn14  (PLinkIn14),  .LinkIn15  (PLinkIn15),
-                    .LinkOut0  (PLinkOut0),  .LinkOut1  (PLinkOut1),  .LinkOut2  (PLinkOut2),  .LinkOut3  (PLinkOut3),
-                    .LinkOut4  (PLinkOut4),  .LinkOut5  (PLinkOut5),  .LinkOut6  (PLinkOut6),  .LinkOut7  (PLinkOut7),
-                    .LinkOut8  (PLinkOut8),  .LinkOut9  (PLinkOut9),  .LinkOut10 (PLinkOut10), .LinkOut11 (PLinkOut11),
-                    .LinkOut12 (PLinkOut12), .LinkOut13 (PLinkOut13), .LinkOut14 (PLinkOut14), .LinkOut15 (PLinkOut15)
+                    .LinkIn   (LinkIn),
+                    .LinkOut  (LinkOut)
                     );
 
 
  Serialiser serdes (.SerClk     (SerClk),
                     .BitReverse (1'b0),
 
-                    .ParInVec   ({PLinkOut15, PLinkOut14, PLinkOut13, PLinkOut12, PLinkOut11, PLinkOut10, PLinkOut9, PLinkOut8,
-                                  PLinkOut7,  PLinkOut6,  PLinkOut5,  PLinkOut4,  PLinkOut3,  PLinkOut2,  PLinkOut1, PLinkOut0}),
-                    .SerOut     ({LinkOut15,  LinkOut14,  LinkOut13,  LinkOut12,  LinkOut11,  LinkOut10,  LinkOut9,  LinkOut8,
-                                  LinkOut7,   LinkOut6,   LinkOut5,   LinkOut4,   LinkOut3,   LinkOut2,   LinkOut1,  LinkOut0}),
-                    .SerIn      ({LinkIn15,   LinkIn14,   LinkIn13,   LinkIn12,   LinkIn11,   LinkIn10,   LinkIn9,   LinkIn8,
-                                  LinkIn7,    LinkIn6,    LinkIn5,    LinkIn4,    LinkIn3,    LinkIn2,    LinkIn1,   LinkIn0}),
-                    .ParOut     ({PLinkIn15,  PLinkIn14,  PLinkIn13,  PLinkIn12,  PLinkIn11,  PLinkIn10,  PLinkIn9,  PLinkIn8,
-                                  PLinkIn7,   PLinkIn6,   PLinkIn5,   PLinkIn4,   PLinkIn3,   PLinkIn2,   PLinkIn1,  PLinkIn0})
+                    .ParInVec   ({LinkOut.Lane15, LinkOut.Lane14, LinkOut.Lane13, LinkOut.Lane12,
+                                  LinkOut.Lane11, LinkOut.Lane10, LinkOut.Lane9,  LinkOut.Lane8,
+                                  LinkOut.Lane7,  LinkOut.Lane6,  LinkOut.Lane5,  LinkOut.Lane4,
+                                  LinkOut.Lane3,  LinkOut.Lane2,  LinkOut.Lane1,  LinkOut.Lane0}),
+                    .SerOut     (SerLinkOut),
+                    
+                    .SerIn      (SerLinkIn),
+                    .ParOut     ({LinkOut.Lane15,  LinkOut.Lane14,  LinkOut.Lane13,  LinkOut.Lane12,
+                                  LinkOut.Lane11,  LinkOut.Lane10,  LinkOut.Lane9,   LinkOut.Lane8,
+                                  LinkOut.Lane7,   LinkOut.Lane6,   LinkOut.Lane5,   LinkOut.Lane4,
+                                  LinkOut.Lane3,   LinkOut.Lane2,   LinkOut.Lane1,  LinkOut.Lane0})
                     );
-
 
 endmodule
 
-module PcieVhostEpSerial (Clk, SerClk, notReset,
-                        LinkIn0,   LinkIn1,   LinkIn2,   LinkIn3,
-                        LinkIn4,   LinkIn5,   LinkIn6,   LinkIn7,
-                        LinkIn8,   LinkIn9,   LinkIn10,  LinkIn11,
-                        LinkIn12,  LinkIn13,  LinkIn14,  LinkIn15,
-                        LinkOut0,  LinkOut1,  LinkOut2,  LinkOut3,
-                        LinkOut4,  LinkOut5,  LinkOut6,  LinkOut7,
-                        LinkOut8,  LinkOut9,  LinkOut10, LinkOut11,
-                        LinkOut12, LinkOut13, LinkOut14, LinkOut15);
+// -----------------------------------------------
+// PcieVhostSerial Endpoint
+// -----------------------------------------------
+module PcieVhostEpSerial (input         Clk, SerClk, notReset,
+                          input  [15:0] SerLinkIn,
+                          output [15:0] SerLinkOut);
 
 parameter LinkWidth = 16;
 parameter NodeNum   = 8;
 parameter EndPoint  = 0;
 
-input      Clk;
-input      SerClk;
-input      notReset;
-input      LinkIn0,    LinkIn1,    LinkIn2,    LinkIn3;
-input      LinkIn4,    LinkIn5,    LinkIn6,    LinkIn7;
-input      LinkIn8,    LinkIn9,    LinkIn10,   LinkIn11;
-input      LinkIn12,   LinkIn13,   LinkIn14,   LinkIn15;
-
-output     LinkOut0,   LinkOut1,   LinkOut2,   LinkOut3;
-output     LinkOut4,   LinkOut5,   LinkOut6,   LinkOut7;
-output     LinkOut8,   LinkOut9,   LinkOut10,  LinkOut11;
-output     LinkOut12,  LinkOut13,  LinkOut14,  LinkOut15;
-
-wire [9:0] PLinkIn0,   PLinkIn1,   PLinkIn2,   PLinkIn3;
-wire [9:0] PLinkIn4,   PLinkIn5,   PLinkIn6,   PLinkIn7;
-wire [9:0] PLinkIn8,   PLinkIn9,   PLinkIn10,  PLinkIn11;
-wire [9:0] PLinkIn12,  PLinkIn13,  PLinkIn14,  PLinkIn15;
-
-wire [9:0] PLinkOut0,  PLinkOut1,  PLinkOut2,  PLinkOut3;
-wire [9:0] PLinkOut4,  PLinkOut5,  PLinkOut6,  PLinkOut7;
-wire [9:0] PLinkOut8,  PLinkOut9,  PLinkOut10, PLinkOut11;
-wire [9:0] PLinkOut12, PLinkOut13, PLinkOut14, PLinkOut15;
+PcieLinkLanes16 LinkIn();
+PcieLinkLanes16 LinkOut();
 
  PcieVhostEp #(LinkWidth, NodeNum, EndPoint) pvh
                    (.Clk      (Clk),
                     .notReset (notReset),
-                    .LinkIn0   (PLinkIn0),   .LinkIn1   (PLinkIn1),   .LinkIn2   (PLinkIn2),   .LinkIn3   (PLinkIn3),
-                    .LinkIn4   (PLinkIn4),   .LinkIn5   (PLinkIn5),   .LinkIn6   (PLinkIn6),   .LinkIn7   (PLinkIn7),
-                    .LinkIn8   (PLinkIn8),   .LinkIn9   (PLinkIn9),   .LinkIn10  (PLinkIn10),  .LinkIn11  (PLinkIn11),
-                    .LinkIn12  (PLinkIn12),  .LinkIn13  (PLinkIn13),  .LinkIn14  (PLinkIn14),  .LinkIn15  (PLinkIn15),
-                    .LinkOut0  (PLinkOut0),  .LinkOut1  (PLinkOut1),  .LinkOut2  (PLinkOut2),  .LinkOut3  (PLinkOut3),
-                    .LinkOut4  (PLinkOut4),  .LinkOut5  (PLinkOut5),  .LinkOut6  (PLinkOut6),  .LinkOut7  (PLinkOut7),
-                    .LinkOut8  (PLinkOut8),  .LinkOut9  (PLinkOut9),  .LinkOut10 (PLinkOut10), .LinkOut11 (PLinkOut11),
-                    .LinkOut12 (PLinkOut12), .LinkOut13 (PLinkOut13), .LinkOut14 (PLinkOut14), .LinkOut15 (PLinkOut15)
+                    .LinkIn   (LinkIn),
+                    .LinkOut  (LinkOut)
                     );
 
 
  Serialiser serdes (.SerClk     (SerClk),
                     .BitReverse (1'b0),
 
-                    .ParInVec   ({PLinkOut15, PLinkOut14, PLinkOut13, PLinkOut12, PLinkOut11, PLinkOut10, PLinkOut9, PLinkOut8,
-                                  PLinkOut7,  PLinkOut6,  PLinkOut5,  PLinkOut4,  PLinkOut3,  PLinkOut2,  PLinkOut1, PLinkOut0}),
-                    .SerOut     ({LinkOut15,  LinkOut14,  LinkOut13,  LinkOut12,  LinkOut11,  LinkOut10,  LinkOut9,  LinkOut8,
-                                  LinkOut7,   LinkOut6,   LinkOut5,   LinkOut4,   LinkOut3,   LinkOut2,   LinkOut1,  LinkOut0}),
-                    .SerIn      ({LinkIn15,   LinkIn14,   LinkIn13,   LinkIn12,   LinkIn11,   LinkIn10,   LinkIn9,   LinkIn8,
-                                  LinkIn7,    LinkIn6,    LinkIn5,    LinkIn4,    LinkIn3,    LinkIn2,    LinkIn1,   LinkIn0}),
-                    .ParOut     ({PLinkIn15,  PLinkIn14,  PLinkIn13,  PLinkIn12,  PLinkIn11,  PLinkIn10,  PLinkIn9,  PLinkIn8,
-                                  PLinkIn7,   PLinkIn6,   PLinkIn5,   PLinkIn4,   PLinkIn3,   PLinkIn2,   PLinkIn1,  PLinkIn0})
+                    .ParInVec   ({LinkOut.Lane15, LinkOut.Lane14, LinkOut.Lane13, LinkOut.Lane12,
+                                  LinkOut.Lane11, LinkOut.Lane10, LinkOut.Lane9,  LinkOut.Lane8,
+                                  LinkOut.Lane7,  LinkOut.Lane6,  LinkOut.Lane5,  LinkOut.Lane4,
+                                  LinkOut.Lane3,  LinkOut.Lane2,  LinkOut.Lane1,  LinkOut.Lane0}),
+                    .SerOut     (SerLinkOut),
+                    
+                    .SerIn      (SerLinkIn),
+                    .ParOut     ({LinkOut.Lane15, LinkOut.Lane14, LinkOut.Lane13, LinkOut.Lane12,
+                                  LinkOut.Lane11, LinkOut.Lane10, LinkOut.Lane9,  LinkOut.Lane8,
+                                  LinkOut.Lane7,  LinkOut.Lane6,  LinkOut.Lane5,  LinkOut.Lane4,
+                                  LinkOut.Lane3,  LinkOut.Lane2,  LinkOut.Lane1,  LinkOut.Lane0})
                     );
-
-
 endmodule
 

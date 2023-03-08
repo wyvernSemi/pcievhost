@@ -3,6 +3,8 @@
 #
 # Copyright (c) 2005-2023 Simon Southwell.
 #
+# Date: 8th Mar 2023
+#
 # This file is part of pcieVHost.
 #
 # pcieVHost is free software: you can redistribute it and/or modify
@@ -20,8 +22,8 @@
 #
 ###################################################################
 
-
 NUM_VPROC     = 2
+SIM           = RivieraPro
 
 #
 # PCIE PcieHost test defintions
@@ -43,8 +45,6 @@ VSIMFLAGS     = +access +r -interceptcoutput -sv_lib ${PLI_SO} ${PCIE_TOP}
 VLOGFLAGS     = -quiet -sv2k5 -msg 0 +define+DISP_LINK_WIDE -incr +incdir+${VPROC_TOP} -f test.vc
 
 PCIE_MAP_V    = ${PCIE_MAP_C:%.h=${HDRDIR}/%.v}
-
-SIM           = RivieraPro
 
 ifeq ("${SIM}", "ActiveHDL")
   ALDECDIR    =  /c/Aldec/Active-HDL-13-x64

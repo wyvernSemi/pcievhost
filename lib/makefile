@@ -1,7 +1,9 @@
 ###################################################################
 # Makefile for Virtual PCIe Host C code in Modelsim
 #
-# Copyright (c) 2005-2010 Simon Southwell.
+# Copyright (c) 2023 Simon Southwell.
+#
+# Date: 8th Mar 2023
 #
 # This file is part of pcieVHost.
 #
@@ -18,18 +20,12 @@
 # You should have received a copy of the GNU General Public License
 # along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 #
-# $Id: makefile,v 1.4 2021/05/06 07:59:51 simon Exp $
-# $Source: /home/simon/CVS/src/HDL/pcieVHost/lib/makefile,v $
-#
 ###################################################################
 
-# $MODELSIM and MODEL_TECH environment variables must be set
-# for pointing to modelsim.ini file and binary dierctory respectively
+SIM       = RivieraPro
 
 SRCDIR    = ../src
 OBJDIR    = obj
-
-SIM           = RivieraPro
 
 ifeq ("${SIM}", "ActiveHDL")
   ALDECDIR    =  /c/Aldec/Active-HDL-13-x64

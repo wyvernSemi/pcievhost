@@ -1,8 +1,8 @@
 //=============================================================
 // 
-// Copyright (c) 2016 Simon Southwell. All rights reserved.
+// Copyright (c) 2023 Simon Southwell. All rights reserved.
 //
-// Date: 20th Sep 2016
+// Date: 8th Mar 2023
 //
 // This file is part of the pcieVHost package.
 //
@@ -18,9 +18,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
-//
-// $Id: pcie_utils.h,v 1.5 2016/10/17 11:47:01 simon Exp $
-// $Source: /home/simon/CVS/src/HDL/pcieVHost/src/pcie_utils.h,v $
 //
 //=============================================================
 
