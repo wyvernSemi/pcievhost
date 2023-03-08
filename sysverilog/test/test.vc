@@ -17,7 +17,6 @@ test_defs.v
 ../PcieDispLink/RxLogicDisp.v
 
 ../pcieVHost/pcieVHost.sv
-#../pcieVHost/pcieVHostEp.sv
 
 ContDisps.v
 test.v

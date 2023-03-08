@@ -1,9 +1,0 @@
-// Paths relative to top level
-
-../headers/timescale.v
-../headers/pciedispheader.v
-../headers/pciexpress_header.v
-
-// Auto-generated
-../headers/pcie_vhost_map.v
-
