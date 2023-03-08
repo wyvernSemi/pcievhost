@@ -66,8 +66,8 @@ void SendPacket(const int node)
     int lanes = 0, idx = 0;
     pPkt_t tmp_p;
     sPkt_t AckHolder, NakHolder;
-    uint32 code;
-    uint32 LinkIn [MAX_LINK_WIDTH];
+    uint32_t code;
+    uint32_t LinkIn [MAX_LINK_WIDTH];
     int i;
 
     PktData_t AckDataHolder[MAX_DLLP_BYTES], NakDataHolder[MAX_DLLP_BYTES];
@@ -76,7 +76,7 @@ void SendPacket(const int node)
     bool          padding    = false;
     bool          sdp_output = false;
 
-    debug_io_printf("** Entering SendPacket (send_p=%p)\n", this->send_p);
+    DebugVPrint("** Entering SendPacket (send_p=%p)\n", this->send_p);
 
     if (this->draining_queue)
     {
@@ -197,7 +197,7 @@ void SendPacket(const int node)
             }
 
             // Output codes to current lanes and read input
-            LinkIn[lanes] = (uint32)VWrite(LINKADDR0+lanes, code, lanes != this->LinkWidth-1, node);
+            LinkIn[lanes] = (uint32_t)VWrite(LINKADDR0+lanes, code, lanes != this->LinkWidth-1, node);
 
             // last lane, so process input values 
             if (lanes == (this->LinkWidth-1))
@@ -254,7 +254,7 @@ void SendPacket(const int node)
     // If we've terminated midway through the lanes, then flush with PADs
     this->draining_queue = false;
     
-    debug_io_printf("** Exiting SendPacket (send_p=%p)\n", this->send_p);
+    DebugVPrint("** Exiting SendPacket (send_p=%p)\n", this->send_p);
 }
 
 // -------------------------------------------------------------------------
@@ -270,12 +270,12 @@ void SendPacket(const int node)
 //
 // -------------------------------------------------------------------------
 
-pPktData_t MemWrite (const uint64 addr, const PktData_t *data, const int length, const int tag, const uint32 rid, const bool queue, const int node)
+pPktData_t MemWrite (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool queue, const int node)
 {
     return MemWriteDigest (addr, data, length, tag, rid, true, queue, node);
 }
 
-pPktData_t MemWriteDigest (const uint64 addr, const PktData_t *data, const int length, const int tag, const uint32 rid, const bool digest,
+pPktData_t MemWriteDigest (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool digest,
                            const bool queue, const int node)
 {
     PktData_t *pkt_p, *data_p;
@@ -300,7 +300,7 @@ pPktData_t MemWriteDigest (const uint64 addr, const PktData_t *data, const int l
         VPrint( "MemWrite: ***Error --- invalid payload length (%d) at node %d\n", length, node);
         VWrite(PVH_FATAL, 0, 0, node);
     } 
-    else if (length && (((addr + (uint64)(length-1)) & ~(MASK_4K_BITS)) > (addr & ~(MASK_4K_BITS))))
+    else if (length && (((addr + (uint64_t)(length-1)) & ~(MASK_4K_BITS)) > (addr & ~(MASK_4K_BITS))))
     {
         VPrint( "MemWrite: ***Error --- address + length crosses 4K boundary at node %d\n", node);
         VWrite(PVH_FATAL, 0, 0, node);
@@ -392,12 +392,12 @@ pPktData_t MemWriteDigest (const uint64 addr, const PktData_t *data, const int l
 //
 // -------------------------------------------------------------------------
 
-pPktData_t MemRead (const uint64 addr, const int length, const int tag, const uint32 rid, const bool queue, const int node)
+pPktData_t MemRead (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool queue, const int node)
 {
     return MemReadDigest (addr, length, tag, rid, true, queue, node);
 }
 
-pPktData_t MemReadDigest (const uint64 addr, const int length, const int tag, const uint32 rid, const bool digest, 
+pPktData_t MemReadDigest (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool digest, 
                           const bool queue, const int node)
 {
     PktData_t *pkt_p, *data_p;
@@ -422,7 +422,7 @@ pPktData_t MemReadDigest (const uint64 addr, const int length, const int tag, co
         VPrint( "MemRead: ***Error --- invalid payload (%d) at node %d\n", length, node);
         VWrite(PVH_FATAL, 0, 0, node);
     } 
-    else if (length && (((addr + (uint64)(length-1)) & ~(MASK_4K_BITS)) > (addr & ~(MASK_4K_BITS))))
+    else if (length && (((addr + (uint64_t)(length-1)) & ~(MASK_4K_BITS)) > (addr & ~(MASK_4K_BITS))))
     {
         VPrint( "MemRead: ***Error --- address + length crosses 4K boundary at node %d, addr 0x%lx, length 0x%x\n", node, addr, length);
         VWrite(PVH_FATAL, 0, 0, node);
@@ -503,14 +503,14 @@ pPktData_t MemReadDigest (const uint64 addr, const int length, const int tag, co
 //
 // -------------------------------------------------------------------------
 
-pPktData_t Completion (const uint64 addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int length, 
-                       const int tag, const uint32 cid, const uint32 rid, const bool queue, const int node)
+pPktData_t Completion (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int length, 
+                       const int tag, const uint32_t cid, const uint32_t rid, const bool queue, const int node)
 {
     return CompletionDigest(addr, data, status, fbe, lbe, length, tag, cid, rid, true, queue, node);
 }
 
-pPktData_t CompletionDigest (uint64 addr, const PktData_t *data, int status, int fbe, int lbe, int length, int tag,
-                             uint32 cid, uint32 rid, bool digest, bool queue, int node)
+pPktData_t CompletionDigest (uint64_t addr, const PktData_t *data, int status, int fbe, int lbe, int length, int tag,
+                             uint32_t cid, uint32_t rid, bool digest, bool queue, int node)
 {
     PktData_t *pkt_p, *data_p;
     pPkt_t packet;
@@ -540,8 +540,8 @@ pPktData_t CompletionDigest (uint64 addr, const PktData_t *data, int status, int
     return PartCompletionDigest(addr, data, status, fbe, lbe, length, length, tag, cid, rid, digest, queue, node);
 }
 
-pPktData_t CompletionDelay (const uint64 addr, const PktData_t *data, const int status, const int fbe, const int lbe, 
-                            const int length, const int tag, const uint32 cid, const uint32 rid, const int node)
+pPktData_t CompletionDelay (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, 
+                            const int length, const int tag, const uint32_t cid, const uint32_t rid, const int node)
 {
      return PartCompletionDelay (addr, data, status, fbe, lbe, length, length, tag, cid, rid, true, true, true, node);
 }
@@ -556,15 +556,15 @@ pPktData_t CompletionDelay (const uint64 addr, const PktData_t *data, const int 
 //
 // -------------------------------------------------------------------------
 
-pPktData_t PartCompletion (const uint64 addr, const PktData_t *data, const int status, const int fbe, const int lbe, 
-                           const int rlength, const int length, const int tag, const uint32 cid, const uint32 rid,
+pPktData_t PartCompletion (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, 
+                           const int rlength, const int length, const int tag, const uint32_t cid, const uint32_t rid,
                            const bool queue, const int node)
 {
     return PartCompletionDigest (addr, data, status, fbe, lbe, rlength, length, tag, cid, rid, true, queue, node);
 }
 
-pPktData_t PartCompletionDelay (const uint64 addr, const PktData_t *data, const int status, const int fbe, const int lbe, 
-                                const int rlength, const int length, const int tag, const uint32 cid, const uint32 rid,
+pPktData_t PartCompletionDelay (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, 
+                                const int rlength, const int length, const int tag, const uint32_t cid, const uint32_t rid,
                                 const bool digest, const bool delay, const bool queue, const int node)
 {
     PktData_t *pkt_p, *data_p;
@@ -672,8 +672,8 @@ pPktData_t PartCompletionDelay (const uint64 addr, const PktData_t *data, const 
     }
 }
 
-pPktData_t PartCompletionDigest (const uint64 addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int rlength, 
-                                 const int length, const int tag , const uint32 cid, const uint32 rid, const bool digest, const bool queue, const int node)
+pPktData_t PartCompletionDigest (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int rlength, 
+                                 const int length, const int tag , const uint32_t cid, const uint32_t rid, const bool digest, const bool queue, const int node)
 {
     return PartCompletionDelay (addr, data, status, fbe, lbe, rlength, length, tag, cid, rid, digest, false, queue, node);
 }
@@ -685,12 +685,12 @@ pPktData_t PartCompletionDigest (const uint64 addr, const PktData_t *data, const
 //
 // -------------------------------------------------------------------------
 
-pPktData_t IoWrite (const uint64 addr, const PktData_t *data, const int length, const int tag, const uint32 rid, const bool queue, const int node)
+pPktData_t IoWrite (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool queue, const int node)
 {
     return IoWriteDigest(addr, data, length, tag, rid, true, queue, node);
 }
 
-pPktData_t IoWriteDigest (const uint64 addr, const PktData_t *data, const int length, const int tag, const uint32 rid, const bool digest, 
+pPktData_t IoWriteDigest (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool digest, 
                           const bool queue, const int node)
 {
     PktData_t *pkt_p, *data_p;
@@ -799,12 +799,12 @@ pPktData_t IoWriteDigest (const uint64 addr, const PktData_t *data, const int le
 //
 // -------------------------------------------------------------------------
 
-pPktData_t IoRead (const uint64 addr, const int length, const int tag, const uint32 rid, const bool queue, const int node)
+pPktData_t IoRead (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool queue, const int node)
 {
     return IoReadDigest (addr, length, tag, rid, true, queue, node);
 }
 
-pPktData_t IoReadDigest (const uint64 addr, const int length, const int tag, const uint32 rid, const bool digest, const bool queue, const int node)
+pPktData_t IoReadDigest (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool digest, const bool queue, const int node)
 {
     PktData_t *pkt_p, *data_p;
     pPkt_t packet;
@@ -908,13 +908,13 @@ pPktData_t IoReadDigest (const uint64 addr, const int length, const int tag, con
 //
 // -------------------------------------------------------------------------
 
-pPktData_t CfgWrite (const uint64 addr, const PktData_t *data, const int length, const int tag, const uint32 rid, 
+pPktData_t CfgWrite (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid, 
                      const bool queue, const int node)
 {
     return CfgWriteDigest (addr, data, length, tag, rid, true, queue, node);
 }
 
-pPktData_t CfgWriteDigest (const uint64 addr, const PktData_t *data, const int length, const int tag, const uint32 rid, const bool digest,
+pPktData_t CfgWriteDigest (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool digest,
                            const bool queue, const int node)
 {
     PktData_t *pkt_p, *data_p;
@@ -955,7 +955,7 @@ pPktData_t CfgWriteDigest (const uint64 addr, const PktData_t *data, const int l
     // Set the tag and sequence number of the packet
     SET_CFG_TAG(tag, pkt_p);
     SET_CFG_RID(rid, pkt_p);
-    SET_CFG_CID((uint32)(addr >> 16), pkt_p);
+    SET_CFG_CID((uint32_t)(addr >> 16), pkt_p);
     SET_DLLP_SEQ(this->seq, pkt_p);
 
     for (i = 0; i < length; i++)
@@ -1025,12 +1025,12 @@ pPktData_t CfgWriteDigest (const uint64 addr, const PktData_t *data, const int l
 //
 // -------------------------------------------------------------------------
 
-pPktData_t CfgRead (const uint64 addr, const int length, const int tag, const uint32 rid, const bool queue, const int node)
+pPktData_t CfgRead (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool queue, const int node)
 {
     return CfgReadDigest(addr, length, tag, rid, true, queue, node);
 }
 
-pPktData_t CfgReadDigest (const uint64 addr, const int length, const int tag, const uint32 rid, const bool digest, 
+pPktData_t CfgReadDigest (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool digest, 
                           const bool queue, const int node)
 {
     PktData_t *pkt_p, *data_p;
@@ -1137,13 +1137,13 @@ pPktData_t CfgReadDigest (const uint64 addr, const int length, const int tag, co
 //
 // -------------------------------------------------------------------------
 
-pPktData_t Message (const int code, const PktData_t *data, const int length, const int tag, const uint32 rid,
+pPktData_t Message (const int code, const PktData_t *data, const int length, const int tag, const uint32_t rid,
                     const bool queue, const int node)
 {
     return MessageDigest(code, data, length, tag, rid, true, queue, node);
 }
 
-pPktData_t MessageDigest (const int code, const PktData_t *data, const int length, const int tag, const uint32 rid,
+pPktData_t MessageDigest (const int code, const PktData_t *data, const int length, const int tag, const uint32_t rid,
                          const bool digest, const bool queue, const int node)
 {
     PktData_t *pkt_p, *data_p;
@@ -1312,7 +1312,7 @@ void SendAck (const int sequence, const int node)
 {
     PktData_t *pkt_p, *data_p;
     pPkt_t packet;
-    uint32 OldTimeStamp;
+    uint32_t OldTimeStamp;
 
     if (node < 0 || node >= VP_MAX_NODES)
     {
@@ -1395,7 +1395,7 @@ void SendNak (const int sequence, const int node)
 {
     PktData_t *pkt_p, *data_p;
     pPkt_t packet;
-    uint32 OldTimeStamp;
+    uint32_t OldTimeStamp;
 
     if (node < 0 || node >=  VP_MAX_NODES)
     {
@@ -1481,7 +1481,7 @@ void SendFC (const int type, const int vc, const int hdrfc, const int datafc, co
     pPkt_t packet;
     int Encoding;
 
-    debug_io_printf("** SendFC: type=%d hdrfc=%d datafc=%d queue=%d\n", type, hdrfc, datafc, queue);
+    DebugVPrint("** SendFC: type=%d hdrfc=%d datafc=%d queue=%d\n", type, hdrfc, datafc, queue);
 
     if (node < 0 || node >= VP_MAX_NODES)
     {
@@ -1654,7 +1654,7 @@ void SendOs (const int Type, const int node)
 
     int lanes, sequence;
     int old_draining_state = this->draining_queue;
-    uint32 LinkIn [MAX_LINK_WIDTH];
+    uint32_t LinkIn [MAX_LINK_WIDTH];
 
     if (node < 0 || node > VP_MAX_NODES)
     {
@@ -1711,7 +1711,7 @@ void SendTs(const int identifier, const int lane_num, const int link_num, const 
     int lanes, sequence;
     int data;
     int old_draining_state = this->draining_queue;
-    uint32 LinkIn [MAX_LINK_WIDTH];
+    uint32_t LinkIn [MAX_LINK_WIDTH];
 
     // Do some checks
     if (node < 0 || node > VP_MAX_NODES)
@@ -1802,7 +1802,7 @@ void SendIdle(const int Ticks, const int node)
 {
     int lanes, target_time = (Ticks + this->TicksSinceReset);
 
-    debug_io_printf("** Entering SendIdle\n");
+    DebugVPrint("** Entering SendIdle\n");
 
     if (node < 0 || node > VP_MAX_NODES)
     {
@@ -1827,7 +1827,7 @@ void SendIdle(const int Ticks, const int node)
         SendPacket(node);
     }
 
-    debug_io_printf("** Exiting SendIdle \n");
+    DebugVPrint("** Exiting SendIdle \n");
 }
 
 // -------------------------------------------------------------------------
@@ -1843,7 +1843,7 @@ void SendIdle(const int Ticks, const int node)
 //
 // -------------------------------------------------------------------------
 
-void WaitForCompletionN (const uint32 count, const int node)
+void WaitForCompletionN (const uint32_t count, const int node)
 {
     int lanes;
 
@@ -1894,7 +1894,7 @@ void WaitForCompletion(int node)
 
 void InitialisePcie (const callback_t cb_func, void *usrptr, const int node)
 {
-    uint32 linkwidth, i;
+    uint32_t linkwidth, i;
 
     VPrint("InitialisePcie() called from node %d\n", node);
 
@@ -1933,7 +1933,9 @@ void InitialisePcie (const callback_t cb_func, void *usrptr, const int node)
     InitialiseMem(node);
 
     // Sync clock counter to simulation
+    VPrint("Sync clock count...\n");
     VRead(CLK_COUNT, &(this->TicksSinceReset), true, node);
+    VPrint("Done.\n");
 
     this->vuser_cb = cb_func;
     this->usrptr   = usrptr;
@@ -2034,10 +2036,10 @@ int ResetEventCount(const int type, const int node)
 //
 // -------------------------------------------------------------------------
 
-int ReadEventCount (const int type, uint32 *ts_data, const int node)
+int ReadEventCount (const int type, uint32_t *ts_data, const int node)
 {
     int i;
-    uint32 * ptr;
+    uint32_t * ptr;
 
     if (type == 0)
     {
@@ -2097,7 +2099,7 @@ TS_t GetTS(const int lane, const int node)
 //
 // -------------------------------------------------------------------------
 
-uint32 GetCycleCount (const int node)
+uint32_t GetCycleCount (const int node)
 {
     return this->TicksSinceReset;
 }
@@ -2378,7 +2380,7 @@ void ConfigurePcie (const int type, const int value, const int node)
 //
 // -------------------------------------------------------------------------
 
-uint32 PcieRand (const int node)
+uint32_t PcieRand (const int node)
 {
     this->RandNum = CalcNewRand(this->RandNum);   
     return this->RandNum;
@@ -2389,7 +2391,7 @@ uint32 PcieRand (const int node)
 //
 // -------------------------------------------------------------------------
 
-void PcieSeed (const uint32 seed, const int node)
+void PcieSeed (const uint32_t seed, const int node)
 {
     this->RandNum = seed;
 }

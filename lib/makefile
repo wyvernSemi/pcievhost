@@ -28,10 +28,19 @@
 
 SRCDIR    = ../src
 OBJDIR    = obj
-VPROC_TOP = ../../VProc
 
-C_FILES = codec.c mem.c pcie.c pcie_utils.c pcicrc32.c ltssm.c veriuser.c
-CFLAGS  = -c -m32 -I${MODEL_TECH}/../include -I ${VPROC_TOP}/code -DMODELSIM -DLTSSM_ABBREVIATED 
+SIM           = RivieraPro
+
+ifeq ("${SIM}", "ActiveHDL")
+  ALDECDIR    =  /c/Aldec/Active-HDL-13-x64
+  ARCHFLAGS   = -m64 -I${ALDECDIR}/pli/Include
+else
+  ALDECDIR    =  /c/Aldec/Riviera-PRO-2022.10-x64
+  ARCHFLAGS   = -m64 -I${ALDECDIR}/interfaces/include
+endif
+
+C_FILES = codec.c mem.c pcie.c pcie_utils.c ltssm.c pcie_dpi.c pcicrc32.c
+CFLAGS  = -c ${ARCHFLAGS} -DLTSSM_ABBREVIATED -I../sysverilog/test
 
 CC      = gcc
 

@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="awc" version="2">
+	<waveform>
+		<datasets>
+			<dataset alias="sim" file="dataset.asdb" id="0" uniqueid="1678308534360"/>
+		</datasets>
+		<browser type="events"/>
+		<view active="true">
+			<cursors>
+				<cursor name="Default cursor" id="-1" time="0fs+0" lock="0" tip="1"/>
+				<active name="Default cursor" time="0fs+0"/>
+			</cursors>
+			<signalspart>
+				<viewmode value="namedrow"/>
+				<group name="/test">
+					<viewmode value=""/>
+					<signal name="/test/Clk" aliasid="0"/>
+					<signal name="/test/Count" aliasid="0"/>
+					<signal name="/test/notReset" aliasid="0"/>
+					<signal name="/test/LinkDown0" aliasid="0"/>
+					<signal name="/test/LinkDown1" aliasid="0"/>
+					<signal name="/test/LinkDown2" aliasid="0"/>
+					<signal name="/test/LinkDown3" aliasid="0"/>
+					<signal name="/test/LinkDown4" aliasid="0"/>
+					<signal name="/test/LinkDown5" aliasid="0"/>
+					<signal name="/test/LinkDown6" aliasid="0"/>
+					<signal name="/test/LinkDown7" aliasid="0"/>
+					<signal name="/test/LinkDown8" aliasid="0"/>
+					<signal name="/test/LinkDown9" aliasid="0"/>
+					<signal name="/test/LinkDown10" aliasid="0"/>
+					<signal name="/test/LinkDown11" aliasid="0"/>
+					<signal name="/test/LinkDown12" aliasid="0"/>
+					<signal name="/test/LinkDown13" aliasid="0"/>
+					<signal name="/test/LinkDown14" aliasid="0"/>
+					<signal name="/test/LinkDown15" aliasid="0"/>
+					<signal name="/test/LinkUp0" aliasid="0"/>
+					<signal name="/test/LinkUp1" aliasid="0"/>
+					<signal name="/test/LinkUp2" aliasid="0"/>
+					<signal name="/test/LinkUp3" aliasid="0"/>
+					<signal name="/test/LinkUp4" aliasid="0"/>
+					<signal name="/test/LinkUp5" aliasid="0"/>
+					<signal name="/test/LinkUp6" aliasid="0"/>
+					<signal name="/test/LinkUp7" aliasid="0"/>
+					<signal name="/test/LinkUp8" aliasid="0"/>
+					<signal name="/test/LinkUp9" aliasid="0"/>
+					<signal name="/test/LinkUp10" aliasid="0"/>
+					<signal name="/test/LinkUp11" aliasid="0"/>
+					<signal name="/test/LinkUp12" aliasid="0"/>
+					<signal name="/test/LinkUp13" aliasid="0"/>
+					<signal name="/test/LinkUp14" aliasid="0"/>
+					<signal name="/test/LinkUp15" aliasid="0"/>
+					<signal name="/test/DownLink" aliasid="0"/>
+					<signal name="/test/UpLink" aliasid="0"/>
+					<signal name="/test/DispDataIn" aliasid="0"/>
+					<signal name="/test/DispDataOut" aliasid="0"/>
+					<signal name="/test/DispVal" aliasid="0"/>
+					<signal name="/test/LinkWidth" aliasid="0"/>
+					<signal name="/test/NodeNumDown" aliasid="0"/>
+					<signal name="/test/NodeNumUp" aliasid="0"/>
+					<signal name="/test/DisableScrambleDown" aliasid="0"/>
+					<signal name="/test/DisableScrambleUp" aliasid="0"/>
+					<signal name="/test/InvertTxPolarityDown" aliasid="0"/>
+					<signal name="/test/InvertTxPolarityUp" aliasid="0"/>
+					<signal name="/test/PcieGetReset.nRstVal" aliasid="0"/>
+				</group>
+				<viewmode value="namedrow"/>
+				<group name="/test/host">
+					<viewmode value=""/>
+					<signal name="/test/host/Clk" aliasid="0"/>
+					<signal name="/test/host/notReset" aliasid="0"/>
+					<signal name="/test/host/PcieUpdate0.addr" aliasid="0"/>
+					<signal name="/test/host/PcieUpdate0.wdata" aliasid="0"/>
+					<signal name="/test/host/PcieUpdate0.rdata" aliasid="0"/>
+					<signal name="/test/host/PcieUpdate0.rnw" aliasid="0"/>
+					<signal name="/test/host/PcieUpdate0.ticks" aliasid="0"/>
+					<signal name="/test/host/DataIn" aliasid="0"/>
+					<signal name="/test/host/UpdateResponse" aliasid="0"/>
+					<signal name="/test/host/Addr" aliasid="0"/>
+					<signal name="/test/host/DataOut" aliasid="0"/>
+					<signal name="/test/host/WE" aliasid="0"/>
+					<signal name="/test/host/RD" aliasid="0"/>
+					<signal name="/test/host/Update" aliasid="0"/>
+					<signal name="/test/host/Ticks" aliasid="0"/>
+					<signal name="/test/host/LinkIn0" aliasid="0"/>
+					<signal name="/test/host/LinkIn1" aliasid="0"/>
+					<signal name="/test/host/LinkIn2" aliasid="0"/>
+					<signal name="/test/host/LinkIn3" aliasid="0"/>
+					<signal name="/test/host/LinkIn4" aliasid="0"/>
+					<signal name="/test/host/LinkIn5" aliasid="0"/>
+					<signal name="/test/host/LinkIn6" aliasid="0"/>
+					<signal name="/test/host/LinkIn7" aliasid="0"/>
+					<signal name="/test/host/LinkIn8" aliasid="0"/>
+					<signal name="/test/host/LinkIn9" aliasid="0"/>
+					<signal name="/test/host/LinkIn10" aliasid="0"/>
+					<signal name="/test/host/LinkIn11" aliasid="0"/>
+					<signal name="/test/host/LinkIn12" aliasid="0"/>
+					<signal name="/test/host/LinkIn13" aliasid="0"/>
+					<signal name="/test/host/LinkIn14" aliasid="0"/>
+					<signal name="/test/host/LinkIn15" aliasid="0"/>
+					<signal name="/test/host/LinkOut0" aliasid="0"/>
+					<signal name="/test/host/LinkOut1" aliasid="0"/>
+					<signal name="/test/host/LinkOut2" aliasid="0"/>
+					<signal name="/test/host/LinkOut3" aliasid="0"/>
+					<signal name="/test/host/LinkOut4" aliasid="0"/>
+					<signal name="/test/host/LinkOut5" aliasid="0"/>
+					<signal name="/test/host/LinkOut6" aliasid="0"/>
+					<signal name="/test/host/LinkOut7" aliasid="0"/>
+					<signal name="/test/host/LinkOut8" aliasid="0"/>
+					<signal name="/test/host/LinkOut9" aliasid="0"/>
+					<signal name="/test/host/LinkOut10" aliasid="0"/>
+					<signal name="/test/host/LinkOut11" aliasid="0"/>
+					<signal name="/test/host/LinkOut12" aliasid="0"/>
+					<signal name="/test/host/LinkOut13" aliasid="0"/>
+					<signal name="/test/host/LinkOut14" aliasid="0"/>
+					<signal name="/test/host/LinkOut15" aliasid="0"/>
+					<signal name="/test/host/LinkWidth" aliasid="0"/>
+					<signal name="/test/host/NodeNum" aliasid="0"/>
+					<signal name="/test/host/EndPoint" aliasid="0"/>
+				</group>
+				<viewmode value="namedrow"/>
+				<group name="/test/ep">
+					<viewmode value=""/>
+					<signal name="/test/ep/Clk" aliasid="0"/>
+					<signal name="/test/ep/notReset" aliasid="0"/>
+					<signal name="/test/ep/Update" aliasid="0"/>
+					<signal name="/test/ep/UpdateResponse" aliasid="0"/>
+					<signal name="/test/ep/PcieUpdate1.addr" aliasid="0"/>
+					<signal name="/test/ep/PcieUpdate1.wdata" aliasid="0"/>
+					<signal name="/test/ep/PcieUpdate1.rdata" aliasid="0"/>
+					<signal name="/test/ep/PcieUpdate1.rnw" aliasid="0"/>
+					<signal name="/test/ep/PcieUpdate1.ticks" aliasid="0"/>
+					<signal name="/test/ep/DataIn" aliasid="0"/>
+					<signal name="/test/ep/Addr" aliasid="0"/>
+					<signal name="/test/ep/DataOut" aliasid="0"/>
+					<signal name="/test/ep/WE" aliasid="0"/>
+					<signal name="/test/ep/RD" aliasid="0"/>
+					<signal name="/test/ep/Ticks" aliasid="0"/>
+					<signal name="/test/ep/LinkIn0" aliasid="0"/>
+					<signal name="/test/ep/LinkIn1" aliasid="0"/>
+					<signal name="/test/ep/LinkIn2" aliasid="0"/>
+					<signal name="/test/ep/LinkIn3" aliasid="0"/>
+					<signal name="/test/ep/LinkIn4" aliasid="0"/>
+					<signal name="/test/ep/LinkIn5" aliasid="0"/>
+					<signal name="/test/ep/LinkIn6" aliasid="0"/>
+					<signal name="/test/ep/LinkIn7" aliasid="0"/>
+					<signal name="/test/ep/LinkIn8" aliasid="0"/>
+					<signal name="/test/ep/LinkIn9" aliasid="0"/>
+					<signal name="/test/ep/LinkIn10" aliasid="0"/>
+					<signal name="/test/ep/LinkIn11" aliasid="0"/>
+					<signal name="/test/ep/LinkIn12" aliasid="0"/>
+					<signal name="/test/ep/LinkIn13" aliasid="0"/>
+					<signal name="/test/ep/LinkIn14" aliasid="0"/>
+					<signal name="/test/ep/LinkIn15" aliasid="0"/>
+					<signal name="/test/ep/LinkOut0" aliasid="0"/>
+					<signal name="/test/ep/LinkOut1" aliasid="0"/>
+					<signal name="/test/ep/LinkOut2" aliasid="0"/>
+					<signal name="/test/ep/LinkOut3" aliasid="0"/>
+					<signal name="/test/ep/LinkOut4" aliasid="0"/>
+					<signal name="/test/ep/LinkOut5" aliasid="0"/>
+					<signal name="/test/ep/LinkOut6" aliasid="0"/>
+					<signal name="/test/ep/LinkOut7" aliasid="0"/>
+					<signal name="/test/ep/LinkOut8" aliasid="0"/>
+					<signal name="/test/ep/LinkOut9" aliasid="0"/>
+					<signal name="/test/ep/LinkOut10" aliasid="0"/>
+					<signal name="/test/ep/LinkOut11" aliasid="0"/>
+					<signal name="/test/ep/LinkOut12" aliasid="0"/>
+					<signal name="/test/ep/LinkOut13" aliasid="0"/>
+					<signal name="/test/ep/LinkOut14" aliasid="0"/>
+					<signal name="/test/ep/LinkOut15" aliasid="0"/>
+					<signal name="/test/ep/LinkWidth" aliasid="0"/>
+					<signal name="/test/ep/NodeNum" aliasid="0"/>
+					<signal name="/test/ep/EndPoint" aliasid="0"/>
+				</group>
+				<viewmode value="namedrow"/>
+				<expand value="1"/>
+				<group name="/test/host/pcievhost_inst">
+					<viewmode value=""/>
+					<expand value=""/>
+					<signal name="/test/host/pcievhost_inst/Clk" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/notReset" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkIn0" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkIn1" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkIn2" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkIn3" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkIn4" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkIn5" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkIn6" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkIn7" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkIn8" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkIn9" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkIn10" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkIn11" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkIn12" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkIn13" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkIn14" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkIn15" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkOut0" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkOut1" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkOut2" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkOut3" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkOut4" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkOut5" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkOut6" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkOut7" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkOut8" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkOut9" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkOut10" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkOut11" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkOut12" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkOut13" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkOut14" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkOut15" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/WE" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/RD" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/Update" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/UpdateResponse" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/Addr" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/DataOut" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/Ticks" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/DataIn" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/PcieInit.node" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/Out" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/ElecIdleOut" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/notResetLast" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/InvertIn" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/InvertOut" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/ReverseIn" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/ReverseOut" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/ClkCount" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/i" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/Node" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/Lanes" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/EP" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/In" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/ElecIdleIn" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/RxDetect" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/LinkWidth" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/NodeNum" aliasid="0"/>
+					<signal name="/test/host/pcievhost_inst/EndPoint" aliasid="0"/>
+				</group>
+			</signalspart>
+			<firstvisiblesignal number="30"/>
+			<timesynchronization value="1"/>
+			<cursorssynchronization value="1"/>
+			<time beginvisible="0fs" endvisible="0fs"/>
+		</view>
+		<bookmarks/>
+		<time beginvisible="0fs" endvisible="210ns"/>
+		<timeunit name="auto"/>
+		<cursors>
+			<cursor name="Default cursor" id="-1" time="200ns+3" lock="0" tip="1"/>
+			<active name="Default cursor" time="200ns+3"/>
+		</cursors>
+		<hierarchy_depth value="0"/>
+	</waveform>
+</document>

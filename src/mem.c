@@ -91,7 +91,7 @@ static void InitialiseTable (char **table)
 //
 // -------------------------------------------------------------------------
 
-static uint32 bitrev(const uint32 Data, const int bits)
+static uint32_t bitrev(const uint32_t Data, const int bits)
 {
     unsigned long result = Data;
     int i;
@@ -116,16 +116,16 @@ static uint32 bitrev(const uint32 Data, const int bits)
 //
 // -------------------------------------------------------------------------
 
-static uint32 GenHash12(const uint64 addr)
+static uint32_t GenHash12(const uint64_t addr)
 {
-    uint64 munge = 0;
+    uint64_t munge = 0;
 
     munge ^= (addr >> 52) & 0xfffULL;
     munge ^= (addr >> 40) & 0xfffULL;
     munge ^= (addr >> 32) & 0xffULL;
     munge ^= (addr >> 24) & 0xffULL;
 
-    return bitrev((uint32) (munge & 0xfffULL), 12);
+    return bitrev((uint32_t) (munge & 0xfffULL), 12);
 }
 
 // -------------------------------------------------------------------------
@@ -135,9 +135,9 @@ static uint32 GenHash12(const uint64 addr)
 //
 // -------------------------------------------------------------------------
 
-void WriteRamByteBlock(const uint64 addr, const PktData_t *data, const int fbe, int const lbe, const int length, const uint32 node)
+void WriteRamByteBlock(const uint64_t addr, const PktData_t *data, const int fbe, int const lbe, const int length, const uint32_t node)
 {
-    uint32 pidx, sidx, offset;
+    uint32_t pidx, sidx, offset;
     int idx;
 
     idx = pidx = GenHash12(addr);
@@ -185,7 +185,7 @@ void WriteRamByteBlock(const uint64 addr, const PktData_t *data, const int fbe, 
     // No secondary table, so allocate some space for one and initialise
     if (PrimaryTable[node][pidx].p == NULL)
     {
-        if ((PrimaryTable[node][pidx].p = malloc(TABLESIZE * sizeof(uint32 *))) == NULL)
+        if ((PrimaryTable[node][pidx].p = malloc(TABLESIZE * sizeof(uint32_t *))) == NULL)
         {
             VPrint("WriteRamByteBlock: ***Error --- failed to allocate secondary table memory\n");
             VWrite(PVH_FATAL, 0, 0, node);
@@ -221,9 +221,9 @@ void WriteRamByteBlock(const uint64 addr, const PktData_t *data, const int fbe, 
 //
 // -------------------------------------------------------------------------
 
-int ReadRamByteBlock(const uint64 addr, PktData_t *data, const int length, const uint32 node)
+int ReadRamByteBlock(const uint64_t addr, PktData_t *data, const int length, const uint32_t node)
 {
-    uint32 pidx, sidx, offset;
+    uint32_t pidx, sidx, offset;
     int idx, len;
 
     idx = pidx = GenHash12(addr);
@@ -284,9 +284,9 @@ int ReadRamByteBlock(const uint64 addr, PktData_t *data, const int length, const
 //
 // -------------------------------------------------------------------------
 
-void WriteRamByte(const uint64 inaddr, const uint32 data, const uint32 node)
+void WriteRamByte(const uint64_t inaddr, const uint32_t data, const uint32_t node)
 {
-    uint64 addr;
+    uint64_t addr;
     int addr_lo, fbe;
     PktData_t buf[4];
 
@@ -305,7 +305,7 @@ void WriteRamByte(const uint64 inaddr, const uint32 data, const uint32 node)
 //
 // -------------------------------------------------------------------------
 
-void WriteRamWord (const uint64 addr, const uint32 data, const int le, const uint32 node)
+void WriteRamWord (const uint64_t addr, const uint32_t data, const int le, const uint32_t node)
 {
     PktData_t buf[4];
     int i;
@@ -325,7 +325,7 @@ void WriteRamWord (const uint64 addr, const uint32 data, const int le, const uin
 //
 // -------------------------------------------------------------------------
 
-void WriteRamDWord (const uint64 addr, const uint64 data, const int le, const uint32 node)
+void WriteRamDWord (const uint64_t addr, const uint64_t data, const int le, const uint32_t node)
 {
     PktData_t buf[8];
     int i;
@@ -345,7 +345,7 @@ void WriteRamDWord (const uint64 addr, const uint64 data, const int le, const ui
 //
 // -------------------------------------------------------------------------
 
-uint32 ReadRamByte (const uint64 addr, const uint32 node)
+uint32_t ReadRamByte (const uint64_t addr, const uint32_t node)
 {
     PktData_t buf[4];
     int i;
@@ -368,10 +368,10 @@ uint32 ReadRamByte (const uint64 addr, const uint32 node)
 //
 // -------------------------------------------------------------------------
 
-uint32 ReadRamWord (const uint64 addr, const int le, const uint32 node)
+uint32_t ReadRamWord (const uint64_t addr, const int le, const uint32_t node)
 {
     PktData_t buf[4];
-    uint32 data = 0;
+    uint32_t data = 0;
     int i;
 
     // If ReadRamByteBlock fails, return 0
@@ -395,11 +395,11 @@ uint32 ReadRamWord (const uint64 addr, const int le, const uint32 node)
 //
 // -------------------------------------------------------------------------
 
-uint64 ReadRamDWord (const uint64 addr, const int le, const uint32 node)
+uint64_t ReadRamDWord (const uint64_t addr, const int le, const uint32_t node)
 
 {
     PktData_t buf[8];
-    uint64 data = 0;
+    uint64_t data = 0;
     int i;
 
     // If ReadRamByteBlock fails, return 0
@@ -410,7 +410,7 @@ uint64 ReadRamDWord (const uint64 addr, const int le, const uint32 node)
 
     for (i = 0; i < 8; i++)
     {
-        data |= ((uint64)(buf[i] & 0xff)) << (le ? (i*8) : ((7-i)*8));
+        data |= ((uint64_t)(buf[i] & 0xff)) << (le ? (i*8) : ((7-i)*8));
     }
 
     return data;
@@ -423,7 +423,7 @@ uint64 ReadRamDWord (const uint64 addr, const int le, const uint32 node)
 //
 // -------------------------------------------------------------------------
 
-void WriteConfigSpace (const uint32 addr, const uint32 data, const uint32 node)
+void WriteConfigSpace (const uint32_t addr, const uint32_t data, const uint32_t node)
 {
     PktData_t buff[4];
 
@@ -435,7 +435,7 @@ void WriteConfigSpace (const uint32 addr, const uint32 data, const uint32 node)
     WriteConfigSpaceBuf(addr, buff, 0xf, 0xf, 4, node);
 }
 
-void WriteConfigSpaceBuf(const uint32 addr, const PktData_t *data, const int fbe, const int lbe, const int length, const uint32 node)
+void WriteConfigSpaceBuf(const uint32_t addr, const PktData_t *data, const int fbe, const int lbe, const int length, const uint32_t node)
 {
     int idx; 
 
@@ -484,10 +484,10 @@ void WriteConfigSpaceBuf(const uint32 addr, const PktData_t *data, const int fbe
 //
 // -------------------------------------------------------------------------
 
-uint32 ReadConfigSpace(const uint32 addr, const uint32 node)
+uint32_t ReadConfigSpace(const uint32_t addr, const uint32_t node)
 {
     PktData_t buff[4];
-    uint32 word = 0;
+    uint32_t word = 0;
 
     ReadConfigSpaceBuf(addr & 0xffc, buff, 4, node);
 
@@ -499,7 +499,7 @@ uint32 ReadConfigSpace(const uint32 addr, const uint32 node)
    return word;
 }
 
-void ReadConfigSpaceBuf(const uint32 addr, PktData_t * const data, const int len, const uint32 node)
+void ReadConfigSpaceBuf(const uint32_t addr, PktData_t * const data, const int len, const uint32_t node)
 {
     int idx;
 

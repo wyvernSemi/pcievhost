@@ -43,9 +43,9 @@
 //
 // -------------------------------------------------------------------------
 
-static uint32 CalcNewRxCredits(const uint32 rxfc, const uint32 currfc, const uint32 maxcredits, const int node, const int hdrcheck)
+static uint32_t CalcNewRxCredits(const uint32_t rxfc, const uint32_t currfc, const uint32_t maxcredits, const int node, const int hdrcheck)
 {
-    uint32 newfc = currfc;
+    uint32_t newfc = currfc;
 
     // If the bottom bits of current credits are greater than received credits
     // then we've wrapped and must add a whole (maxcredits+1) block, to
@@ -174,7 +174,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
                 VWrite(PVH_FATAL, 0, 0, node);
             }
         }
-        debug_io_printf ("flw->ConsumedHdrCredits[0][FC_NONPOST] %d, flw->RxHdrCredits[0][FC_NONPOST] %d\n", flw->ConsumedHdrCredits[0][FC_NONPOST], flw->RxHdrCredits[0][FC_NONPOST]);
+        DebugVPrint ("flw->ConsumedHdrCredits[0][FC_NONPOST] %d, flw->RxHdrCredits[0][FC_NONPOST] %d\n", flw->ConsumedHdrCredits[0][FC_NONPOST], flw->RxHdrCredits[0][FC_NONPOST]);
         break;
     default:
         if (flw->ConsumedHdrCredits[0][FC_NONPOST])
@@ -209,7 +209,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
 
 static void UpdateConsumedFC(const pPcieModelState_t const state)
 {
-    uint32 current_cycle, i;
+    uint32_t current_cycle, i;
     bool no_change = true;
     pFlowControl_t flw = &(state->flwcntl);
     int fc_timeout[FC_NUMTYPES];
@@ -409,9 +409,9 @@ static void CheckDelayQueue (const pPcieModelState_t const state)
 static void ProcessInput (const pPcieModelState_t const state, const pPkt_t const pkt, const int Edb)
 {
     PktData_t crc[4], ecrc[4];
-    uint32 type, lcrc_offset, ecrc_offset, payload_length;
-    uint64 addr;
-    uint32 length, rid, cid, tag, fbe, lbe, byte_count;
+    uint32_t type, lcrc_offset, ecrc_offset, payload_length;
+    uint64_t addr;
+    uint32_t length, rid, cid, tag, fbe, lbe, byte_count;
     PktData_t buff[MAX_BYTE_BLOCK], *pdata;
     int status;
     pFlowControl_t flw = &(state->flwcntl);
@@ -654,15 +654,15 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
             // Update memory
             if (type == TL_MWR32)
             {
-                addr   = (uint64)(pkt->data[TLP_ADDR_OFFSET]   << 24) | (uint64)(pkt->data[TLP_ADDR_OFFSET+1] << 16) | 
-                         (uint64)(pkt->data[TLP_ADDR_OFFSET+2] << 8)  | (uint64)(pkt->data[TLP_ADDR_OFFSET+3] << 0) ;
+                addr   = (uint64_t)(pkt->data[TLP_ADDR_OFFSET]   << 24) | (uint64_t)(pkt->data[TLP_ADDR_OFFSET+1] << 16) | 
+                         (uint64_t)(pkt->data[TLP_ADDR_OFFSET+2] << 8)  | (uint64_t)(pkt->data[TLP_ADDR_OFFSET+3] << 0) ;
             }
             else
             {
-                addr   = ((uint64)pkt->data[TLP_ADDR_OFFSET]   << 56) | ((uint64)pkt->data[TLP_ADDR_OFFSET+1] << 48) | 
-                         ((uint64)pkt->data[TLP_ADDR_OFFSET+2] << 40) | ((uint64)pkt->data[TLP_ADDR_OFFSET+3] << 32) |
-                         ((uint64)pkt->data[TLP_ADDR_OFFSET+4] << 24) | ((uint64)pkt->data[TLP_ADDR_OFFSET+5] << 16) | 
-                         ((uint64)pkt->data[TLP_ADDR_OFFSET+6] << 8)  | ((uint64)pkt->data[TLP_ADDR_OFFSET+7] << 0) ;
+                addr   = ((uint64_t)pkt->data[TLP_ADDR_OFFSET]   << 56) | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+1] << 48) | 
+                         ((uint64_t)pkt->data[TLP_ADDR_OFFSET+2] << 40) | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+3] << 32) |
+                         ((uint64_t)pkt->data[TLP_ADDR_OFFSET+4] << 24) | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+5] << 16) | 
+                         ((uint64_t)pkt->data[TLP_ADDR_OFFSET+6] << 8)  | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+7] << 0) ;
             }
             pdata  = (type == TL_MWR32) ? &(pkt->data[TLP_DATA_OFFSET32]) : &(pkt->data[TLP_DATA_OFFSET64]);
             length = GET_TLP_LENGTH(pkt->data);
@@ -680,15 +680,15 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
             // Construct completion and add to queue
             if (type == TL_MRD32)
             {
-                addr   = (uint64)(pkt->data[TLP_ADDR_OFFSET]   << 24) | (uint64)(pkt->data[TLP_ADDR_OFFSET+1] << 16) | 
-                         (uint64)(pkt->data[TLP_ADDR_OFFSET+2] << 8)  | (uint64)(pkt->data[TLP_ADDR_OFFSET+3] << 0) ;
+                addr   = (uint64_t)(pkt->data[TLP_ADDR_OFFSET]   << 24) | (uint64_t)(pkt->data[TLP_ADDR_OFFSET+1] << 16) | 
+                         (uint64_t)(pkt->data[TLP_ADDR_OFFSET+2] << 8)  | (uint64_t)(pkt->data[TLP_ADDR_OFFSET+3] << 0) ;
             } 
             else
             {
-                addr   = ((uint64)pkt->data[TLP_ADDR_OFFSET]   << 56) | ((uint64)pkt->data[TLP_ADDR_OFFSET+1] << 48) | 
-                         ((uint64)pkt->data[TLP_ADDR_OFFSET+2] << 40) | ((uint64)pkt->data[TLP_ADDR_OFFSET+3] << 32) |
-                         ((uint64)pkt->data[TLP_ADDR_OFFSET+4] << 24) | ((uint64)pkt->data[TLP_ADDR_OFFSET+5] << 16) | 
-                         ((uint64)pkt->data[TLP_ADDR_OFFSET+6] << 8)  | ((uint64)pkt->data[TLP_ADDR_OFFSET+7] << 0) ;
+                addr   = ((uint64_t)pkt->data[TLP_ADDR_OFFSET]   << 56) | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+1] << 48) | 
+                         ((uint64_t)pkt->data[TLP_ADDR_OFFSET+2] << 40) | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+3] << 32) |
+                         ((uint64_t)pkt->data[TLP_ADDR_OFFSET+4] << 24) | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+5] << 16) | 
+                         ((uint64_t)pkt->data[TLP_ADDR_OFFSET+6] << 8)  | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+7] << 0) ;
             }
             pdata      = (type == TL_MRD32) ? &(pkt->data[TLP_DATA_OFFSET32]) : &(pkt->data[TLP_DATA_OFFSET64]);
             length     = GET_TLP_LENGTH(pkt->data);
@@ -743,8 +743,8 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
         }
         else if (!state->usrconf.DisableMem && state->Endpoint && (type == TL_CFGWR0 || type == TL_CFGRD0))
         {
-            addr   = (uint64)(pkt->data[TLP_ADDR_OFFSET]   << 24) | (uint64)(pkt->data[TLP_ADDR_OFFSET+1] << 16) | 
-                     (uint64)(pkt->data[TLP_ADDR_OFFSET+2] << 8)  | (uint64)(pkt->data[TLP_ADDR_OFFSET+3] << 0) ;
+            addr   = (uint64_t)(pkt->data[TLP_ADDR_OFFSET]   << 24) | (uint64_t)(pkt->data[TLP_ADDR_OFFSET+1] << 16) | 
+                     (uint64_t)(pkt->data[TLP_ADDR_OFFSET+2] << 8)  | (uint64_t)(pkt->data[TLP_ADDR_OFFSET+3] << 0) ;
 
             pdata  = &(pkt->data[TLP_DATA_OFFSET32]);
             fbe    = GET_TLP_FBE(pkt->data);
@@ -755,7 +755,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
             if (type == TL_CFGRD0)
             {
                 // Read a word (4 bytes) from the config space and put in buffer
-                ReadConfigSpaceBuf((uint32)(addr & 0xfff), buff, 4, state->thisnode);
+                ReadConfigSpaceBuf((uint32_t)(addr & 0xfff), buff, 4, state->thisnode);
 
                 if (!state->usrconf.CompletionRate)
                 {
@@ -770,7 +770,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
             {
                 // The device completer ID is always updated on config writes
                 state->CplId = GET_CFG_CID(pkt->data);
-                WriteConfigSpaceBuf((uint32)(addr & 0xfff), pdata, fbe, 0, 4, state->thisnode);
+                WriteConfigSpaceBuf((uint32_t)(addr & 0xfff), pdata, fbe, 0, 4, state->thisnode);
                 
                 if (!state->usrconf.CompletionRate)
                 {
@@ -916,12 +916,12 @@ void CheckFree (void*  ptr)
 {
     if (! ptr)
     {
-        io_printf ("CheckFree(): ***Error --- received null ptr to free\n");
+        VPrint ("CheckFree(): ***Error --- received null ptr to free\n");
         exit (EXIT_FAILURE);
     }
     else
     {
-        debug_io_printf ("CheckFree %p\n", ptr);
+        DebugVPrint ("CheckFree %p\n", ptr);
         free (ptr);
     }
 }
@@ -936,9 +936,9 @@ void CheckFree (void*  ptr)
 static const unsigned int checktab[32]    = PRN_CHECKTAB_INIT;
 static const unsigned int ByteParity[256] = PARITY_ARRAY_INIT;
 
-uint32 CalcNewRand(const unsigned int Seed) 
+uint32_t CalcNewRand(const unsigned int Seed) 
 {
-     register uint32 NewNum = 0;
+     register uint32_t NewNum = 0;
      register int i;
 
      for (i = 0; i < 32; i++)
@@ -1118,13 +1118,13 @@ int CalcBe (const int inaddr, const int byte_len)
 
 void CalcDllpCrc(PktData_t *dllp)
 {
-    uint32 Crc=DLLP_CRC_INITIAL_VALUE;
-    uint32 Data;
+    uint32_t Crc=DLLP_CRC_INITIAL_VALUE;
+    uint32_t Data;
     int i;
 
     for (i = 1; i < 5; i++)
     {
-        Data = (uint32)dllp[i];
+        Data = (uint32_t)dllp[i];
         Crc = PciCrc(Data, Crc, 8, DLLPPOLY, DLLPCRCSIZE);
     }
 
@@ -1143,8 +1143,8 @@ void CalcDllpCrc(PktData_t *dllp)
 void CalcEcrc(PktData_t *pkt)
 {
     int i = TLP_TYPE_BYTE_OFFSET;
-    uint32 Crc = TLP_CRC_INITIAL_VALUE;
-    uint32 InvariantMask;
+    uint32_t Crc = TLP_CRC_INITIAL_VALUE;
+    uint32_t InvariantMask;
 
     if ((pkt[TLP_TD_BYTE_OFFSET] & TLP_DIGEST_MASK) == 0)
     {
@@ -1156,7 +1156,7 @@ void CalcEcrc(PktData_t *pkt)
     while (pkt[i + ECRC_TERMINATION_LOOKAHEAD] != PKT_TERMINATION)
     {
         InvariantMask = (i == TLP_TYPE_BYTE_OFFSET) ? TLP_TYPE_VARIANT_BIT : (i == TLP_EP_BYTE_OFFSET) ? TLP_EP_VARIANT_BIT : 0;
-        Crc = PciCrc ((uint32)pkt[i] | InvariantMask, Crc, 8, TLPPOLY, TLPCRCSIZE);
+        Crc = PciCrc ((uint32_t)pkt[i] | InvariantMask, Crc, 8, TLPPOLY, TLPCRCSIZE);
         i++;
     }
 
@@ -1178,12 +1178,12 @@ void CalcEcrc(PktData_t *pkt)
 void CalcLcrc(PktData_t *pkt)
 {
     int i = DLLP_SEQ_OFFSET;
-    uint32 Crc = TLP_CRC_INITIAL_VALUE;
+    uint32_t Crc = TLP_CRC_INITIAL_VALUE;
 
     // Termintate CRC calculation at byte before LCRC position
     while (pkt[i + LCRC_TERMINATION_LOOKAHEAD] != PKT_TERMINATION)
     {
-        Crc = PciCrc ((uint32)pkt[i], Crc, 8, TLPPOLY, TLPCRCSIZE);
+        Crc = PciCrc ((uint32_t)pkt[i], Crc, 8, TLPPOLY, TLPCRCSIZE);
         i++;
     }
 
@@ -1206,13 +1206,13 @@ void CalcLcrc(PktData_t *pkt)
 //
 // -------------------------------------------------------------------------
 
-PktData_t * CreateTlpTemplate (const int Type, const uint64 addr, const int bytelen, const int digest_present, PktData_t **payload_start) 
+PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int bytelen, const int digest_present, PktData_t **payload_start) 
 {
     int type = Type;
     int payload_length, header_length, tail_length; // length units are bytes
     int total_length, actual_length, idx;
     int endpos;
-    uint32 addr32;
+    uint32_t addr32;
     int i;
 
     PktData_t *pmem;
@@ -1230,7 +1230,7 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64 addr, const int byte
     }
 
     // Calculate the common numbers
-    endpos = ((uint32)(addr & ADDR_DW_OFFSET_MASK) + bytelen) & ADDR_DW_OFFSET_MASK;
+    endpos = ((uint32_t)(addr & ADDR_DW_OFFSET_MASK) + bytelen) & ADDR_DW_OFFSET_MASK;
     payload_length = bytelen ? (bytelen + (addr & ADDR_DW_OFFSET_MASK) + (endpos ? (4 - endpos)%4 : 0)) : 0;
     if (payload_length == 0) /* We have to deal with special zero byte reads and write having non-zero payloads */
     {
@@ -1273,7 +1273,7 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64 addr, const int byte
         {
             VPrint( "CreatePktTemplate(): ***Error --- total_length not DWORD aligned\n");
             VPrint( "total_length=%d header_length=%d tail_length=%d payload_length=%d actual_length=%d bytelen=%d endpos=%d (addr & 0x3)=%x\n",
-                             total_length, header_length, tail_length, payload_length, actual_length, bytelen, endpos, ((uint32)addr & 0x3));
+                             total_length, header_length, tail_length, payload_length, actual_length, bytelen, endpos, ((uint32_t)addr & 0x3));
             return NULL;
         }
 
@@ -1308,14 +1308,14 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64 addr, const int byte
         // 64 bit header
         if (type & ~TL_ADDR64_MASK)
         {
-            addr32 = (uint32)(addr >> 32ULL);
+            addr32 = (uint32_t)(addr >> 32ULL);
             pmem[idx++] = (addr32 >> 24) & BYTE_MASK;
             pmem[idx++] = (addr32 >> 16) & BYTE_MASK;
             pmem[idx++] = (addr32 >> 8)  & BYTE_MASK;
             pmem[idx++] = (addr32 >> 0)  & BYTE_MASK;
         }
 
-        addr32 = (uint32)(addr & ADDR_LO_BIT_MASK);
+        addr32 = (uint32_t)(addr & ADDR_LO_BIT_MASK);
         pmem[idx++] = (addr32 >> 24) & BYTE_MASK;
         pmem[idx++] = (addr32 >> 16) & BYTE_MASK;
         pmem[idx++] = (addr32 >> 8)  & BYTE_MASK;
@@ -1342,7 +1342,7 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64 addr, const int byte
         {
             VPrint( "CreatePktTemplate(): ***Error --- total_length not DWORD aligned\n");
             VPrint( "total_length=%d header_length=%d tail_length=%d payload_length=%d bytelen=%d endpos=%d (addr & 0x3)=%x\n",
-                             total_length, header_length, tail_length, payload_length, bytelen, endpos, ((uint32)addr & 0x3));
+                             total_length, header_length, tail_length, payload_length, bytelen, endpos, ((uint32_t)addr & 0x3));
             return NULL;
         }
 
@@ -1403,7 +1403,7 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64 addr, const int byte
         {
             VPrint( "CreatePktTemplate(): ***Error --- total_length not DWORD aligned\n");
             VPrint( "total_length=%d header_length=%d tail_length=%d payload_length=%d bytelen=%d endpos=%d (addr & 0x3)=%x\n",
-                             total_length, header_length, tail_length, payload_length, bytelen, endpos, ((uint32)addr & 0x3));
+                             total_length, header_length, tail_length, payload_length, bytelen, endpos, ((uint32_t)addr & 0x3));
             return NULL;
         }
 
@@ -1461,7 +1461,7 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64 addr, const int byte
         {
             VPrint( "CreatePktTemplate(): ***Error --- total_length not DWORD aligned\n");
             VPrint( "total_length=%d header_length=%d tail_length=%d payload_length=%d bytelen=%d endpos=%d (addr & 0x3)=%x\n",
-                             total_length, header_length, tail_length, payload_length, bytelen, endpos, ((uint32)addr & 0x3));
+                             total_length, header_length, tail_length, payload_length, bytelen, endpos, ((uint32_t)addr & 0x3));
             return NULL;
         }
 
@@ -1598,8 +1598,8 @@ PktData_t * CreateDllpTemplate (const int Type, PktData_t **payload_start)
 //
 // -------------------------------------------------------------------------
 
-int CheckCredits(const int DisableFc, const uint32 fc_state, const uint32 hdr_credits, const uint32 data_credits,
-                 const uint32 tx_hdr, const uint32 tx_data, const int payload_len)
+int CheckCredits(const int DisableFc, const uint32_t fc_state, const uint32_t hdr_credits, const uint32_t data_credits,
+                 const uint32_t tx_hdr, const uint32_t tx_data, const int payload_len)
 {
     return (DisableFc || ((((hdr_credits - tx_hdr) > 0) || !hdr_credits) /* && (fc_state == INITFC_FI2)*/  && 
            (((data_credits - tx_data) >= (payload_len/4 + ((payload_len%4)?1:0))) || !data_credits)));

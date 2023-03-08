@@ -1,7 +1,7 @@
 ###################################################################
-# Makefile for Virtual PCIe Host test code in Modelsim
+# Makefile for Virtual PCIe Host test code
 #
-# Copyright (c) 2005-2022 Simon Southwell.
+# Copyright (c) 2005-2023 Simon Southwell.
 #
 # This file is part of pcieVHost.
 #
@@ -20,21 +20,11 @@
 #
 ###################################################################
 
-# MODEL_TECH environment variable must be set for pointing to 
-# modelsim.ini file and binary dierctory respectively
-
 
 NUM_VPROC     = 2
 
-# Location of VProc directory. Assumes in same directory as pcieVHost.
-# Update if relocated.
-VPROC_TOP     = ../../../vproc
-
-# Define the github repository URL for the VProc virtual processor 
-VPROC_REPO    = https://github.com/wyvernSemi/vproc.git
-
 #
-# PCIE VHost test defintions
+# PCIE PcieHost test defintions
 #
 PCIE_CLIB_DIR = ../../lib
 SRCDIR        = ../../src
@@ -46,30 +36,35 @@ PLI_SO        = VProc.so
 USER_C        = VUserMain0.c VUserMain1.c
 PCIE_MAP_C    = pcie_vhost_map.h
 
-#
-# Flags for ModelSim
-#
 PCIE_TOP      = test
-TOP_VC        = test.vc
 HDRDIR        = ../headers
 
-VSIMFLAGS     = -pli ${PLI_SO} ${PCIE_TOP}
-VLOGFLAGS     = -quiet +define+DISP_LINK_WIDE -incr +incdir+${VPROC_TOP} -f ${TOP_VC}
+VSIMFLAGS     = +access +r -interceptcoutput -sv_lib ${PLI_SO} ${PCIE_TOP}
+VLOGFLAGS     = -quiet -sv2k5 -msg 0 +define+DISP_LINK_WIDE -incr +incdir+${VPROC_TOP} -f test.vc
 
 PCIE_MAP_V    = ${PCIE_MAP_C:%.h=${HDRDIR}/%.v}
+
+SIM           = RivieraPro
+
+ifeq ("${SIM}", "ActiveHDL")
+  ALDECDIR    =  /c/Aldec/Active-HDL-13-x64
+  ARCHFLAGS   = -m64 -I${ALDECDIR}/pli/Include -L${ALDECDIR}/pli/Lib -l:aldecpli.lib
+else
+  ALDECDIR    =  /c/Aldec/Riviera-PRO-2022.10-x64
+  ARCHFLAGS   = -m64 -I${ALDECDIR}/interfaces/include -L${ALDECDIR}/interfaces/lib -l:svdpi_exp.lib
+endif
 
 #
 # Flags for C compiler
 #
 CC            = gcc
 C++           = g++
-CFLAGS        = -m32 -fPIC                       \
+CFLAGS        = ${ARCHFLAGS}                     \
                 -Wno-write-strings               \
                 -I${SRCDIR}                      \
                 -I${USRCDIR}                     \
                 -I${VPROC_TOP}/code              \
-                -I${MODEL_TECH}/../include       \
-                -DMODELSIM                       \
+                -I.                              \
                 -D_REENTRANT
 
 # Get OS type
@@ -78,11 +73,11 @@ OSTYPE:=$(shell uname)
 # Set OS specific variables between Linux and Windows (MinGW)
 ifeq (${OSTYPE}, Linux)
   CFLAGS_SO   = -shared -lpthread -lrt -rdynamic
-  CPPSTD      = -std=c++11
 else
   CFLAGS_SO   = -shared -Wl,-export-all-symbols
-  CPPSTD      =
 endif
+
+SIMLOGFILE    = sim.log
 
 #------------------------------------------------------
 # BUILD RULES
@@ -91,13 +86,7 @@ endif
 #
 # Build the verilog and the PLI shared object by default
 #
-all: ${PLI_SO} verilog
-
-#
-# Verilog. Phony target, as ModelSim does incremental compile
-# and decides what the dependencies are; so always build.
-#
-.PHONY: verilog
+all: ${PLI_SO}
 
 verilog: ${PCIE_MAP_V}
 	@if [ ! -d ${WORKDIR} ]; then                \
@@ -114,13 +103,11 @@ ${PCIE_MAP_V} : ${SRCDIR}/${PCIE_MAP_C}
 #
 # PLI shared object
 #
-${PLI_SO}: vproc_lib pcie_c_lib ${USER_C:%.c=${USRCDIR}/%.c}
-	@${CC} ${CFLAGS_SO} ${CFLAGS}                \
+${PLI_SO}: verilog pcie_c_lib ${USER_C:%.c=${USRCDIR}/%.c}
+	@${CC} ${CFLAGS_SO}                          \
 	       -Wl,-whole-archive                    \
+           ${CFLAGS}                             \
  	       ${USER_C:%.c=${USRCDIR}/%.c}          \
-           -lpthread                             \
-           -L${MODEL_TECH}                       \
-           -lmtipli                              \
 	       -L${PCIE_CLIB_DIR} -lpcievhost        \
 	       -L${VPROC_TOP}     -lvproc            \
 	       -Wl,-no-whole-archive                 \
@@ -148,14 +135,14 @@ ${VPROC_TOP}:
 # EXECUTION RULES
 #------------------------------------------------------
 
-run: vproc_lib pcie_c_lib verilog ${PLI_SO}
-	@vsim -c ${VSIMFLAGS} -do "run -all"
+run: verilog ${PLI_SO}
+	@vsim -c ${VSIMFLAGS} -l ${SIMLOGFILE} -do run.do
 
-rungui: vproc_lib pcie_c_lib verilog ${PLI_SO}
-	@if [ -e wave.do ]; then                     \
-         vsim -gui -do wave.do ${VSIMFLAGS};     \
-     else                                        \
-         vsim -gui ${VSIMFLAGS};                 \
+rungui: verilog ${PLI_SO}
+	@if [ -e wave.do ]; then                                      \
+         vsim -gui -l ${SIMLOGFILE} -do wave.do ${VSIMFLAGS};     \
+     else                                                         \
+         vsim -gui -l ${SIMLOGFILE} ${VSIMFLAGS};                 \
      fi
 
 gui: rungui
@@ -165,11 +152,13 @@ gui: rungui
 #------------------------------------------------------
 
 clean:
-	@if [ -d "${WORKDIR}" ]; then                \
-	  vdel -all;                                 \
-     fi
 	@${MAKE} -C ${PCIE_CLIB_DIR} clean
-	@${MAKE} -C ${VPROC_TOP}     clean
 	@rm -rf ${PLI_SO} ${PCIE_MAP_V}
+	@rm -rf work
+	@rm -rf obj
+	@rm -rf dataset.asdb
+	@rm -rf library.cfg
+	@rm -rf sim.log
+	@rm -rf dataset*
 
 

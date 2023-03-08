@@ -48,20 +48,16 @@
 #define CRCSIZE 32
 #define BIT31   0x80000000U
 
-int PciCrc32()
+int PciCrc32(int Data, int* Crc, int Bits)
 {
-    unsigned int Data, Crc;
-    int i, Bits;
-
-    Data = tf_getp(1);
-    Crc  = tf_getp(2);
-    Bits = tf_getp(3);
+    int i;
+    int crc = *Crc;
 
     for (i = 0; i < Bits; i++) 
-        Crc = (Crc << 1UL) ^ ((((Crc & BIT31) ? 1 : 0) ^ ((Data >> i) & 1)) ? POLY : 0);
+        crc = (crc << 1UL) ^ ((((crc & BIT31) ? 1 : 0) ^ ((Data >> i) & 1)) ? POLY : 0);
 
-    tf_putp(2, (unsigned int)(Crc));
-
+    *Crc = crc;
+    
     return 0;
 }
 
@@ -76,18 +72,16 @@ int PciCrc32()
 #define CRCSIZE16 16
 #define BIT16     0x8000U
 
-int PciCrc16()
+int PciCrc16(int Data, int* Crc)
 {
-    unsigned int Data, Crc;
-    int i;
+    int i, crc;
 
-    Data = tf_getp(1);
-    Crc  = tf_getp(2);
+    crc = *Crc;
 
     for (i = 0; i < 32; i++) 
-        Crc = (Crc << 1UL) ^ ((((Crc & BIT16) ? 1 : 0) ^ ((Data >> i) & 1)) ? POLY16 : 0);
+        crc = (crc << 1UL) ^ ((((crc & BIT16) ? 1 : 0) ^ ((Data >> i) & 1)) ? POLY16 : 0);
 
-    tf_putp(2, (unsigned int)(Crc & 0xffff));
+    *Crc = crc;
 
     return 0;
 }

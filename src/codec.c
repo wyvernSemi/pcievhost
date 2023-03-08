@@ -166,9 +166,9 @@ unsigned const int Bitrev8 [256] = {
 //
 // -------------------------------------------------------------------------
 
-static void ScrambleAdvance(const int reset, uint32* const lfsr)
+static void ScrambleAdvance(const int reset, uint32_t* const lfsr)
 {
-    uint32 newlfsr;
+    uint32_t newlfsr;
 
     if (reset)
     {
@@ -365,9 +365,9 @@ unsigned int Decode (const int data, const int no_scramble, const int lane, cons
 //
 // -------------------------------------------------------------------------
 
-uint32 PciCrc (uint32 Data, uint32 CrcIn, uint32 Bits, uint32 poly, uint32 crcsize)
+uint32_t PciCrc (uint32_t Data, uint32_t CrcIn, uint32_t Bits, uint32_t poly, uint32_t crcsize)
 {
-    uint32 Crc = CrcIn, topbit;
+    uint32_t Crc = CrcIn, topbit;
     int i;
 
     topbit = MAX_CRC_TOP_BIT >> (MAXCRCSIZE - crcsize);

@@ -81,7 +81,7 @@
 #ifdef LTSSM_ABBREVIATED
 #define DEFAULT_DETECT_QUIET_TIMEOUT 1500
 #else
-#define DEFAULT_DETECT_QUIET_TIMEOUT CYLES_12MS
+#define DEFAULT_DETECT_QUIET_TIMEOUT CYCLES_12MS
 #endif
 
 #define DEFAULT_MAX_LINK_WIDTH       16
@@ -121,7 +121,7 @@ static bool polling_compliance    [VP_MAX_NODES] = { [0 ... VP_MAX_NODES-1] = fa
 static int Detect (const int link_width, const int node)
 {
     int    i = 0;
-    uint32 rcvr_idle_status;
+    uint32_t rcvr_idle_status;
 
     ltssm_max_link_width[node] = link_width;
     ltssm_max_link_mask[node]  = ((1 << ltssm_max_link_width[node])-1) & 0xffff;
@@ -153,7 +153,7 @@ static int Detect (const int link_width, const int node)
 
 static int Polling(int *active_lanes, const int node)
 {
-    uint32 ts1_count[MAX_LINK_WIDTH], ts2_count[MAX_LINK_WIDTH];
+    uint32_t ts1_count[MAX_LINK_WIDTH], ts2_count[MAX_LINK_WIDTH];
     TS_t ts_status;
     int i;
 
@@ -235,7 +235,7 @@ static int Polling(int *active_lanes, const int node)
 
 static int Configuration(const int active_lanes, const int target_state, const int node)
 {
-    uint32 ts1_count[MAX_LINK_WIDTH], ts2_count[MAX_LINK_WIDTH];
+    uint32_t ts1_count[MAX_LINK_WIDTH], ts2_count[MAX_LINK_WIDTH];
     int i, lnkwidth;
     TS_t ts_status;
 
@@ -403,7 +403,7 @@ static int TxL0s (const int target_state, const int active_lanes, const int tick
 
 static int Recovery (const int target_state, const int node)
 {
-    uint32 ts1_count[MAX_LINK_WIDTH], ts2_count[MAX_LINK_WIDTH], idl_count[MAX_LINK_WIDTH];
+    uint32_t ts1_count[MAX_LINK_WIDTH], ts2_count[MAX_LINK_WIDTH], idl_count[MAX_LINK_WIDTH];
     int i, change_config = false;
     TS_t ts_status;
 
@@ -498,7 +498,7 @@ static int Recovery (const int target_state, const int node)
 static int Disabled (const int node)
 {
     int i, rand_idle;
-    uint32 idl_count[MAX_LINK_WIDTH];
+    uint32_t idl_count[MAX_LINK_WIDTH];
 
     VPrint("---> Disabled (node %d)\n", node);
 
@@ -543,7 +543,7 @@ static int Loopback (const int node)
 {
     int i, rand_idle;
     TS_t ts_status;
-    uint32 count[MAX_LINK_WIDTH];
+    uint32_t count[MAX_LINK_WIDTH];
 
     VPrint("---> Loopback (node %d)\n", node);
 

@@ -33,7 +33,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "VUser.h"
+#include <stdint.h>
+#include "pcie_dpi.h"
 #include "pcie.h"
 
 // -------------------------------------------------------------------------
@@ -97,8 +98,8 @@ typedef struct {
 
 typedef struct {
     int    rd [MAX_LINK_WIDTH];                         // Encode running disparity for each lane
-    uint32 elfsr;                                       // Encoder shift regsiter
-    uint32 dlfsr;                                       // Decoder shift register
+    uint32_t elfsr;                                       // Encoder shift regsiter
+    uint32_t dlfsr;                                       // Decoder shift register
 
     bool ts_active;
     int last_lane0_sym;
@@ -110,7 +111,7 @@ typedef struct {
 
 extern unsigned int Encode    (const int data, const int no_scramble, const int lane, const int linkwidth, const int node);
 extern unsigned int Decode    (const int data, const int no_scramble, const int lane, const int linkwidth, const int node);
-extern uint32       PciCrc    (const uint32 Data, const uint32 CrcIn, const uint32 Bits, const uint32 poly, const uint32 crcsize);
+extern uint32_t       PciCrc    (const uint32_t Data, const uint32_t CrcIn, const uint32_t Bits, const uint32_t poly, const uint32_t crcsize);
 extern void         InitCodec (const int node);
 
 #endif

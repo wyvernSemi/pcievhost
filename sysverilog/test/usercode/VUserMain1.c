@@ -31,23 +31,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "pcie.h"
+#include "dpi_header.h"
 
 #define RST_DEASSERT_INT 4
 
 static int          node      = 1;
-static unsigned int Interrupt = 0;
-
-//-------------------------------------------------------------
-// ResetDeasserted()
-//
-// ISR for reset de-assertion. Clears interrupts state.
-//
-//-------------------------------------------------------------
-
-static int ResetDeasserted(void)
-{
-    Interrupt |= RST_DEASSERT_INT;
-}
 
 //-------------------------------------------------------------
 // VUserInput_1()
@@ -84,6 +72,9 @@ static void VUserInput_1(pPkt_t pkt, int status, void* usrptr)
 
 void VUserMain1() 
 {
+    VPrint("Entered VUserMain1\n");
+    
+    int notReset = 0;
 
     // Initialise PCIe VHost, with input callback function and no user pointer.
     InitialisePcie(VUserInput_1, NULL, node);
@@ -93,8 +84,6 @@ void VUserMain1()
 
     DebugVPrint("VUserMain: in node %d\n", node);
 
-    VRegInterrupt(RST_DEASSERT_INT, ResetDeasserted, node);
-
     // Use node number as seed
     PcieSeed(node, node);
 
@@ -102,10 +91,9 @@ void VUserMain1()
     do
     {
         SendOs(IDL, node);
+        PcieGetReset(&notReset);
     }
-    while (!Interrupt);
-
-    Interrupt &= ~RST_DEASSERT_INT;
+    while (!notReset);
 
     // Initialise the link for 16 lanes
     InitLink(16, node);
