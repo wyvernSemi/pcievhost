@@ -48,7 +48,7 @@ PCIE_MAP_V    = ${PCIE_MAP_C:%.h=${HDRDIR}/%.v}
 
 ifeq ("${SIM}", "ActiveHDL")
   ALDECDIR    =  /c/Aldec/Active-HDL-13-x64
-  ARCHFLAGS   = -m64 -I${ALDECDIR}/pli/Include -L${ALDECDIR}/pli/Lib -l:aldecpli.lib
+  ARCHFLAGS   = -m64 -I${ALDECDIR}/pli/Include -L${ALDECDIR}/pli/Lib -l:svdpi_exp.lib
 else
   ALDECDIR    =  /c/Aldec/Riviera-PRO-2022.10-x64
   ARCHFLAGS   = -m64 -I${ALDECDIR}/interfaces/include -L${ALDECDIR}/interfaces/lib -l:svdpi_exp.lib
