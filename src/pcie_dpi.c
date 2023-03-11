@@ -47,7 +47,7 @@ extern void PcieUpdate1(int addr, int datain, int* dataout, int rnw, int ticks);
 // initial block of module.
 // -------------------------------------------------------------------------
 
-int PcieInit (int node)
+void PcieInit (int node)
 {
     // Ensure that the Aldec tools can intercept the stdout stream
     setvbuf(stdout, 0, _IONBF, 0);
@@ -64,8 +64,6 @@ int PcieInit (int node)
         exit(1);
         break;
     }
-
-    return 0;
 }
 
 // -------------------------------------------------------------------------

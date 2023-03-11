@@ -118,7 +118,7 @@ void VUserMain0()
     // Use node number as seed
     PcieSeed(node, node);
 
-    // Send out idles until we recieve an interrupt
+    // Send out idles until reset removed
     do
     {
         SendOs(IDL, node);
