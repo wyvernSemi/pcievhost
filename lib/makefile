@@ -36,7 +36,7 @@ else
 endif
 
 C_FILES = codec.c mem.c pcie.c pcie_utils.c ltssm.c pcie_dpi.c pcicrc32.c
-CFLAGS  = -c ${ARCHFLAGS} -DLTSSM_ABBREVIATED -I../sysverilog/test
+CFLAGS  = -c ${ARCHFLAGS} -DLTSSM_ABBREVIATED -I../test
 
 CC      = gcc
 

@@ -28,8 +28,8 @@ SIM           = RivieraPro
 #
 # PCIE PcieHost test defintions
 #
-PCIE_CLIB_DIR = ../../lib
-SRCDIR        = ../../src
+PCIE_CLIB_DIR = ../lib
+SRCDIR        = ../src
 USRCDIR       = usercode
 WORKDIR       = work
 
@@ -39,7 +39,7 @@ USER_C        = VUserMain0.c VUserMain1.c
 PCIE_MAP_C    = pcie_vhost_map.h
 
 PCIE_TOP      = test
-HDRDIR        = ../headers
+HDRDIR        = ../sysverilog/headers
 
 VSIMFLAGS     = +access +r -interceptcoutput -sv_lib ${PLI_SO} ${PCIE_TOP}
 VLOGFLAGS     = -quiet -sv2k5 -msg 0 +define+DISP_LINK_WIDE -incr +incdir+${VPROC_TOP} -f test.vc
@@ -160,5 +160,7 @@ clean:
 	@rm -rf library.cfg
 	@rm -rf sim.log
 	@rm -rf dataset*
+	@rm -rf compile
+	@rm -rf dpi_header.h
 
 
