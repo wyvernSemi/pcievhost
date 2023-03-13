@@ -83,13 +83,6 @@ typedef struct {
     rcv_buf_t           rcv_buf;
 } SchedState_t, *pSchedState_t;
 
-// Pointer to pthread_create compatible function
-typedef void *(*pThreadFunc_t)(void *);
-
-// Pointer to VUserMain function type definition
-typedef void (*pVUserMain_t)(void);
-
-extern pSchedState_t ns[VP_MAX_NODES];
 
 extern int notReset;
 
