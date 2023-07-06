@@ -130,7 +130,7 @@ ${PLI_SO}: vproc_lib pcie_c_lib ${USER_C:%.c=${USRCDIR}/%.c}
 # PCIe model library
 #
 pcie_c_lib:
-	@${MAKE} -C ${PCIE_CLIB_DIR}
+	@${MAKE} -C ${PCIE_CLIB_DIR} VPROC_TOP=${PWD}/${VPROC_TOP}
 
 #
 # VProc library.
