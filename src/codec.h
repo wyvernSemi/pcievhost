@@ -1,5 +1,5 @@
 //=============================================================
-// 
+//
 // Copyright (c) 2016 Simon Southwell. All rights reserved.
 //
 // Date: 20th Sep 2016
@@ -33,7 +33,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+#ifndef OSVVM
 #include "VUser.h"
+#endif
 #include "pcie.h"
 
 // -------------------------------------------------------------------------
@@ -96,21 +99,21 @@ typedef struct {
 } TblType;
 
 typedef struct {
-    int    rd [MAX_LINK_WIDTH];                         // Encode running disparity for each lane
-    uint32 elfsr;                                       // Encoder shift regsiter
-    uint32 dlfsr;                                       // Decoder shift register
+    int      rd [MAX_LINK_WIDTH];                         // Encode running disparity for each lane
+    uint32_t elfsr;                                       // Encoder shift regsiter
+    uint32_t dlfsr;                                       // Decoder shift register
 
-    bool ts_active;
-    int last_lane0_sym;
+    bool     ts_active;
+    int     last_lane0_sym;
 } CodecState_t, *pCodecState_t;
 
 // -------------------------------------------------------------------------
 // PROTOTYPES
 // -------------------------------------------------------------------------
 
-extern unsigned int Encode    (const int data, const int no_scramble, const int lane, const int linkwidth, const int node);
-extern unsigned int Decode    (const int data, const int no_scramble, const int lane, const int linkwidth, const int node);
-extern uint32       PciCrc    (const uint32 Data, const uint32 CrcIn, const uint32 Bits, const uint32 poly, const uint32 crcsize);
+extern unsigned int Encode    (const int      data, const int no_scramble, const int lane, const int linkwidth, const int node);
+extern unsigned int Decode    (const int      data, const int no_scramble, const int lane, const int linkwidth, const int node);
+extern uint32_t     PciCrc    (const uint32_t Data, const uint32_t CrcIn, const uint32_t Bits, const uint32_t poly, const uint32_t crcsize);
 extern void         InitCodec (const int node);
 
 #endif

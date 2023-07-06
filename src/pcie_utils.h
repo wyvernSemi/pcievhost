@@ -33,6 +33,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <ctype.h>
 #include "pci_express.h"
@@ -120,11 +121,11 @@
 ////////////////////////
 // Ordered set and Training sequence reception state
 typedef struct {
-    uint32     IdleCount    [MAX_LINK_WIDTH];
-    uint32     SkipCount    [MAX_LINK_WIDTH];
-    uint32     FtsCount     [MAX_LINK_WIDTH];
-    uint32     Ts1Count     [MAX_LINK_WIDTH];
-    uint32     Ts2Count     [MAX_LINK_WIDTH];
+    uint32_t     IdleCount    [MAX_LINK_WIDTH];
+    uint32_t     SkipCount    [MAX_LINK_WIDTH];
+    uint32_t     FtsCount     [MAX_LINK_WIDTH];
+    uint32_t     Ts1Count     [MAX_LINK_WIDTH];
+    uint32_t     Ts2Count     [MAX_LINK_WIDTH];
 
     // Received training sequence data
     TS_t       LastTS       [MAX_LINK_WIDTH];
@@ -139,8 +140,8 @@ typedef struct {
 ////////////////////////
 // User configurable state. 
 typedef struct {
-    uint32     HdrConsumptionRate;
-    uint32     DataConsumptionRate;
+    uint32_t     HdrConsumptionRate;
+    uint32_t     DataConsumptionRate;
     int        AckRate;
     int        CompletionRate;
     int        CompletionSpread;
@@ -152,8 +153,8 @@ typedef struct {
     int        DisableUrCpl;
 
     // Rx buffer sizes
-    uint32     InitFcDataCr        [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
-    uint32     InitFcHdrCr         [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
+    uint32_t     InitFcDataCr        [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
+    uint32_t     InitFcHdrCr         [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
 
 } UserConfig_t, *pUserConfig_t;
 
@@ -161,24 +162,24 @@ typedef struct {
 // Flow control state
 typedef struct {
     // Received Flow control state
-    uint32     FlowCntlHdrCredits  [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
-    uint32     FlowCntlDataCredits [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
-    uint32     TxHdrCredits        [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
-    uint32     TxDataCredits       [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
+    uint32_t     FlowCntlHdrCredits  [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
+    uint32_t     FlowCntlDataCredits [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
+    uint32_t     TxHdrCredits        [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
+    uint32_t     TxDataCredits       [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
 
     // Transmit flow control
-    uint32     ConsumedDataCredits   [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
-    uint32     ConsumedHdrCredits    [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
-    uint32     AdvertisedDataCredits [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
-    uint32     AdvertisedHdrCredits  [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
-    uint32     ConsumedDataUpdated   [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
-    uint32     ConsumedHdrUpdated    [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
-    uint32     RxHdrCredits          [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
-    uint32     RxDataCredits         [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
-    uint32     LastSentFcTime        [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
+    uint32_t     ConsumedDataCredits   [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
+    uint32_t     ConsumedHdrCredits    [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
+    uint32_t     AdvertisedDataCredits [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
+    uint32_t     AdvertisedHdrCredits  [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
+    uint32_t     ConsumedDataUpdated   [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
+    uint32_t     ConsumedHdrUpdated    [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
+    uint32_t     RxHdrCredits          [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
+    uint32_t     RxDataCredits         [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
+    uint32_t     LastSentFcTime        [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
 
-    uint32     fc_state              [NUM_VIRTUAL_CHANNELS];
-    uint32     rx_fc_state           [NUM_VIRTUAL_CHANNELS];
+    uint32_t     fc_state              [NUM_VIRTUAL_CHANNELS];
+    uint32_t     rx_fc_state           [NUM_VIRTUAL_CHANNELS];
 
 } FlowControl_t, *pFlowControl_t;
 
@@ -191,10 +192,10 @@ typedef struct {
     // Configuration state set by verilog parameters
     int        LinkWidth;
     int        Endpoint;
-    uint32     RandNum;
+    uint32_t     RandNum;
 
     // 'real' time (cycle count)
-    uint32     TicksSinceReset;
+    uint32_t     TicksSinceReset;
 
     // Send queue pointers
     pPkt_t     head_p;
@@ -210,7 +211,7 @@ typedef struct {
     pPkt_t     nak_to_send_p;
     int        curr_ack;
     int        curr_nak;
-    uint32     seq;
+    uint32_t     seq;
 
     // Skip Timing
     int        LastTxSkipTime;
@@ -257,20 +258,20 @@ extern const unsigned int Bitrev8[];
 
 void        InitPcieState        (const pPcieModelState_t const state, const int node);
 PktData_t * CreateDllpTemplate   (const int Type, PktData_t **payload_start);
-PktData_t * CreateTlpTemplate    (const int Type, const uint64 addr, const int bytelen, const int digest_present, PktData_t **payload_start);
+PktData_t * CreateTlpTemplate    (const int Type, const uint64_t addr, const int bytelen, const int digest_present, PktData_t **payload_start);
 void        CalcLcrc             (PktData_t *pkt);
 void        CalcEcrc             (PktData_t *pkt);
 void        CalcDllpCrc          (PktData_t *dllp);
 int         CalcBe               (const int inaddr, const int byte_len);
 int         CalcLoAddr           (const int fbe);
 int         CalcByteCount        (const int len, int fbe, int lbe);
-int         CheckCredits         (const int disable_fc, const uint32 fc_state, const uint32 hdr_credits, const uint32 data_credits, 
-                                  const uint32 tx_hdr, const uint32 tx_data, const int payload_len);
+int         CheckCredits         (const int disable_fc, const uint32_t fc_state, const uint32_t hdr_credits, const uint32_t data_credits, 
+                                  const uint32_t tx_hdr, const uint32_t tx_data, const int payload_len);
 void        AddPktToQueue        (const pPcieModelState_t const state, const pPkt_t const packet);
 void        AddPktToQueueDelay   (const pPcieModelState_t const state, const pPkt_t const packet);
-void        ExtractPhyInput      (const pPcieModelState_t const state, const uint32* const rawlinkin);
+void        ExtractPhyInput      (const pPcieModelState_t const state, const uint32_t* const rawlinkin);
 
-uint32      CalcNewRand          (const uint32 Seed);
+uint32_t      CalcNewRand          (const uint32_t Seed);
 void        CheckFree            (void *ptr);
 void        TxFcInitInt          (const pFlowControl_t const flw, const pUserConfig_t usrcfg, const int node);
 void        RxFcInit             (const pFlowControl_t const flw, const int dllptype, const int hdrval, const int dataval);
