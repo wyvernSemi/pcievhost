@@ -15,8 +15,8 @@ test_defs.v
 -f ../pcieVHost/pcieVHost.vc
 
 // VProc
-../../../VProc/extradefs.v
-../../../VProc/f_VProc.v
+../../../vproc/extradefs.v
+../../../vproc/f_VProc.v
 
 // Display Control
 ContDisps.v

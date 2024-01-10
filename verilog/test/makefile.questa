@@ -1,0 +1,51 @@
+###################################################################
+# Makefile for Virtual Processor testcode in QuestaSim. Wraps up
+# the ModelSim makefile, and sets the compilation to be for 64-bits
+#
+# Copyright (c) 2024 Simon Southwell.
+#
+# This file is part of VProc.
+#
+# VProc is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# VProc is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with VProc. If not, see <http://www.gnu.org/licenses/>.
+#
+###################################################################
+
+# Set up the common make command for the ModelSim makefile with -m64 
+# set as the architecture flag
+COMMONCMD = $(MAKE) --no-print-directory ARCHFLAG=-m64 -f makefile
+
+#------------------------------------------------------
+# BUILD RULES
+#------------------------------------------------------
+
+all:
+	@$(COMMONCMD)
+
+#------------------------------------------------------
+# EXECUTION RULES
+#------------------------------------------------------
+
+sim:
+	@$(COMMONCMD) sim
+
+run:
+	@$(COMMONCMD) run
+
+rungui:
+	@$(COMMONCMD) rungui
+
+gui: rungui
+
+clean:
+	@$(COMMONCMD) clean

@@ -1,7 +1,7 @@
 ###################################################################
 # Makefile for Virtual PCIe Host test code in Modelsim
 #
-# Copyright (c) 2005-2022 Simon Southwell.
+# Copyright (c) 2005-2024 Simon Southwell.
 #
 # This file is part of pcieVHost.
 #
@@ -19,10 +19,6 @@
 # along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 #
 ###################################################################
-
-# MODEL_TECH environment variable must be set for pointing to 
-# modelsim.ini file and binary dierctory respectively
-
 
 NUM_VPROC     = 2
 
@@ -58,12 +54,30 @@ VLOGFLAGS     = -quiet +define+DISP_LINK_WIDE -incr +incdir+${VPROC_TOP} -f ${TO
 
 PCIE_MAP_V    = ${PCIE_MAP_C:%.h=${HDRDIR}/%.v}
 
+# Get OS type
+OSTYPE:=$(shell uname)
+
+# If run from a place where MODEL_TECH is not defined, construct from path to PLI library
+ifeq ("${MODEL_TECH}", "")
+  ifeq (${OSTYPE}, Linux)
+    PLILIB=libmtipli.so
+  else
+    PLILIB=mtipli.dll
+  endif
+  
+  VSIMPATH=$(shell which vsim)
+  SIMROOT=$(shell dirname ${VSIMPATH})/..
+  PLILIBPATH=$(shell find ${SIMROOT} -name "${PLILIB}")
+  MODEL_TECH=$(shell dirname ${PLILIBPATH})
+endif
+
 #
 # Flags for C compiler
 #
 CC            = gcc
 C++           = g++
-CFLAGS        = -m32 -fPIC                       \
+ARCHFLAG      = -m32
+CFLAGS        = ${ARCHFLAG} -fPIC                \
                 -Wno-write-strings               \
                 -I${SRCDIR}                      \
                 -I${USRCDIR}                     \
@@ -71,9 +85,6 @@ CFLAGS        = -m32 -fPIC                       \
                 -I${MODEL_TECH}/../include       \
                 -DMODELSIM                       \
                 -D_REENTRANT
-
-# Get OS type
-OSTYPE:=$(shell uname)
 
 # Set OS specific variables between Linux and Windows (MinGW)
 ifeq (${OSTYPE}, Linux)
@@ -130,13 +141,13 @@ ${PLI_SO}: vproc_lib pcie_c_lib ${USER_C:%.c=${USRCDIR}/%.c}
 # PCIe model library
 #
 pcie_c_lib:
-	@${MAKE} -C ${PCIE_CLIB_DIR} VPROC_TOP=${PWD}/${VPROC_TOP}
+	@${MAKE} -C ${PCIE_CLIB_DIR} MODEL_TECH=${MODEL_TECH} ARCHFLAG=${ARCHFLAG} VPROC_TOP=${PWD}/${VPROC_TOP}
 
 #
 # VProc library.
 #
 vproc_lib: ${VPROC_TOP}
-	@${MAKE} -C ${VPROC_TOP} MAX_NUM_VPROC=${NUM_VPROC} USER_C=""
+	@${MAKE} -C ${VPROC_TOP} MODEL_TECH=${MODEL_TECH} ARCHFLAG=${ARCHFLAG} MAX_NUM_VPROC=${NUM_VPROC} USER_C=""
 
 #
 # Checkout VProc from github if it doesn't exist at the specified location
