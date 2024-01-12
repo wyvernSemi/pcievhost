@@ -21,9 +21,11 @@
 #
 ###################################################################
 
+USRFLAGS  = 
+
 # Set up the common make command for the ModelSim makefile with -m64 
 # set as the architecture flag
-COMMONCMD = $(MAKE) --no-print-directory ARCHFLAG=-m64 -f makefile
+COMMONCMD = $(MAKE) --no-print-directory USRFLAGS=${USRFLAGS} ARCHFLAG=-m64 -f makefile
 
 #------------------------------------------------------
 # BUILD RULES

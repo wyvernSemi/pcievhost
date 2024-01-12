@@ -60,15 +60,15 @@ OSTYPE:=$(shell uname)
 # If run from a place where MODEL_TECH is not defined, construct from path to PLI library
 ifeq ("${MODEL_TECH}", "")
   ifeq (${OSTYPE}, Linux)
-    PLILIB=libmtipli.so
+    PLILIB    = libmtipli.so
   else
-    PLILIB=mtipli.dll
+    PLILIB    = mtipli.dll
   endif
   
-  VSIMPATH=$(shell which vsim)
-  SIMROOT=$(shell dirname ${VSIMPATH})/..
-  PLILIBPATH=$(shell find ${SIMROOT} -name "${PLILIB}")
-  MODEL_TECH=$(shell dirname ${PLILIBPATH})
+  VSIMPATH    = $(shell which vsim)
+  SIMROOT     = $(shell dirname ${VSIMPATH})/..
+  PLILIBPATH  = $(shell find ${SIMROOT} -name "${PLILIB}")
+  MODEL_TECH  = $(shell dirname ${PLILIBPATH})
 endif
 
 #
@@ -77,13 +77,13 @@ endif
 CC            = gcc
 C++           = g++
 ARCHFLAG      = -m32
-CFLAGS        = ${ARCHFLAG} -fPIC                \
-                -Wno-write-strings               \
-                -I${SRCDIR}                      \
-                -I${USRCDIR}                     \
-                -I${VPROC_TOP}/code              \
-                -I${MODEL_TECH}/../include       \
-                -DMODELSIM                       \
+CFLAGS        = ${ARCHFLAG} -fPIC                           \
+                -Wno-write-strings                          \
+                -I${SRCDIR}                                 \
+                -I${USRCDIR}                                \
+                -I${VPROC_TOP}/code                         \
+                -I${MODEL_TECH}/../include                  \
+                -DMODELSIM                                  \
                 -D_REENTRANT
 
 # Set OS specific variables between Linux and Windows (MinGW)
@@ -111,8 +111,8 @@ all: ${PLI_SO} verilog
 .PHONY: verilog
 
 verilog: ${PCIE_MAP_V}
-	@if [ ! -d ${WORKDIR} ]; then                \
-	  vlib ${WORKDIR};                           \
+	@if [ ! -d ${WORKDIR} ]; then                           \
+	  vlib ${WORKDIR};                                      \
     fi
 	@vlog ${VLOGFLAGS}
 
@@ -126,15 +126,15 @@ ${PCIE_MAP_V} : ${SRCDIR}/${PCIE_MAP_C}
 # PLI shared object
 #
 ${PLI_SO}: vproc_lib pcie_c_lib ${USER_C:%.c=${USRCDIR}/%.c}
-	@${CC} ${CFLAGS_SO} ${CFLAGS}                \
-	       -Wl,-whole-archive                    \
- 	       ${USER_C:%.c=${USRCDIR}/%.c}          \
-           -lpthread                             \
-           -L${MODEL_TECH}                       \
-           -lmtipli                              \
-	       -L${PCIE_CLIB_DIR} -lpcievhost        \
-	       -L${VPROC_TOP}     -lvproc            \
-	       -Wl,-no-whole-archive                 \
+	@${CC} ${CFLAGS_SO} ${CFLAGS}                           \
+	       -Wl,-whole-archive                               \
+ 	       ${USER_C:%.c=${USRCDIR}/%.c}                     \
+           -lpthread                                        \
+           -L${MODEL_TECH}                                  \
+           -lmtipli                                         \
+	       -L${PCIE_CLIB_DIR} -lpcievhost                   \
+	       -L${VPROC_TOP}     -lvproc                       \
+	       -Wl,-no-whole-archive                            \
 	       -o $@
 
 #
@@ -159,14 +159,17 @@ ${VPROC_TOP}:
 # EXECUTION RULES
 #------------------------------------------------------
 
+sim: vproc_lib pcie_c_lib verilog ${PLI_SO}
+	@vsim -c ${VSIMFLAGS}
+
 run: vproc_lib pcie_c_lib verilog ${PLI_SO}
-	@vsim -c ${VSIMFLAGS} -do "run -all"
+	@vsim -c ${VSIMFLAGS} -do "run -all" -do "quit"
 
 rungui: vproc_lib pcie_c_lib verilog ${PLI_SO}
-	@if [ -e wave.do ]; then                     \
-         vsim -gui -do wave.do ${VSIMFLAGS};     \
-     else                                        \
-         vsim -gui ${VSIMFLAGS};                 \
+	@if [ -e wave.do ]; then                                \
+         vsim -gui -do wave.do ${VSIMFLAGS} -do "run -all"; \
+     else                                                   \
+         vsim -gui ${VSIMFLAGS};                            \
      fi
 
 gui: rungui
@@ -176,8 +179,8 @@ gui: rungui
 #------------------------------------------------------
 
 clean:
-	@if [ -d "${WORKDIR}" ]; then                \
-	  vdel -all;                                 \
+	@if [ -d "${WORKDIR}" ]; then                           \
+	  vdel -all;                                            \
      fi
 	@${MAKE} -C ${PCIE_CLIB_DIR} clean
 	@${MAKE} -C ${VPROC_TOP}     clean
