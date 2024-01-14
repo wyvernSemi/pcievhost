@@ -7,4 +7,4 @@ pcievhost is bundled with verilog pcie link traffic display modules and an examp
 <p align="center">
 <img src="https://github.com/wyvernSemi/pcievhost/assets/21970031/6e21c9da-dd50-4872-b385-fe67845dd16b" width=640>
 </p>
-More informaton can be found in the dpcumentation <code>doc/pcieVHost.pdf</code>
+More informaton can be found in the documentation <code>doc/pcieVHost.pdf</code>
