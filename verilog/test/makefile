@@ -174,6 +174,14 @@ rungui: vproc_lib pcie_c_lib verilog ${PLI_SO}
 
 gui: rungui
 
+help:
+	@echo "make help          Display this message"
+	@echo "make               Build C/C++ code without running simulation"
+	@echo "make sim           Build and run command line interactive (sim not started)"
+	@echo "make run           Build and run batch simulation"
+	@echo "make rungui/gui    Build and run GUI simulation"
+	@echo "make clean         clean previous build artefacts"
+
 #------------------------------------------------------
 # CLEANING RULES
 #------------------------------------------------------

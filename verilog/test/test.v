@@ -28,7 +28,10 @@
 
 //-------------------------------------------------------------
 //-------------------------------------------------------------
-module test;
+module test
+#(parameter VCD_DUMP       = 0,
+  parameter DEBUG_STOP     = 0
+);
 
 reg     Clk;
 integer Count;
@@ -184,9 +187,26 @@ wire [15:0] InvertTxPolarityUp   = 16'h0000;
 
 initial
 begin
+  // If specified, dumpa VCD file
+  if (VCD_DUMP != 0)
+  begin
+    $dumpfile("waves.vcd");
+    $dumpvars(0, test);
+  end
+
     Clk = 1;
     
     #0                  // Ensure first x->1 clock edge is complete before initialisation
+    
+    // If specified, stop for debugger attcahement
+    if (DEBUG_STOP != 0)
+    begin
+      $display("\n***********************************************");
+      $display("* Stopping simulation for debugger attachment *");
+      $display("***********************************************\n");
+      $stop;
+    end
+    
     Count = 0;
     forever # (`CLK_PERIOD/2) Clk = ~Clk;
 end
