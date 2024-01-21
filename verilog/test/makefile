@@ -141,13 +141,13 @@ ${PLI_SO}: vproc_lib pcie_c_lib ${USER_C:%.c=${USRCDIR}/%.c}
 # PCIe model library
 #
 pcie_c_lib:
-	@${MAKE} -C ${PCIE_CLIB_DIR} MODEL_TECH=${MODEL_TECH} ARCHFLAG=${ARCHFLAG} VPROC_TOP=${PWD}/${VPROC_TOP}
+	@${MAKE} --no-print-directory -C ${PCIE_CLIB_DIR} MODEL_TECH=${MODEL_TECH} ARCHFLAG=${ARCHFLAG} VPROC_TOP=${PWD}/${VPROC_TOP}
 
 #
 # VProc library.
 #
 vproc_lib: ${VPROC_TOP}
-	@${MAKE} -C ${VPROC_TOP} MODEL_TECH=${MODEL_TECH} ARCHFLAG=${ARCHFLAG} MAX_NUM_VPROC=${NUM_VPROC} USER_C=""
+	@${MAKE} --no-print-directory -C ${VPROC_TOP} MODEL_TECH=${MODEL_TECH} ARCHFLAG=${ARCHFLAG} MAX_NUM_VPROC=${NUM_VPROC} USER_C=""
 
 #
 # Checkout VProc from github if it doesn't exist at the specified location
@@ -186,12 +186,12 @@ help:
 # CLEANING RULES
 #------------------------------------------------------
 
-clean:
+clean: ${VPROC_TOP}
 	@if [ -d "${WORKDIR}" ]; then                           \
 	  vdel -all;                                            \
      fi
-	@${MAKE} -C ${PCIE_CLIB_DIR} clean
-	@${MAKE} -C ${VPROC_TOP}     clean
+	@${MAKE} --no-print-directory -C ${PCIE_CLIB_DIR} clean
+	@${MAKE} --no-print-directory -C ${VPROC_TOP}     clean
 	@rm -rf ${PLI_SO} ${PCIE_MAP_V}
 
 

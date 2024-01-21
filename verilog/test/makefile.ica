@@ -192,7 +192,7 @@ help:
 # CLEANING RULES
 #------------------------------------------------------
 
-clean:
+clean: ${VPROC_TOP}
 	@${MAKE} --no-print-directory -C ${PCIE_CLIB_DIR} clean
 	@${MAKE} --no-print-directory -C ${VPROC_TOP}     clean
 	@rm -rf ${PLI_SO} ${PCIE_MAP_V} ${SIMEXE}
