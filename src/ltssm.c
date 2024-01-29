@@ -321,9 +321,16 @@ static int Configuration(const int active_lanes, const int target_state, const i
     // Complete
     VPrint("---> Configuration Complete (node %d)\n", node);
     ResetEventCount(TS2_ID, node);
+    int ts2_sendcount = 0;
     do
     {
         SendTs(TS2_ID, ENABLE_LANENUMS, ltssm_linknum[node], ltssm_n_fts[node], ltssm_ts_ctl[VP_MAX_NODES], false, node);
+        
+        // Start counting sent TS2s once a TS2 has been received
+        if (ts2_count[0])
+        {
+            ts2_sendcount++;
+        }
         for (i=0; i < lnkwidth; i++)
         {
             ts_status = GetTS(i, node);
@@ -333,7 +340,7 @@ static int Configuration(const int active_lanes, const int target_state, const i
                 ts2_count[0] = 0;
             }
         }
-    } while(ts2_count[0] < 8);
+    } while((ts2_count[0] < 8) || ts2_sendcount < 16);
 
     ltssm_tx_n_fts[node] = ts_status.n_fts;
 
