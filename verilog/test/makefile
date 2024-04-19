@@ -24,7 +24,7 @@ NUM_VPROC     = 2
 
 # Location of VProc directory. Assumes in same directory as pcieVHost.
 # Update if relocated.
-VPROC_TOP     = ../../../vproc
+VPROC_TOP     = ../../../vproc/
 
 # Define the github repository URL for the VProc virtual processor 
 VPROC_REPO    = https://github.com/wyvernSemi/vproc.git
@@ -133,7 +133,7 @@ ${PLI_SO}: vproc_lib pcie_c_lib ${USER_C:%.c=${USRCDIR}/%.c}
            -L${MODEL_TECH}                                  \
            -lmtipli                                         \
 	       -L${PCIE_CLIB_DIR} -lpcievhost                   \
-	       -L${VPROC_TOP}     -lvproc                       \
+	       -L${VPROC_TOP}/test     -lvproc                  \
 	       -Wl,-no-whole-archive                            \
 	       -o $@
 
@@ -147,7 +147,7 @@ pcie_c_lib:
 # VProc library.
 #
 vproc_lib: ${VPROC_TOP}
-	@${MAKE} --no-print-directory -C ${VPROC_TOP} MODEL_TECH=${MODEL_TECH} ARCHFLAG=${ARCHFLAG} MAX_NUM_VPROC=${NUM_VPROC} USER_C=""
+	@${MAKE} --no-print-directory -C ${VPROC_TOP}/test MODEL_TECH=${MODEL_TECH} ARCHFLAG=${ARCHFLAG} MAX_NUM_VPROC=${NUM_VPROC} USER_C=""
 
 #
 # Checkout VProc from github if it doesn't exist at the specified location
@@ -190,8 +190,8 @@ clean: ${VPROC_TOP}
 	@if [ -d "${WORKDIR}" ]; then                           \
 	  vdel -all;                                            \
      fi
-	@${MAKE} --no-print-directory -C ${PCIE_CLIB_DIR} clean
-	@${MAKE} --no-print-directory -C ${VPROC_TOP}     clean
+	@${MAKE} --no-print-directory -C ${PCIE_CLIB_DIR}  clean
+	@${MAKE} --no-print-directory -C ${VPROC_TOP}/test clean
 	@rm -rf ${PLI_SO} ${PCIE_MAP_V}
 
 
