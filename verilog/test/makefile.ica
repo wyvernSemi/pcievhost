@@ -24,7 +24,7 @@ NUM_VPROC      = 2
 
 # Location of VProc directory. Assumes in same directory as pcieVHost.
 # Update if relocated.
-VPROC_TOP      = ../../../vproc/
+VPROC_TOP      = ../../../vproc
 
 # Define the github repository URL for the VProc virtual processor
 VPROC_REPO     = https://github.com/wyvernSemi/vproc.git
@@ -108,7 +108,7 @@ ${PCIE_MAP_V} : ${SRCDIR}/${PCIE_MAP_C}
 #
 # PLI shared object
 #
-${PLI_SO}: ${VPROC_TOP}/${VPROCLIB} ${PCIE_CLIB_DIR}/${PCIELIB} ${USER_C:%.c=${USRCDIR}/%.c}
+${PLI_SO}: ${VPROC_TOP}/test/${VPROCLIB} ${PCIE_CLIB_DIR}/${PCIELIB} ${USER_C:%.c=${USRCDIR}/%.c}
 	@${CC} ${CFLAGS_SO} ${CFLAGS}                \
 	       -Wl,-whole-archive                    \
  	       ${USER_C:%.c=${USRCDIR}/%.c}          \
@@ -130,10 +130,11 @@ ${PCIE_CLIB_DIR}/${PCIELIB}:
 # VProc library.
 #
 ${VPROC_TOP}/test/${VPROCLIB}: ${VPROC_TOP}
-	@${MAKE} --no-print-directory -C ${VPROC_TOP}/test   \
-             CFLAGS="${CFLAGS} -Wno-int-to-pointer-cast" \
-             PWD=./ MAX_NUM_VPROC=${NUM_VPROC}           \
-             USER_C=""                                   \
+	@${MAKE} --no-print-directory -C ${VPROC_TOP}/test      \
+             -f makefile.ica                                \
+             CFLAGS="-c ${CFLAGS} -Wno-int-to-pointer-cast" \
+             PWD=./ MAX_NUM_VPROC=${NUM_VPROC}              \
+             USER_C=""                                      \
              ${VPROCLIB}
 
 #
@@ -194,7 +195,7 @@ help:
 
 clean: ${VPROC_TOP}
 	@${MAKE} --no-print-directory -C ${PCIE_CLIB_DIR}  clean
-	@${MAKE} --no-print-directory -C ${VPROC_TOP}/test clean
+	@${MAKE} --no-print-directory -f makefile.ica -C ${VPROC_TOP}/test clean
 	@rm -rf ${PLI_SO} ${PCIE_MAP_V} ${SIMEXE}
 
 

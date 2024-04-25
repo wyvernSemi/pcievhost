@@ -24,7 +24,7 @@ NUM_VPROC     = 2
 
 # Location of VProc directory. Assumes in same directory as pcieVHost.
 # Update if relocated.
-VPROC_TOP     = ../../../vproc/
+VPROC_TOP     = ../../../vproc
 
 # Define the github repository URL for the VProc virtual processor 
 VPROC_REPO    = https://github.com/wyvernSemi/vproc.git
@@ -133,7 +133,7 @@ ${PLI_SO}: vproc_lib pcie_c_lib ${USER_C:%.c=${USRCDIR}/%.c}
            -L${MODEL_TECH}                                  \
            -lmtipli                                         \
 	       -L${PCIE_CLIB_DIR} -lpcievhost                   \
-	       -L${VPROC_TOP}/test     -lvproc                  \
+	       -L${VPROC_TOP}/test -lvproc                      \
 	       -Wl,-no-whole-archive                            \
 	       -o $@
 
