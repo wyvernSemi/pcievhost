@@ -116,7 +116,7 @@ void VUserMain0()
     int rid = node+1, tag = 0;
     int i;
 
-    uint64 addr;
+    uint64_t addr;
 
     // Initialise PCIe VHost, with input callback function and no user pointer.
     InitialisePcie(VUserInput_0, NULL, node);
