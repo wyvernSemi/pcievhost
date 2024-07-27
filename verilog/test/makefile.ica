@@ -52,13 +52,13 @@ PCIE_MAP_C     = pcie_vhost_map.h
 PCIE_TOP       = test
 TOP_VC         = test_ica.vc
 HDRDIR         = ../headers
-VLOGFLAGS      = -DDISP_LINK_WIDE -I${VPROC_TOP} -c ${TOP_VC} -Ptest.VCD_DUMP=1
-VLOGDEBUGFLAGS = ${VLOGFLAGS} -Ptest.DEBUG_STOP=1
+VLOGFLAGS      = -DDISP_LINK_WIDE -I$(VPROC_TOP) -c $(TOP_VC) -Ptest.VCD_DUMP=1
+VLOGDEBUGFLAGS = $(VLOGFLAGS) -Ptest.DEBUG_STOP=1
 
 #
 # Auto-generated verilog
 #
-PCIE_MAP_V     = ${PCIE_MAP_C:%.h=${HDRDIR}/%.v}
+PCIE_MAP_V     = $(PCIE_MAP_C:%.h=$(HDRDIR)/%.v)
 
 #
 # Get OS type
@@ -68,7 +68,7 @@ OSTYPE:=$(shell uname)
 #
 # Set OS specific variables between Linux and Windows (MSYS2/mingw64)
 #
-ifeq (${OSTYPE}, Linux)
+ifeq ($(OSTYPE), Linux)
   CFLAGS_SO    = -shared -pthread -lrt -rdynamic
   ICADIR       = /usr/include/iverilog
 else
@@ -83,10 +83,10 @@ CC             = gcc
 C++            = g++
 CFLAGS         = -g -fPIC                        \
                  -Wno-write-strings              \
-                 -I${SRCDIR}                     \
-                 -I${USRCDIR}                    \
-                 -I${VPROC_TOP}/code             \
-                 -I${ICADIR}                     \
+                 -I$(SRCDIR)                     \
+                 -I$(USRCDIR)                    \
+                 -I$(VPROC_TOP)/code             \
+                 -I$(ICADIR)                     \
                  -DICARUS                        \
                  -D_REENTRANT
 
@@ -97,82 +97,82 @@ CFLAGS         = -g -fPIC                        \
 #
 # Build the verilog and the PLI shared object by default
 #
-all: ${PLI_SO} verilog
+all: $(PLI_SO) verilog
 
 #
 # Create Verilog pcieVHost VProc register mappings from C header
 #
-${PCIE_MAP_V} : ${SRCDIR}/${PCIE_MAP_C}
+$(PCIE_MAP_V) : $(SRCDIR)/$(PCIE_MAP_C)
 	@sed "s/0x/32\'h/;s/#/\`/;s/DEFINES/AUTO GENERATED\. DO NOT EDIT\!/;" < $< > $@
 
 #
 # PLI shared object
 #
-${PLI_SO}: ${VPROC_TOP}/test/${VPROCLIB} ${PCIE_CLIB_DIR}/${PCIELIB} ${USER_C:%.c=${USRCDIR}/%.c}
-	@${CC} ${CFLAGS_SO} ${CFLAGS}                \
+$(PLI_SO): $(VPROC_TOP)/test/$(VPROCLIB) $(PCIE_CLIB_DIR)/$(PCIELIB) $(USER_C:%.c=$(USRCDIR)/%.c)
+	@$(CC) $(CFLAGS_SO) $(CFLAGS)                \
 	       -Wl,-whole-archive                    \
- 	       ${USER_C:%.c=${USRCDIR}/%.c}          \
+ 	       $(USER_C:%.c=$(USRCDIR)/%.c)          \
            -lpthread                             \
            -ldl                                  \
            -lvpi -lveriuser                      \
-	       -L${PCIE_CLIB_DIR} -lpcievhost        \
-	       -L${VPROC_TOP}/test -lvproc           \
+	       -L$(PCIE_CLIB_DIR) -lpcievhost        \
+	       -L$(VPROC_TOP)/test -lvproc           \
 	       -Wl,-no-whole-archive                 \
 	       -o $@
 
 #
 # PCIe model library
 #
-${PCIE_CLIB_DIR}/${PCIELIB}:
-	@${MAKE} --no-print-directory -C ${PCIE_CLIB_DIR} -f makefile.ica ICADIR=${ICADIR}
+$(PCIE_CLIB_DIR)/$(PCIELIB):
+	@$(MAKE) --no-print-directory -C $(PCIE_CLIB_DIR) -f makefile.ica ICADIR=$(ICADIR)
 
 #
 # VProc library.
 #
-${VPROC_TOP}/test/${VPROCLIB}: ${VPROC_TOP}
-	@${MAKE} --no-print-directory -C ${VPROC_TOP}/test      \
+$(VPROC_TOP)/test/$(VPROCLIB): $(VPROC_TOP)
+	@$(MAKE) --no-print-directory -C $(VPROC_TOP)/test      \
              -f makefile.ica                                \
-             CFLAGS="-c ${CFLAGS} -Wno-int-to-pointer-cast" \
-             PWD=./ MAX_NUM_VPROC=${NUM_VPROC}              \
+             CFLAGS="-c $(CFLAGS) -Wno-int-to-pointer-cast" \
+             PWD=./ MAX_NUM_VPROC=$(NUM_VPROC)              \
              USER_C=""                                      \
-             ${VPROCLIB}
+             $(VPROCLIB)
 
 #
 # Checkout VProc from github if it doesn't exist at the specified location
 #
-${VPROC_TOP}:
-	git clone ${VPROC_REPO} ${VPROC_TOP} --recursive
+$(VPROC_TOP):
+	git clone $(VPROC_REPO) $(VPROC_TOP) --recursive
 
 
 #
 # Build the verilog
 #
-verilog: ${VLOGFILES} ${PCIE_MAP_V}
-	@iverilog -o ${SIMEXE} ${VLOGFLAGS} -s test
+verilog: $(VLOGFILES) $(PCIE_MAP_V)
+	@iverilog -o $(SIMEXE) $(VLOGFLAGS) -s test
 
-verilog_debug: ${VLOGFILES} ${PCIE_MAP_V}
-	@iverilog -o ${SIMEXE}  ${VLOGDEBUGFLAGS} -s test
+verilog_debug: $(VLOGFILES) $(PCIE_MAP_V)
+	@iverilog -o $(SIMEXE)  $(VLOGDEBUGFLAGS) -s test
 
 #------------------------------------------------------
 # EXECUTION RULES
 #------------------------------------------------------
 
 run: all
-	@vvp -n -m ./${PLI_SO} ${SIMEXE}
+	@vvp -n -m ./$(PLI_SO) $(SIMEXE)
 
 sim: all
-	@vvp -s -m ./${PLI_SO} ${SIMEXE}
+	@vvp -s -m ./$(PLI_SO) $(SIMEXE)
 
 rungui: all
-	@vvp -n -m ./${PLI_SO} ${SIMEXE}
+	@vvp -n -m ./$(PLI_SO) $(SIMEXE)
 	@if [ -e waves.gtkw ]; then                            \
 	    gtkwave -A waves.vcd;                              \
 	else                                                   \
 	    gtkwave waves.vcd;                                 \
 	fi
 
-debug: clean ${PLI_SO} verilog_debug
-	@vvp -m ./${PLI_SO} ${SIMEXE}
+debug: clean $(PLI_SO) verilog_debug
+	@vvp -m ./$(PLI_SO) $(SIMEXE)
 
 waves:
 	@gtkwave -A waves.vcd
@@ -193,9 +193,9 @@ help:
 # CLEANING RULES
 #------------------------------------------------------
 
-clean: ${VPROC_TOP}
-	@${MAKE} --no-print-directory -C ${PCIE_CLIB_DIR}  clean
-	@${MAKE} --no-print-directory -f makefile.ica -C ${VPROC_TOP}/test clean
-	@rm -rf ${PLI_SO} ${PCIE_MAP_V} ${SIMEXE}
+clean: $(VPROC_TOP)
+	@$(MAKE) --no-print-directory -C $(PCIE_CLIB_DIR)  clean
+	@$(MAKE) --no-print-directory -f makefile.ica -C $(VPROC_TOP)/test clean
+	@rm -rf $(PLI_SO) $(PCIE_MAP_V) $(SIMEXE)
 
 
