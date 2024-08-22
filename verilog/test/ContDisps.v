@@ -24,6 +24,10 @@
 //
 //=============================================================
 
+`ifdef VIVADO
+`include "allheaders.v"
+`endif
+
 `WsTimeScale
 
 module ContDisps (Clk, DispValOut);

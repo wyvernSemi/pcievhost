@@ -35,7 +35,18 @@
 //=============================================================
 
 #include <stdio.h>
+
+#ifndef VPROC_SV
 #include "veriuser.h"
+
+#define CRC32ARGS void
+#define CRC16ARGS void
+#else
+
+#define CRC32ARGS const unsigned Data, unsigned *Crc32, const int Bits
+#define CRC16ARGS const unsigned Data, unsigned *Crc16  
+
+#endif
 
 // -------------------------------------------------------------------------
 // PciCrc32()
@@ -48,19 +59,30 @@
 #define CRCSIZE 32
 #define BIT31   0x80000000U
 
-int PciCrc32()
+int PciCrc32(CRC32ARGS)
 {
-    unsigned int Data, Crc;
-    int i, Bits;
-
+    int i;
+    unsigned Crc;
+    
+#ifndef VPROC_SV
+    unsigned Data;
+    int Bits;
+    
     Data = tf_getp(1);
     Crc  = tf_getp(2);
     Bits = tf_getp(3);
+#else
+    Crc  = *Crc32;
+#endif
 
     for (i = 0; i < Bits; i++) 
         Crc = (Crc << 1UL) ^ ((((Crc & BIT31) ? 1 : 0) ^ ((Data >> i) & 1)) ? POLY : 0);
 
+#ifndef VPROC_SV
     tf_putp(2, (unsigned int)(Crc));
+#else
+    *Crc32  = Crc;
+#endif
 
     return 0;
 }
@@ -76,18 +98,28 @@ int PciCrc32()
 #define CRCSIZE16 16
 #define BIT16     0x8000U
 
-int PciCrc16()
+int PciCrc16(CRC16ARGS)
 {
-    unsigned int Data, Crc;
     int i;
-
+    unsigned Crc;
+    
+#ifndef VPROC_SV
+    unsigned int Data;
+    
     Data = tf_getp(1);
     Crc  = tf_getp(2);
+#else
+    Crc  = *Crc16;
+#endif
 
     for (i = 0; i < 32; i++) 
         Crc = (Crc << 1UL) ^ ((((Crc & BIT16) ? 1 : 0) ^ ((Data >> i) & 1)) ? POLY16 : 0);
 
+#ifndef VPROC_SV
     tf_putp(2, (unsigned int)(Crc & 0xffff));
+#else
+    *Crc16 = Crc;
+#endif
 
     return 0;
 }

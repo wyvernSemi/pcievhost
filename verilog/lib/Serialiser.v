@@ -24,6 +24,10 @@
 //
 //=============================================================
 
+`ifdef VIVADO
+`include "allheaders.v"
+`endif
+
 `WsTimeScale
 
 // With BitReverse = 1'b0, serialisation/deserialisation is lsb.

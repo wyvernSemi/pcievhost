@@ -28,6 +28,10 @@
 // A PCI Express single lane disp logic and display.
 //=============================================================
 
+`ifdef VIVADO
+`include "allheaders.v"
+`endif
+
 `WsTimeScale
 
 module PcieDispLinkLane(Link, Clk, RxByte, RxByteRaw, RxControl, Synced, notReset, FwdName, DispVal, LaneNum, Enable, DisableScramble, InvertTxPolarity, NodeNum);

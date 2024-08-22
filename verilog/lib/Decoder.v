@@ -28,6 +28,10 @@
 // An 8b/10b Decoder. See ANSI X3.230-1994.
 //=============================================================
 
+`ifdef VIVADO
+`include "allheaders.v"
+`endif
+
 `WsTimeScale
 
 module Decoder (Clk, Input, BitRev, InvertDataIn, OutputRaw, ControlRaw, Output, Control);

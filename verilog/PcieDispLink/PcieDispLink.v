@@ -28,12 +28,30 @@
 // A PCI Express link display
 //=============================================================
 
+`ifdef VIVADO
+`include "allheaders.v"
+`endif
+
 `WsTimeScale
 
 `define SEQ_NUM_LEN           2
 `define MIN_HDR_LEN          12
 `define LCRC_LEN              4  
 `define EXTENDED_TAG          1'b0
+
+`ifdef VPROC_SV
+import "DPI-C" function void PciCrc32 (input int data, inout int crc, input int bits);
+import "DPI-C" function void PciCrc16 (input int data, inout int crc);
+
+`define PcieCrc32 PciCrc32
+`define PcieCrc16 PciCrc16
+
+`else
+
+`define PcieCrc32 $pcicrc32
+`define PcieCrc16 $pcicrc16
+
+`endif
 
 //-------------------------------------------------------------
 // PcieDispLink
@@ -563,7 +581,7 @@ begin
                 end
 
                 DllpCrc = 16'hffff;
-                $pcicrc16({Buf[4],  Buf[3],  Buf[2],  Buf[1]}, DllpCrc);
+                `PcieCrc16({Buf[4],  Buf[3],  Buf[2],  Buf[1]}, DllpCrc);
                 DllpCrc = MungeCrc16(DllpCrc);
  
                 if (DllpCrc != {Buf[5], Buf[6]})
@@ -680,7 +698,7 @@ begin
                 begin
                     Ecrc = 32'hffffffff;
                     for (k = 3; k < (3 + (TlFmt[0] ? 16 : 12) + PayloadLen*4); k = k + 1)
-                        $pcicrc32(Buf[k] | {1'b0, k==5 ? 1'b1 : 1'b0, 5'b00000, k==3 ? 1'b1 : 1'b0}, Ecrc, 8);
+                        `PcieCrc32(Buf[k] | {1'b0, k==5 ? 1'b1 : 1'b0, 5'b00000, k==3 ? 1'b1 : 1'b0}, Ecrc, 8);
                     Ecrc = MungeCrc(Ecrc);
                     if (Ecrc == {Buf[4*i+BufOffset], Buf[4*i+BufOffset+1], Buf[4*i+BufOffset+2], Buf[4*i+BufOffset+3]})
                     begin
@@ -708,7 +726,7 @@ begin
             end
             Lcrc = 32'hffffffff;
             for (k = 1; k < (3 + (TlFmt[0] ? 16 : 12) + PayloadLen*4 + (TlTD ? 4 : 0)); k = k + 1)
-                $pcicrc32(Buf[k], Lcrc, 8);
+                `PcieCrc32(Buf[k], Lcrc, 8);
             Lcrc = MungeCrc(Lcrc);
             if (BufCtrl[0] && Buf[0] == `STP)
             begin

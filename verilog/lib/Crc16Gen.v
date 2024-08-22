@@ -39,6 +39,10 @@
 //
 //=============================================================
 
+`ifdef VIVADO
+`include "allheaders.v"
+`endif 
+
 `WsTimeScale
 
 module Crc16Gen (Data, Complement, ShiftIn, ShiftChain, Crc, CombCrc);
