@@ -147,7 +147,7 @@ void WriteRamByteBlock(const uint64_t addr, const PktData_t *data, const int fbe
 
     if ((addr & ~TABLEMASK) != ((addr + length - 1) & ~TABLEMASK))
     {
-        VPrint("WriteRamByteBlock: ***Error --- block write crosses 4K boundary (addr=0x%llx len=0x%x\n", addr, length);
+        VPrint("WriteRamByteBlock: ***Error --- block write crosses 4K boundary (addr=0x%llx len=0x%x\n", (long long unsigned)addr, length);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 

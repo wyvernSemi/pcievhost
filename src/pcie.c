@@ -948,7 +948,7 @@ pPktData_t CfgWriteDigest (const uint64_t addr, const PktData_t *data, const int
     // Create a template for a cfg write
     if ((pkt_p = CreateTlpTemplate (TL_CFGWR0, addr, length, digest, &data_p)) == NULL)
     {
-        VPrint( "CfgWrite: ***Error --- CreateTlpTemplate failed at node\n", node);
+        VPrint( "CfgWrite: ***Error --- CreateTlpTemplate failed at node%d\n", node);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
