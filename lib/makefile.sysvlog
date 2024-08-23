@@ -1,5 +1,6 @@
 ###################################################################
-# Makefile for Virtual PCIe Host C code in Vivado Xsim
+# Makefile for Virtual PCIe Host C code in Vivado Xsim and/or
+# Verilator
 #
 # Copyright (c) 2024 Simon Southwell.
 #

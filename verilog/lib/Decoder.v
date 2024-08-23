@@ -28,7 +28,7 @@
 // An 8b/10b Decoder. See ANSI X3.230-1994.
 //=============================================================
 
-`ifdef VIVADO
+`ifdef VPROC_SV
 `include "allheaders.v"
 `endif
 

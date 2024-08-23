@@ -127,7 +127,7 @@ $(PLI_SO): vproc_lib pcie_c_lib $(USER_C:%.c=$(USRCDIR)/%.c)
 # PCIe model library
 #
 pcie_c_lib:
-	@$(MAKE) -f makefile.vivado --no-print-directory -C $(PCIE_CLIB_DIR)  ARCHFLAG=$(ARCHFLAG) VPROC_TOP=$(PWD)/$(VPROC_TOP)
+	@$(MAKE) -f makefile.sysvlog --no-print-directory -C $(PCIE_CLIB_DIR) ARCHFLAG=$(ARCHFLAG) VPROC_TOP=$(PWD)/$(VPROC_TOP)
 
 #
 # VProc library.

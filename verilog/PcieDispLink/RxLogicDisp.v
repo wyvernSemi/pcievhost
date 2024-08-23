@@ -29,7 +29,7 @@
 // See Base Specification Revision 1.0a section 4.2
 //=============================================================
 
-`ifdef VIVADO
+`ifdef VPROC_SV
 `include "allheaders.v"
 `endif
 

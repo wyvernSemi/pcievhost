@@ -233,7 +233,7 @@ endtask
 
 // Flag TLP data sub-catagories
   
-reg [15:0] DllpCrc;
+reg [31:0] DllpCrc;
 reg [31:0] Ecrc, Lcrc;
 
 task DispRoute;
@@ -569,6 +569,7 @@ begin
                         if (DllpDispEn) $display("DL PM_Request_Ack");
                     end
                 end
+                default: if (DllpDispEn) $display("*** Unknown DLLP packet type");
                 endcase
 
                 if (DllpDispEn) 
@@ -580,19 +581,19 @@ begin
                     end
                 end
 
-                DllpCrc = 16'hffff;
+                DllpCrc = 32'h0000ffff;
                 `PcieCrc16({Buf[4],  Buf[3],  Buf[2],  Buf[1]}, DllpCrc);
-                DllpCrc = MungeCrc16(DllpCrc);
+                DllpCrc = {16'h0, MungeCrc16(DllpCrc[15:0])};
  
-                if (DllpCrc != {Buf[5], Buf[6]})
+                if (DllpCrc[15:0] != {Buf[5], Buf[6]})
                 begin
-                    $display("DL Warning : **BAD PCIe DLLP CRC** (%x v %x)", DllpCrc, {Buf[5], Buf[6]});
+                    $display("DL Warning : **BAD PCIe DLLP CRC** (%x v %x)", DllpCrc[15:0], {Buf[5], Buf[6]});
                 end
                 else
                 begin
                     if (DispVal[`DispDL]) 
                     begin
-                        $display("DL Good DLLP CRC (%x)", DllpCrc);
+                        $display("DL Good DLLP CRC (%x)", DllpCrc[15:0]);
                     end
                 end
             end
@@ -622,7 +623,11 @@ begin
                 if (TlpDispEn && DispVal[`DispDL]) $write(`PADSTR);
                 if (TlpDispEn && DispVal[`DispPL]) $write(`PADSTR);
                 if (TlpDispEn && DispVal[`DispTL]) $write("TL ");
+`ifdef VERILATOR
+                casez(TlType)
+`else
                 casex(TlType)
+`endif
                 `TL_MRD32    : if (TlpDispEn) $display("MEM read req Addr=%h (32) RID=%h TAG=%h FBE=%b LBE=%b Len=%h", TlWord2, TlID, TlTAG, TlFirstBE, TlLastBE, TlLength );
                 `TL_MRD64    : if (TlpDispEn) $display("MEM read req Addr=%h (64) RID=%h TAG=%h FBE=%b LBE=%b Len=%h", {TlWord2, TlWord3}, TlID, TlTAG, TlFirstBE, TlLastBE, TlLength);
                 `TL_MRDLCK32 : if (TlpDispEn) $display("MEM read req Addr=%h (32) LOCKED ID=%h TAG=%h FBE=%b LBE=%b Len=%h", TlWord2, TlID, TlTAG, TlFirstBE, TlLastBE, TlLength);
@@ -964,7 +969,11 @@ begin
             HighestCmplSlot = CplSlot;
    
         // Transaction layer checking
+`ifdef VERILATOR
+        casez(TlType)
+`else
         casex(TlType)
+`endif
         `TL_MRD32    : begin if (CmplMatch) prot_err(`TXN_2_7_1); ComplPending[CplSlot] = 1'b1; CompletionData[CplSlot] = {TlWord0, TlWord1}; end
         `TL_MRD64    : begin if (CmplMatch) prot_err(`TXN_2_7_1); ComplPending[CplSlot] = 1'b1; CompletionData[CplSlot] = {TlWord0, TlWord1}; end
         `TL_MRDLCK32 : begin if (CmplMatch) prot_err(`TXN_2_7_1); ComplPending[CplSlot] = 1'b1; CompletionData[CplSlot] = {TlWord0, TlWord1}; end
@@ -997,7 +1006,11 @@ begin
         begin
             if ((PayloadLen > 32'h1) && (TlFirstBE == 4'b0000))
                 prot_err(`TXN_2_6_1);
+`ifdef VERILATOR
+            if ((PayloadLen == 32'h1 && !(TlType ==? `TL_MSGD)) && (TlLastBE != 4'b0000))
+`else
             if ((PayloadLen == 32'h1 && TlType != `TL_MSGD) && (TlLastBE != 4'b0000))
+`endif
                 prot_err(`TXN_2_6_2);
             if ((PayloadLen > 32'h1) && (TlLastBE == 4'b0000))
                 prot_err(`TXN_2_6_3);
@@ -1047,7 +1060,7 @@ begin
         default:  prot_err(`DLL_4_1_5_to_33);
         endcase
 
-        if (DllpCrc !== {Buf[5], Buf[6]})
+        if (DllpCrc[15:0] !== {Buf[5], Buf[6]})
             prot_err(`DLL_4_1_34); 
     end
 `endif

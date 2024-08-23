@@ -141,8 +141,13 @@
 `define TL_CFGWR0                   7'b1000100
 `define TL_CFGRD1                   7'b0000101
 `define TL_CFGWR1                   7'b1000101
+`ifdef VERILATOR
+`define TL_MSG                      7'b0110???
+`define TL_MSGD                     7'b1110???
+`else
 `define TL_MSG                      7'b0110xxx
 `define TL_MSGD                     7'b1110xxx
+`endif
 `define TL_MSGAS                    7'b0111000
 `define TL_MSGASD                   7'b1111000
 `define TL_CPL                      7'b0001010

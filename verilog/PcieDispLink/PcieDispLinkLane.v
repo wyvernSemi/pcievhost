@@ -28,7 +28,7 @@
 // A PCI Express single lane disp logic and display.
 //=============================================================
 
-`ifdef VIVADO
+`ifdef VPROC_SV
 `include "allheaders.v"
 `endif
 
@@ -106,13 +106,13 @@ begin
     // Check for lane token errors
     if (BadDisparity)
     begin
-        prot_err(`PHY_2_1_1);
+        $write("PHY.2.1#1 - Invalid symbol and/or bad disparity");
     end
 
     // Check for lane run-length errors
     if (BadRunLength)
     begin
-        prot_err(`PHY_2_1_1);
+        $write("PHY.2.1#1 - Invalid symbol and/or bad disparity");
     end
 
     #1

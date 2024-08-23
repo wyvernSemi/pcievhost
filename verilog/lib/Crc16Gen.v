@@ -39,7 +39,7 @@
 //
 //=============================================================
 
-`ifdef VIVADO
+`ifdef VPROC_SV
 `include "allheaders.v"
 `endif 
 

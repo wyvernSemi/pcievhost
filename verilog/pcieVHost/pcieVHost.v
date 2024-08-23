@@ -1,5 +1,5 @@
 //=============================================================
-// 
+//
 // Copyright (c) 2016 Simon Southwell. All rights reserved.
 //
 // Date: 20th Sep 2016
@@ -24,7 +24,7 @@
 //
 //=============================================================
 
-`ifdef VIVADO
+`ifdef VPROC_SV
 `include "allheaders.v"
 `endif
 
@@ -35,6 +35,12 @@
 //-------------------------------------------------------------
 
 module PcieVhost (Clk, notReset,
+
+`ifdef VERILATOR
+                  ElecIdleOut,
+                  ElecIdleIn,
+`endif
+
                   LinkIn0,   LinkIn1,   LinkIn2,   LinkIn3,
                   LinkIn4,   LinkIn5,   LinkIn6,   LinkIn7,
                   LinkIn8,   LinkIn9,   LinkIn10,  LinkIn11,
@@ -61,9 +67,19 @@ output [9:0] LinkOut4,  LinkOut5,  LinkOut6,  LinkOut7;
 output [9:0] LinkOut8,  LinkOut9,  LinkOut10, LinkOut11;
 output [9:0] LinkOut12, LinkOut13, LinkOut14, LinkOut15;
 
+`ifdef VERILATOR
+input [15:0] ElecIdleIn;
+output[15:0] ElecIdleOut;
+reg   [15:0] ElecIdleOut;
+`define ELECIDLE 10'b0000000000
+`else
+reg   [15:0] ElecIdleOut;
+`define ELECIDLE 10'bzzzzzzzzzz
+`endif
+
+
 reg    [9:0] Out [0:15];
 reg   [31:0] DataIn;
-reg   [15:0] ElecIdleOut;
 reg          notResetLast;
 reg          InvertIn;
 reg          InvertOut;
@@ -91,28 +107,29 @@ wire   [9:0] In [0:15];
  // --------------------------------
  // Virtual Processor
  // --------------------------------
- VProc vp (.Clk            (Clk), 
-           .Addr           (Addr), 
-           .WE             (WE), 
-           .RD             (RD), 
-           .DataOut        (DataOut), 
-           .DataIn         (DataIn), 
-           .WRAck          (WRAck), 
-           .RDAck          (RDAck), 
-           .Interrupt      (Interrupt), 
-           .Update         (Update), 
-           .UpdateResponse (UpdateResponse), 
+ VProc vp (.Clk            (Clk),
+           .Addr           (Addr),
+           .WE             (WE),
+           .RD             (RD),
+           .DataOut        (DataOut),
+           .DataIn         (DataIn),
+           .WRAck          (WRAck),
+           .RDAck          (RDAck),
+           .Interrupt      (Interrupt),
+           .Update         (Update),
+           .UpdateResponse (UpdateResponse),
            .Node           (Node[3:0])
            );
 
 // Generate flags for electrical idle stat on input links
-wire [15:0] ElecIdleIn = {LinkIn15 === 10'bzzzzzzzzzz, LinkIn14 === 10'bzzzzzzzzzz, LinkIn13 === 10'bzzzzzzzzzz, LinkIn12 === 10'bzzzzzzzzzz, 
+`ifndef VERILATOR
+wire [15:0] ElecIdleIn = {LinkIn15 === 10'bzzzzzzzzzz, LinkIn14 === 10'bzzzzzzzzzz, LinkIn13 === 10'bzzzzzzzzzz, LinkIn12 === 10'bzzzzzzzzzz,
                           LinkIn11 === 10'bzzzzzzzzzz, LinkIn10 === 10'bzzzzzzzzzz, LinkIn9  === 10'bzzzzzzzzzz, LinkIn8  === 10'bzzzzzzzzzz,
                           LinkIn7  === 10'bzzzzzzzzzz, LinkIn6  === 10'bzzzzzzzzzz, LinkIn5  === 10'bzzzzzzzzzz, LinkIn4  === 10'bzzzzzzzzzz,
                           LinkIn3  === 10'bzzzzzzzzzz, LinkIn2  === 10'bzzzzzzzzzz, LinkIn1  === 10'bzzzzzzzzzz, LinkIn0  === 10'bzzzzzzzzzz};
-
+`endif
 // Generate flags for not valid data on links
-wire [15:0] RxDetect   = {^LinkOut15 === 1'bx, ^LinkOut14 === 1'bx, ^LinkOut13 === 1'bx, ^LinkOut12 === 1'bx, 
+wire [15:0] RxDetect   = {^LinkOut15 === 1'bx, ^LinkOut14 === 1'bx, ^LinkOut13 === 1'bx, ^LinkOut12 === 1'bx,
                           ^LinkOut11 === 1'bx, ^LinkOut10 === 1'bx, ^LinkOut9  === 1'bx, ^LinkOut8  === 1'bx,
                           ^LinkOut7  === 1'bx, ^LinkOut6  === 1'bx, ^LinkOut5  === 1'bx, ^LinkOut4  === 1'bx,
                           ^LinkOut3  === 1'bx, ^LinkOut2  === 1'bx, ^LinkOut1  === 1'bx, ^LinkOut0  === 1'bx};
@@ -156,28 +173,28 @@ begin
         `LINKADDR8,  `LINKADDR9,  `LINKADDR10, `LINKADDR11,
         `LINKADDR12, `LINKADDR13, `LINKADDR14, `LINKADDR15:
         begin
-            if (WE === 1'b1) 
+            if (WE === 1'b1)
                 Out[Addr%16] = DataOut[9:0];
             DataIn = {22'h000000, In[Addr%16]};
         end
 
-        `RESET_STATE:  
+        `RESET_STATE:
         begin
             DataIn = {15'h0000, ~notReset};
         end
 
-        `LINK_STATE:  
+        `LINK_STATE:
         begin
-            if (WE === 1'b1) 
-                ElecIdleOut = DataOut[15:0] ;  
+            if (WE === 1'b1)
+                ElecIdleOut = DataOut[15:0] ;
             DataIn = {RxDetect, ElecIdleIn};
         end
 
-        `PVH_INVERT:  
+        `PVH_INVERT:
         begin
-            if (WE === 1'b1) 
-                {ReverseOut, ReverseIn, InvertOut, InvertIn} = DataOut[3:0] ;  
-            DataIn = {28'h0000000, ReverseOut, ReverseIn, InvertOut, InvertIn}; 
+            if (WE === 1'b1)
+                {ReverseOut, ReverseIn, InvertOut, InvertIn} = DataOut[3:0] ;
+            DataIn = {28'h0000000, ReverseOut, ReverseIn, InvertOut, InvertIn};
         end
 
         `PVH_STOP:    if (WE === 1'b1) $stop;
@@ -213,22 +230,22 @@ assign #`PcieVHostSampleDel In[13] = (ReverseIn  ? LinkIn2  : LinkIn13) ^ {10{In
 assign #`PcieVHostSampleDel In[14] = (ReverseIn  ? LinkIn1  : LinkIn14) ^ {10{InvertIn}};
 assign #`PcieVHostSampleDel In[15] = (ReverseIn  ? LinkIn0  : LinkIn15) ^ {10{InvertIn}};
 
-assign LinkOut0   = ElecIdleOut[0]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[15]  : Out[0])   ^ {10{InvertOut}};
-assign LinkOut1   = ElecIdleOut[1]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[14]  : Out[1])   ^ {10{InvertOut}};
-assign LinkOut2   = ElecIdleOut[2]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[13]  : Out[2])   ^ {10{InvertOut}};
-assign LinkOut3   = ElecIdleOut[3]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[12]  : Out[3])   ^ {10{InvertOut}};
-assign LinkOut4   = ElecIdleOut[4]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[11]  : Out[4])   ^ {10{InvertOut}};
-assign LinkOut5   = ElecIdleOut[5]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[10]  : Out[5])   ^ {10{InvertOut}};
-assign LinkOut6   = ElecIdleOut[6]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[9]   : Out[6])   ^ {10{InvertOut}};
-assign LinkOut7   = ElecIdleOut[7]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[8]   : Out[7])   ^ {10{InvertOut}};
-assign LinkOut8   = ElecIdleOut[8]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[7]   : Out[8])   ^ {10{InvertOut}};
-assign LinkOut9   = ElecIdleOut[9]  ? 10'bzzzzzzzzzz : (ReverseOut ? Out[6]   : Out[9])   ^ {10{InvertOut}};
-assign LinkOut10  = ElecIdleOut[10] ? 10'bzzzzzzzzzz : (ReverseOut ? Out[5]   : Out[10])  ^ {10{InvertOut}};
-assign LinkOut11  = ElecIdleOut[11] ? 10'bzzzzzzzzzz : (ReverseOut ? Out[4]   : Out[11])  ^ {10{InvertOut}};
-assign LinkOut12  = ElecIdleOut[12] ? 10'bzzzzzzzzzz : (ReverseOut ? Out[3]   : Out[12])  ^ {10{InvertOut}};
-assign LinkOut13  = ElecIdleOut[13] ? 10'bzzzzzzzzzz : (ReverseOut ? Out[2]   : Out[13])  ^ {10{InvertOut}};
-assign LinkOut14  = ElecIdleOut[14] ? 10'bzzzzzzzzzz : (ReverseOut ? Out[1]   : Out[14])  ^ {10{InvertOut}};
-assign LinkOut15  = ElecIdleOut[15] ? 10'bzzzzzzzzzz : (ReverseOut ? Out[0]   : Out[15])  ^ {10{InvertOut}};
+assign LinkOut0   = ElecIdleOut[0]  ? `ELECIDLE : (ReverseOut ? Out[15]  : Out[0])   ^ {10{InvertOut}};
+assign LinkOut1   = ElecIdleOut[1]  ? `ELECIDLE : (ReverseOut ? Out[14]  : Out[1])   ^ {10{InvertOut}};
+assign LinkOut2   = ElecIdleOut[2]  ? `ELECIDLE : (ReverseOut ? Out[13]  : Out[2])   ^ {10{InvertOut}};
+assign LinkOut3   = ElecIdleOut[3]  ? `ELECIDLE : (ReverseOut ? Out[12]  : Out[3])   ^ {10{InvertOut}};
+assign LinkOut4   = ElecIdleOut[4]  ? `ELECIDLE : (ReverseOut ? Out[11]  : Out[4])   ^ {10{InvertOut}};
+assign LinkOut5   = ElecIdleOut[5]  ? `ELECIDLE : (ReverseOut ? Out[10]  : Out[5])   ^ {10{InvertOut}};
+assign LinkOut6   = ElecIdleOut[6]  ? `ELECIDLE : (ReverseOut ? Out[9]   : Out[6])   ^ {10{InvertOut}};
+assign LinkOut7   = ElecIdleOut[7]  ? `ELECIDLE : (ReverseOut ? Out[8]   : Out[7])   ^ {10{InvertOut}};
+assign LinkOut8   = ElecIdleOut[8]  ? `ELECIDLE : (ReverseOut ? Out[7]   : Out[8])   ^ {10{InvertOut}};
+assign LinkOut9   = ElecIdleOut[9]  ? `ELECIDLE : (ReverseOut ? Out[6]   : Out[9])   ^ {10{InvertOut}};
+assign LinkOut10  = ElecIdleOut[10] ? `ELECIDLE : (ReverseOut ? Out[5]   : Out[10])  ^ {10{InvertOut}};
+assign LinkOut11  = ElecIdleOut[11] ? `ELECIDLE : (ReverseOut ? Out[4]   : Out[11])  ^ {10{InvertOut}};
+assign LinkOut12  = ElecIdleOut[12] ? `ELECIDLE : (ReverseOut ? Out[3]   : Out[12])  ^ {10{InvertOut}};
+assign LinkOut13  = ElecIdleOut[13] ? `ELECIDLE : (ReverseOut ? Out[2]   : Out[13])  ^ {10{InvertOut}};
+assign LinkOut14  = ElecIdleOut[14] ? `ELECIDLE : (ReverseOut ? Out[1]   : Out[14])  ^ {10{InvertOut}};
+assign LinkOut15  = ElecIdleOut[15] ? `ELECIDLE : (ReverseOut ? Out[0]   : Out[15])  ^ {10{InvertOut}};
 
 endmodule
 
@@ -273,9 +290,13 @@ wire [9:0] PLinkOut4,  PLinkOut5,  PLinkOut6,  PLinkOut7;
 wire [9:0] PLinkOut8,  PLinkOut9,  PLinkOut10, PLinkOut11;
 wire [9:0] PLinkOut12, PLinkOut13, PLinkOut14, PLinkOut15;
 
- PcieVhost #(LinkWidth, NodeNum, EndPoint) pvh   
-                   (.Clk      (Clk), 
+ PcieVhost #(LinkWidth, NodeNum, EndPoint) pvh
+                   (.Clk      (Clk),
                     .notReset (notReset),
+`ifdef VERILATOR
+                    .ElecIdleOut (),
+                    .ElecIdleIn  (16'h0),
+`endif
                     .LinkIn0   (PLinkIn0),
                     .LinkIn1   (PLinkIn1),
                     .LinkIn2   (PLinkIn2),
@@ -311,7 +332,7 @@ wire [9:0] PLinkOut12, PLinkOut13, PLinkOut14, PLinkOut15;
                     );
 
 
- Serialiser serdes (.SerClk     (SerClk), 
+ Serialiser serdes (.SerClk     (SerClk),
                     .BitReverse (1'b0),
 
                     .ParInVec   ({PLinkOut15, PLinkOut14, PLinkOut13, PLinkOut12, PLinkOut11, PLinkOut10, PLinkOut9, PLinkOut8,
