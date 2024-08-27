@@ -1,6 +1,6 @@
 //=============================================================
 //
-// Copyright (c) 2016 Simon Southwell. All rights reserved.
+// Copyright (c) 2016 - 2024 Simon Southwell. All rights reserved.
 //
 // Date: 20th Sep 2016
 //
@@ -18,9 +18,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
-//
-// $Id: pcie.h,v 1.5 2016/10/17 11:47:02 simon Exp $
-// $Source: /home/simon/CVS/src/HDL/pcieVHost/src/pcie.h,v $
 //
 //=============================================================
 
@@ -51,6 +48,10 @@
 // -------------------------------------------------------------------------
 // Generic definitions
 // -------------------------------------------------------------------------
+
+#define PCIE_MAJOR_VER               1
+#define PCIE_MINOR_VER               0
+#define PCIE_PATCH_VER               0
 
 // Used in macros
 #define BYTE_MASK                    0xff
@@ -515,6 +516,7 @@ extern uint32_t   PcieRand             (const int node);
 extern void       PcieSeed             (const uint32_t seed, const int node);
 extern void       SetTxEnabled         (const int node);
 extern void       SetTxDisabled        (const int node);
+extern void       getPcieVersionString (char*     sbuf, const int bufsize);
 
 # ifdef OSVVM
 extern int        VWrite               (unsigned int addr, unsigned int  data, int delta, unsigned int node);

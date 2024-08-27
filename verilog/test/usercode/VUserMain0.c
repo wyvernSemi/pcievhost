@@ -113,6 +113,7 @@ void VUserMain0()
 {
     int idx;
     PktData_t buff[4096];
+    char      sbuf[128];
     int rid = node+1, tag = 0;
     int i;
 
@@ -120,6 +121,9 @@ void VUserMain0()
 
     // Initialise PCIe VHost, with input callback function and no user pointer.
     InitialisePcie(VUserInput_0, NULL, node);
+    
+    getPcieVersionString(sbuf, 128);
+    VPrint("  %s\n", sbuf);
 
     // Make sure the link is out of electrical idle
     VWrite(LINK_STATE, 0, 0, node);

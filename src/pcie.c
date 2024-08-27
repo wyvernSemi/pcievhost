@@ -2414,5 +2414,14 @@ void SetTxEnabled (const int node)
     this->tx_disabled = false;
 }
 
+// -------------------------------------------------------------------------
+// getPcieVersionString()
+// -------------------------------------------------------------------------
+
+void getPcieVersionString (char* sbuf, const int bufsize)
+{
+    snprintf(sbuf, bufsize, "pcieVHost version %d.%d.%d\n", PCIE_MAJOR_VER, PCIE_MINOR_VER, PCIE_PATCH_VER);
+}
+
 // Allow reuse in other files
 #undef this
