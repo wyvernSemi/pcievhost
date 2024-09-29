@@ -1,0 +1,199 @@
+###################################################################
+# Makefile for Virtual PCIe Host test code in Verilator
+#
+# Copyright (c) 2024 Simon Southwell.
+#
+# This file is part of pcieVHost.
+#
+# pcieVHost is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# pcieVHost is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
+#
+###################################################################
+
+#------------------------------------------------------
+# User overridable variables
+#------------------------------------------------------
+
+USRSIMFLAGS   =
+WAVESAVEFILE  = waves.gtkw
+WAVEFILE      = waves.vcd
+
+# Set to --timing for delta cycle support, or -GDISABLE_DELTA for no delta-cycle
+TIMINGFLAG    = --timing
+
+# set to -GVCD_DUMP=1 to generate VCD ouput, or blank for none
+VCDFLAG       = -GVCD_DUMP=1
+
+# Set to +define+VPROC_BURST_IF for burst interface, or blank for none
+BURSTDEF      =
+
+# Set blank to disable tracing (needed for VCD generation)
+TRACEFLAG     = --trace
+
+#------------------------------------------------------
+# Internal variables
+#------------------------------------------------------
+
+NUM_VPROC     = 2
+ARCHFLAG      = -m64
+
+# Location of VProc directory. Assumes in same directory as pcieVHost.
+# Update if relocated.
+VPROC_TOP     = ../../../vproc
+
+# Define the github repository URL for the VProc virtual processor 
+VPROC_REPO    = https://github.com/wyvernSemi/vproc.git
+
+#
+# PCIE VHost test defintions
+#
+PCIE_CLIB_DIR = ../../lib
+SRCDIR        = ../../src
+USRCDIR       = usercode
+WORKDIR       = work
+
+USER_C        = VUserMain0.c VUserMain1.c
+PCIE_MAP_C    = pcie_vhost_map.h
+
+#
+# Flags for ModelSim
+#
+PCIE_TOP      = test
+TOP_VC        = test.vc
+HDRDIR        = ../headers
+
+PCIE_MAP_V    = $(PCIE_MAP_C:%.h=$(HDRDIR)/%.v)
+
+#
+# Get OS type
+#
+OSTYPE       := $(shell uname)
+
+ifeq ($(OSTYPE), Linux)
+  SIMLDFLAGS  = -Wl,-E -lrt -rdynamic
+else
+  SIMLDFLAGS  = -Wl,-export-all-symbols
+endif
+
+#------------------------------------------------------
+# Flags for Verilator simulator
+#------------------------------------------------------
+
+SIMTOP        = test
+
+SIMEXE        = work/V$(SIMTOP)
+FILELIST      = files.verilator
+SIMFLAGS      = --binary -sv                           \
+                $(TRACEFLAG)                           \
+                $(TIMINGFLAG)                          \
+                $(VCDFLAG) $(BURSTDEF)                 \
+                $(USRSIMFLAGS)                         \
+                +define+VPROC_SV                       \
+                +define+DISP_LINK_WIDE                 \
+                +incdir+../headers                     \
+                -Mdir work -I$(VPROC_TOP) -Wno-WIDTH   \
+                --top $(SIMTOP)                        \
+                -MAKEFLAGS "--quiet"                   \
+                -CFLAGS "$(CPPSTD) -Wno-attributes"    \
+                -LDFLAGS "$(SIMLDFLAGS)                \
+                -Wl,-whole-archive                     \
+                -L../ -lvproc                          \
+                -L../$(PCIE_CLIB_DIR) -lpcievhost      \
+                -Wl,-no-whole-archive -ldl"
+
+#------------------------------------------------------
+# BUILD RULES
+#------------------------------------------------------
+
+#
+# Build the verilog and the PLI shared object by default
+#
+all: sysverilog
+
+#
+# Verilog. Phony target, as ModelSim does incremental compile
+# and decides what the dependencies are; so always build.
+#
+.PHONY: sysverilog, vproc_lib, clean, all
+
+#
+# Create Verilog pcieVHost VProc register mappings from C header
+#
+$(PCIE_MAP_V) : $(SRCDIR)/$(PCIE_MAP_C)
+	@sed "s/0x/32\'h/;s/#/\`/;s/DEFINES/AUTO GENERATED\. DO NOT EDIT\!/;" < $< > $@
+
+#
+# PCIe model library
+#
+pcie_c_lib:
+	@$(MAKE) -f makefile.sysvlog --no-print-directory -C $(PCIE_CLIB_DIR) ARCHFLAG=$(ARCHFLAG) VPROC_TOP=$(PWD)/$(VPROC_TOP)
+
+#
+# VProc library.
+#
+vproc_lib: $(VPROC_TOP) pcie_c_lib
+	@$(MAKE) --no-print-directory                           \
+             -C $(VPROC_TOP)/test                           \
+             -f makefile.verilator                          \
+             ARCHFLAG=$(ARCHFLAG)                           \
+             MAX_NUM_VPROC=$(NUM_VPROC)                     \
+             USRFLAGS=-I$(PWD)/$(SRCDIR)                    \
+             USRCDIR=$(PWD)/$(USRCDIR)                      \
+             USER_C="$(USER_C)"                             \
+             TESTDIR=$(PWD)                                 \
+             $(PWD)/libvproc.a
+
+#
+# Checkout VProc from github if it doesn't exist at the specified location
+#
+$(VPROC_TOP):
+	git clone $(VPROC_REPO) $(VPROC_TOP) --recursive
+
+
+# Analyse SystemVerilog files
+sysverilog: $(PCIE_MAP_V) vproc_lib
+	verilator -F $(FILELIST) $(SIMFLAGS)
+
+#------------------------------------------------------
+# EXECUTION RULES
+#------------------------------------------------------
+
+run: all
+	$(SIMEXE)
+
+rungui: all
+	@$(SIMEXE)
+	@if [ -e $(WAVESAVEFILE) ]; then                   \
+	    gtkwave -a $(WAVESAVEFILE) $(WAVEFILE);        \
+	else                                               \
+	    gtkwave $(WAVEFILE);                           \
+	fi
+
+gui: rungui
+
+.SILENT:
+help:
+	@$(info make help          Display this message)
+	@$(info make               Build C/C++ and HDL code without running simulation)
+	@$(info make run           Build and run batch simulation)
+	@$(info make rungui/gui    Build and run GUI simulation)
+	@$(info make clean         clean previous build artefacts)
+
+#------------------------------------------------------
+# CLEANING RULES
+#------------------------------------------------------
+
+clean: $(VPROC_TOP)
+	@$(MAKE) -f makefile.verilator --no-print-directory -C $(VPROC_TOP)/test clean
+	@$(MAKE) -f makefile.sysvlog --no-print-directory -C $(PCIE_CLIB_DIR) clean
+	@rm -rf $(VPROC_LIB) $(USBCMAP) obj work
