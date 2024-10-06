@@ -48,7 +48,25 @@ static char          **pCfgSpace   = NULL;
 
 void InitialiseMem (int node)
 {
-    PrimaryTable[node] = NULL;
+    if (PrimaryTable[node] != NULL)
+    {
+        for (int pidx = 0; pidx < TABLESIZE; pidx++)
+        {
+            if (PrimaryTable[node][pidx].p != NULL)
+            {
+                for (int sidx = 0; sidx < TABLESIZE; sidx++)
+                {
+                    if ((PrimaryTable[node][pidx].p)[sidx] != NULL)
+                    {
+                        free((PrimaryTable[node][pidx].p)[sidx]);
+                    }
+                }
+                free(PrimaryTable[node][pidx].p);
+            }
+        }
+        free(PrimaryTable[node]);
+        PrimaryTable[node] = NULL;
+    }
 }
 
 // -------------------------------------------------------------------------
