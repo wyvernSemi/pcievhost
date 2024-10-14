@@ -148,7 +148,13 @@ pcie_c_lib:
 # VProc library.
 #
 vproc_lib: $(VPROC_TOP)
-	@$(MAKE) --no-print-directory -C $(VPROC_TOP)/test MODEL_TECH=$(MODEL_TECH) ARCHFLAG=$(ARCHFLAG) MAX_NUM_VPROC=$(NUM_VPROC) USER_C=""
+	@$(MAKE) --no-print-directory                           \
+             -C $(VPROC_TOP)/test                           \
+             MODEL_TECH=$(MODEL_TECH)                       \
+             ARCHFLAG=$(ARCHFLAG)                           \
+             MAX_NUM_VPROC=$(NUM_VPROC)                     \
+             USRFLAGS="-DEXTERN_VPI_TABLE"                  \
+             USER_C=""
 
 #
 # Checkout VProc from github if it doesn't exist at the specified location

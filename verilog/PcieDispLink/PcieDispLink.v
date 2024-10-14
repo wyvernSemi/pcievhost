@@ -176,6 +176,8 @@ reg [9:0]                   TlLength;
 reg [11:0]                  TlByteCount;
 reg [15:0]                  TlID, TlCRID;
 
+reg [31:0]                  CrcDataIn;
+
 task CalcHeader;
 begin
 
@@ -582,7 +584,8 @@ begin
                 end
 
                 DllpCrc = 32'h0000ffff;
-                `PcieCrc16({Buf[4],  Buf[3],  Buf[2],  Buf[1]}, DllpCrc);
+                CrcDataIn = {Buf[4],  Buf[3],  Buf[2],  Buf[1]};
+                `PcieCrc16(CrcDataIn, DllpCrc);
                 DllpCrc = {16'h0, MungeCrc16(DllpCrc[15:0])};
  
                 if (DllpCrc[15:0] != {Buf[5], Buf[6]})
@@ -703,7 +706,10 @@ begin
                 begin
                     Ecrc = 32'hffffffff;
                     for (k = 3; k < (3 + (TlFmt[0] ? 16 : 12) + PayloadLen*4); k = k + 1)
-                        `PcieCrc32(Buf[k] | {1'b0, k==5 ? 1'b1 : 1'b0, 5'b00000, k==3 ? 1'b1 : 1'b0}, Ecrc, 8);
+                    begin
+                        CrcDataIn = Buf[k] | {1'b0, k==5 ? 1'b1 : 1'b0, 5'b00000, k==3 ? 1'b1 : 1'b0};
+                        `PcieCrc32(CrcDataIn, Ecrc, 8);
+                    end
                     Ecrc = MungeCrc(Ecrc);
                     if (Ecrc == {Buf[4*i+BufOffset], Buf[4*i+BufOffset+1], Buf[4*i+BufOffset+2], Buf[4*i+BufOffset+3]})
                     begin
@@ -731,7 +737,10 @@ begin
             end
             Lcrc = 32'hffffffff;
             for (k = 1; k < (3 + (TlFmt[0] ? 16 : 12) + PayloadLen*4 + (TlTD ? 4 : 0)); k = k + 1)
-                `PcieCrc32(Buf[k], Lcrc, 8);
+            begin
+                CrcDataIn = Buf[k];
+                `PcieCrc32(CrcDataIn, Lcrc, 8);
+            end
             Lcrc = MungeCrc(Lcrc);
             if (BufCtrl[0] && Buf[0] == `STP)
             begin

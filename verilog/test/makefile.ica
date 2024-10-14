@@ -88,6 +88,8 @@ CFLAGS         = -g -fPIC                        \
                  -I$(VPROC_TOP)/code             \
                  -I$(ICADIR)                     \
                  -DICARUS                        \
+                 -DVPROC_PLI_VPI                 \
+                 -DEXTERN_VPI_TABLE              \
                  -D_REENTRANT
 
 #------------------------------------------------------
