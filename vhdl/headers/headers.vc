@@ -1,8 +1,0 @@
--- Paths relative to top level
-
-../headers/pciedisp_pkg.vhd
-../headers/pciexpress_pkg.vhd
-
--- Auto-generated
-../headers/pcie_vhost_map.vhd
-
