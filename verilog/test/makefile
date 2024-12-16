@@ -127,16 +127,16 @@ $(PCIE_MAP_V) : $(SRCDIR)/$(PCIE_MAP_C)
 # PLI shared object
 #
 $(PLI_SO): vproc_lib pcie_c_lib $(USER_C:%.c=$(USRCDIR)/%.c)
-	@$(CC) $(CFLAGS_SO) $(CFLAGS)                           \
-	       -Wl,-whole-archive                               \
- 	       $(USER_C:%.c=$(USRCDIR)/%.c)                     \
+	@$(CC) $(CFLAGS_SO) $(CFLAGS)                       \
+           -Wl,-whole-archive                               \
+            $(USER_C:%.c=$(USRCDIR)/%.c)                    \
            -lpthread                                        \
            -L$(MODEL_TECH)                                  \
            -lmtipli                                         \
-	       -L$(PCIE_CLIB_DIR) -lpcievhost                   \
-	       -L$(VPROC_TOP)/test -lvproc                      \
-	       -Wl,-no-whole-archive                            \
-	       -o $@
+           -L$(PCIE_CLIB_DIR) -lpcievhost                   \
+           -L./ -lvproc                                     \
+           -Wl,-no-whole-archive                            \
+           -o $@
 
 #
 # PCIe model library
@@ -148,12 +148,13 @@ pcie_c_lib:
 # VProc library.
 #
 vproc_lib: $(VPROC_TOP)
-	@$(MAKE) --no-print-directory                           \
+	@$(MAKE) --no-print-directory                       \
              -C $(VPROC_TOP)/test                           \
              MODEL_TECH=$(MODEL_TECH)                       \
              ARCHFLAG=$(ARCHFLAG)                           \
              MAX_NUM_VPROC=$(NUM_VPROC)                     \
              USRFLAGS="-DEXTERN_VPI_TABLE"                  \
+             TESTDIR=$(CURDIR)                              \
              USER_C=""
 
 #
@@ -173,7 +174,7 @@ run: vproc_lib pcie_c_lib verilog $(PLI_SO)
 	@vsim -c $(VSIMFLAGS) -do "run -all" -do "quit"
 
 rungui: vproc_lib pcie_c_lib verilog $(PLI_SO)
-	@if [ -e wave.do ]; then                                \
+	@if [ -e wave.do ]; then                            \
          vsim -gui -do wave.do $(VSIMFLAGS) -do "run -all"; \
      else                                                   \
          vsim -gui $(VSIMFLAGS);                            \
@@ -195,10 +196,10 @@ help:
 
 clean: $(VPROC_TOP)
 	@if [ -d "$(WORKDIR)" ]; then                           \
-	  vdel -all;                                            \
-     fi
+          vdel -all;                                            \
+        fi
 	@$(MAKE) --no-print-directory -C $(PCIE_CLIB_DIR)  clean
-	@$(MAKE) --no-print-directory -C $(VPROC_TOP)/test clean
+	@$(MAKE) --no-print-directory -C $(VPROC_TOP)/test TESTDIR=$(CURDIR) clean
 	@rm -rf $(PLI_SO) $(PCIE_MAP_V)
 
 

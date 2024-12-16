@@ -110,17 +110,17 @@ $(PCIE_MAP_V) : $(SRCDIR)/$(PCIE_MAP_C)
 #
 # PLI shared object
 #
-$(PLI_SO): $(VPROC_TOP)/test/$(VPROCLIB) $(PCIE_CLIB_DIR)/$(PCIELIB) $(USER_C:%.c=$(USRCDIR)/%.c)
-	@$(CC) $(CFLAGS_SO) $(CFLAGS)                \
-	       -Wl,-whole-archive                    \
- 	       $(USER_C:%.c=$(USRCDIR)/%.c)          \
+$(PLI_SO): $(VPROCLIB) $(PCIE_CLIB_DIR)/$(PCIELIB) $(USER_C:%.c=$(USRCDIR)/%.c)
+	@$(CC) $(CFLAGS_SO) $(CFLAGS)            \
+           -Wl,-whole-archive                    \
+           $(USER_C:%.c=$(USRCDIR)/%.c)          \
            -lpthread                             \
            -ldl                                  \
            -lvpi -lveriuser                      \
-	       -L$(PCIE_CLIB_DIR) -lpcievhost        \
-	       -L$(VPROC_TOP)/test -lvproc           \
-	       -Wl,-no-whole-archive                 \
-	       -o $@
+           -L$(PCIE_CLIB_DIR) -lpcievhost        \
+           -L./ -lvproc                          \
+           -Wl,-no-whole-archive                 \
+           -o $@
 
 #
 # PCIe model library
@@ -131,13 +131,14 @@ $(PCIE_CLIB_DIR)/$(PCIELIB):
 #
 # VProc library.
 #
-$(VPROC_TOP)/test/$(VPROCLIB): $(VPROC_TOP)
-	@$(MAKE) --no-print-directory -C $(VPROC_TOP)/test      \
+$(VPROCLIB): $(VPROC_TOP)
+	@$(MAKE) --no-print-directory -C $(VPROC_TOP)/test  \
              -f makefile.ica                                \
              CFLAGS="-c $(CFLAGS) -Wno-int-to-pointer-cast" \
              PWD=./ MAX_NUM_VPROC=$(NUM_VPROC)              \
              USER_C=""                                      \
-             $(VPROCLIB)
+             TESTDIR=$(CURDIR)                              \
+             $(CURDIR)/$(VPROCLIB)
 
 #
 # Checkout VProc from github if it doesn't exist at the specified location
@@ -197,7 +198,7 @@ help:
 
 clean: $(VPROC_TOP)
 	@$(MAKE) --no-print-directory -C $(PCIE_CLIB_DIR)  clean
-	@$(MAKE) --no-print-directory -f makefile.ica -C $(VPROC_TOP)/test clean
-	@rm -rf $(PLI_SO) $(PCIE_MAP_V) $(SIMEXE)
+	@$(MAKE) --no-print-directory -f makefile.ica -C $(VPROC_TOP)/test TESTDIR=$(CURDIR) clean
+	@rm -rf $(PLI_SO) $(PCIE_MAP_V) $(SIMEXE) obj
 
 
