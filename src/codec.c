@@ -19,9 +19,6 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: codec.c,v 1.4 2016/10/10 13:07:51 simon Exp $
-// $Source: /home/simon/CVS/src/HDL/pcieVHost/src/codec.c,v $
-//
 //=============================================================
 
 // -------------------------------------------------------------------------

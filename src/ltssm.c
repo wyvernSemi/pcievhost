@@ -19,9 +19,6 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: ltssm.c,v 1.2 2016/10/10 13:09:13 simon Exp $
-// $Source: /home/simon/CVS/src/HDL/pcieVHost/src/ltssm.c,v $
-//
 //=============================================================
 //
 // Implements a PCIe LTSSM function. NB. IT IS NOT COMPLETE,

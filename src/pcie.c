@@ -19,9 +19,6 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: pcie.c,v 1.4 2016/10/17 11:47:01 simon Exp $
-// $Source: /home/simon/CVS/src/HDL/pcieVHost/src/pcie.c,v $
-//
 //=============================================================
 //
 // A PCIe model of a host/endpoint which use the Virtual

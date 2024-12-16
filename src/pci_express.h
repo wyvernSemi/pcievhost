@@ -19,9 +19,6 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: pci_express.h,v 1.4 2016/10/10 13:08:54 simon Exp $
-// $Source: /home/simon/CVS/src/HDL/pcieVHost/src/pci_express.h,v $
-//
 //=============================================================
 
 #ifndef _PCI_EXPRESS_H_

@@ -19,9 +19,6 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: pcie_utils.h,v 1.5 2016/10/17 11:47:01 simon Exp $
-// $Source: /home/simon/CVS/src/HDL/pcieVHost/src/pcie_utils.h,v $
-//
 //=============================================================
 
 #ifndef _PCIE_UTILS_H_
@@ -271,7 +268,7 @@ void        AddPktToQueue        (const pPcieModelState_t const state, const pPk
 void        AddPktToQueueDelay   (const pPcieModelState_t const state, const pPkt_t const packet);
 void        ExtractPhyInput      (const pPcieModelState_t const state, const uint32_t* const rawlinkin);
 
-uint32_t      CalcNewRand          (const uint32_t Seed);
+uint32_t    CalcNewRand          (const uint32_t Seed);
 void        CheckFree            (void *ptr);
 void        TxFcInitInt          (const pFlowControl_t const flw, const pUserConfig_t usrcfg, const int node);
 void        RxFcInit             (const pFlowControl_t const flw, const int dllptype, const int hdrval, const int dataval);

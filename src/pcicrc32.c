@@ -16,9 +16,6 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
-// along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
-//
 //=============================================================
 //
 // VPI functions for verilog task $pcicrc32 and $pcicrc16

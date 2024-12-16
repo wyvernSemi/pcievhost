@@ -19,9 +19,6 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: pcie_utils.c,v 1.5 2016/10/17 11:47:02 simon Exp $
-// $Source: /home/simon/CVS/src/HDL/pcieVHost/src/pcie_utils.c,v $
-//
 //=============================================================
 //
 // Support functions for PCIe Host model
