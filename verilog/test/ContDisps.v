@@ -19,9 +19,6 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: ContDisps.v,v 1.2 2016/10/05 08:39:33 simon Exp $
-// $Source: /home/simon/CVS/src/HDL/pcieVHost/verilog/test/ContDisps.v,v $
-//
 //=============================================================
 
 `ifdef VPROC_SV

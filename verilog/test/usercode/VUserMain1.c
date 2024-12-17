@@ -19,9 +19,6 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: VUserMain1.c,v 1.3 2016/10/10 11:56:07 simon Exp $
-// $Source: /home/simon/CVS/src/HDL/pcieVHost/verilog/test/usercode/VUserMain1.c,v $
-//
 //=============================================================
 
 //=============================================================

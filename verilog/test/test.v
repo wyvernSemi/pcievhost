@@ -19,9 +19,6 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: test.v,v 1.3 2016/10/10 11:55:14 simon Exp $
-// $Source: /home/simon/CVS/src/HDL/pcieVHost/verilog/test/test.v,v $
-//
 //=============================================================
 
 `ifdef VPROC_SV

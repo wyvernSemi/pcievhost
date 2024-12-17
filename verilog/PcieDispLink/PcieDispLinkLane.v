@@ -19,9 +19,6 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: PcieDispLinkLane.v,v 1.4 2016/10/10 11:47:34 simon Exp $
-// $Source: /home/simon/CVS/src/HDL/pcieVHost/verilog/PcieDispLink/PcieDispLinkLane.v,v $
-//
 //=============================================================
 
 //=============================================================

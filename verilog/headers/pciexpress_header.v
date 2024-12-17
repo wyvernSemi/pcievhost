@@ -19,9 +19,6 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: pciexpress_header.v,v 1.3 2016/10/10 11:49:43 simon Exp $
-// $Source: /home/simon/CVS/src/HDL/pcieVHost/verilog/headers/pciexpress_header.v,v $
-//
 //=============================================================
 
 `ifndef _PCIEXPRESS_HEADER_V_

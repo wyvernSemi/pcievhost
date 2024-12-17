@@ -19,9 +19,6 @@
 // You should have received a copy of the GNU General Public License
 // along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
 //
-// $Id: Serialiser.v,v 1.1 2016/10/04 15:47:37 simon Exp $
-// $Source: /home/simon/CVS/src/HDL/pcieVHost/verilog/lib/Serialiser.v,v $
-//
 //=============================================================
 
 `ifdef VPROC_SV
