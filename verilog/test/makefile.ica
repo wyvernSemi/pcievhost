@@ -113,7 +113,7 @@ $(PCIE_MAP_V) : $(SRCDIR)/$(PCIE_MAP_C)
 # PLI shared object
 #
 $(PLI_SO): $(PCIE_CLIB_DIR)/$(PCIELIB) $(VPROCLIB) $(wildcard $(USRCDIR)/*.[ch]*)
-	@$(CC) $(CFLAGS_SO) $(CFLAGS)            \
+	@$(C++) $(CFLAGS_SO) $(CFLAGS)           \
            -Wl,-whole-archive                    \
            -lpthread                             \
            -ldl                                  \
