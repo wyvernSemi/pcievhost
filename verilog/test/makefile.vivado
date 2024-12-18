@@ -40,8 +40,9 @@ USRCDIR       = usercode
 WORKDIR       = work
 
 PLI_SO        = VProc.so
+VPROCLIB      = libvproc.a
 
-USER_C        = VUserMain0.c VUserMain1.c
+USER_C        = VUserMain0.cpp VUserMain1.c
 PCIE_MAP_C    = pcie_vhost_map.h
 
 #
@@ -114,35 +115,35 @@ $(PCIE_MAP_V) : $(SRCDIR)/$(PCIE_MAP_C)
 #
 # PLI shared object
 #
-$(PLI_SO): vproc_lib pcie_c_lib $(USER_C:%.c=$(USRCDIR)/%.c)
-	@$(CC) $(CFLAGS_SO) $(CFLAGS)                           \
-	       -Wl,-whole-archive                               \
+$(PLI_SO): vproc_lib pcie_c_lib $(wildcard $(USRCDIR)/*.[ch]*)
+	@$(C++) $(CFLAGS_SO) $(CFLAGS)                      \
+           -Wl,-whole-archive                               \
            -lpthread                                        \
-	       -L$(PCIE_CLIB_DIR) -lpcievhost                   \
-	       -L$(PWD) -lvproc                                 \
-	       -Wl,-no-whole-archive                            \
-	       -o $@
+           -L$(PCIE_CLIB_DIR) -lpcievhost                   \
+           -L$(CURDIR) -lvproc                              \
+           -Wl,-no-whole-archive                            \
+           -o $@
 
 #
 # PCIe model library
 #
 pcie_c_lib:
-	@$(MAKE) -f makefile.sysvlog --no-print-directory -C $(PCIE_CLIB_DIR) ARCHFLAG=$(ARCHFLAG) VPROC_TOP=$(PWD)/$(VPROC_TOP)
+	@$(MAKE) -f makefile.sysvlog --no-print-directory -C $(PCIE_CLIB_DIR) ARCHFLAG=$(ARCHFLAG) VPROC_TOP=$(CURDIR)/$(VPROC_TOP)
 
 #
 # VProc library.
 #
 vproc_lib: $(VPROC_TOP)
-	@$(MAKE) --no-print-directory                           \
+	@$(MAKE) --no-print-directory                       \
              -C $(VPROC_TOP)/test                           \
              -f makefile.vivado                             \
              ARCHFLAG=$(ARCHFLAG)                           \
              MAX_NUM_VPROC=$(NUM_VPROC)                     \
-             USRFLAGS=-I$(PWD)/$(SRCDIR)                    \
-             USRCDIR=$(PWD)/$(USRCDIR)                      \
+             USRFLAGS=-I$(CURDIR)/$(SRCDIR)                 \
+             USRCDIR=$(CURDIR)/$(USRCDIR)                   \
              USER_C="$(USER_C)"                             \
-             TESTDIR=$(PWD)                                 \
-             $(PWD)/libvproc.a
+             TESTDIR=$(CURDIR)                              \
+             $(CURDIR)/$(VPROCLIB)
 
 #
 # Checkout VProc from github if it doesn't exist at the specified location
@@ -189,11 +190,8 @@ help:
 #------------------------------------------------------
 
 clean: $(VPROC_TOP)
-	@if [ -d "$(WORKDIR)" ]; then                           \
-	  vdel -all;                                            \
-     fi
 	@$(MAKE) --no-print-directory -C $(PCIE_CLIB_DIR)  clean
-	@$(MAKE) --no-print-directory -C $(VPROC_TOP)/test TESTDIR=$(PWD) clean
-	@rm -rf $(PLI_SO) $(PCIE_MAP_V) xsim* xvlog* xelab* *.wdb
+	@$(MAKE) --no-print-directory -C $(VPROC_TOP)/test TESTDIR=$(CURDIR) clean
+	@rm -rf $(PLI_SO) $(PCIE_MAP_V) xsim* xvlog* xelab* *.wdb work
 
 

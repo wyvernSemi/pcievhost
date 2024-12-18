@@ -40,8 +40,9 @@ USRCDIR       = usercode
 WORKDIR       = work
 
 PLI_SO        = VProc.so
+VPROCLIB      = libvproc.a
 
-USER_C        = VUserMain0.c VUserMain1.c
+USER_C        = VUserMain0.cpp VUserMain1.c
 PCIE_MAP_C    = pcie_vhost_map.h
 
 #
@@ -101,21 +102,11 @@ endif
 #------------------------------------------------------
 
 #
-# Build the verilog and the PLI shared object by default
+# Build the verilog default
 #
-all: $(PLI_SO) verilog
+all: verilog
 
-#
-# Verilog. Phony target, as ModelSim does incremental compile
-# and decides what the dependencies are; so always build.
-#
-.PHONY: verilog
-
-verilog: $(PCIE_MAP_V)
-	@if [ ! -d $(WORKDIR) ]; then                           \
-	  vlib $(WORKDIR);                                      \
-    fi
-	@vlog $(VLOGFLAGS)
+.PHONY: verilog, pcie_c_lib, vproc_lib, clean, all
 
 #
 # Create Verilog pcieVHost VProc register mappings from C header
@@ -126,10 +117,9 @@ $(PCIE_MAP_V) : $(SRCDIR)/$(PCIE_MAP_C)
 #
 # PLI shared object
 #
-$(PLI_SO): vproc_lib pcie_c_lib $(USER_C:%.c=$(USRCDIR)/%.c)
-	@$(CC) $(CFLAGS_SO) $(CFLAGS)                       \
+$(PLI_SO): pcie_c_lib vproc_lib  $(wildcard $(USRCDIR)/*.[ch]*)
+	@$(C++) $(CFLAGS_SO) $(CFLAGS)                      \
            -Wl,-whole-archive                               \
-            $(USER_C:%.c=$(USRCDIR)/%.c)                    \
            -lpthread                                        \
            -L$(MODEL_TECH)                                  \
            -lmtipli                                         \
@@ -142,20 +132,22 @@ $(PLI_SO): vproc_lib pcie_c_lib $(USER_C:%.c=$(USRCDIR)/%.c)
 # PCIe model library
 #
 pcie_c_lib:
-	@$(MAKE) --no-print-directory -C $(PCIE_CLIB_DIR) MODEL_TECH=$(MODEL_TECH) ARCHFLAG=$(ARCHFLAG) VPROC_TOP=$(PWD)/$(VPROC_TOP)
+	@$(MAKE) --no-print-directory -C $(PCIE_CLIB_DIR) MODEL_TECH=$(MODEL_TECH) ARCHFLAG=$(ARCHFLAG) VPROC_TOP=$(CURDIR)/$(VPROC_TOP)
 
 #
 # VProc library.
 #
 vproc_lib: $(VPROC_TOP)
-	@$(MAKE) --no-print-directory                       \
-             -C $(VPROC_TOP)/test                           \
-             MODEL_TECH=$(MODEL_TECH)                       \
-             ARCHFLAG=$(ARCHFLAG)                           \
-             MAX_NUM_VPROC=$(NUM_VPROC)                     \
-             USRFLAGS="-DEXTERN_VPI_TABLE"                  \
-             TESTDIR=$(CURDIR)                              \
-             USER_C=""
+	@$(MAKE) --no-print-directory                            \
+             -C $(VPROC_TOP)/test                                \
+             MODEL_TECH=$(MODEL_TECH)                            \
+             ARCHFLAG=$(ARCHFLAG)                                \
+             MAX_NUM_VPROC=$(NUM_VPROC)                          \
+             USRFLAGS="-I$(CURDIR)/$(SRCDIR) -DEXTERN_VPI_TABLE" \
+             TESTDIR=$(CURDIR)                                   \
+             USRCDIR=$(CURDIR)/$(USRCDIR)                        \
+             USER_C="$(USER_C)"                                  \
+             $(CURDIR)/$(VPROCLIB)
 
 #
 # Checkout VProc from github if it doesn't exist at the specified location
@@ -163,22 +155,30 @@ vproc_lib: $(VPROC_TOP)
 $(VPROC_TOP):
 	git clone $(VPROC_REPO) $(VPROC_TOP) --recursive
 
+
+# Analyse HDL files
+verilog: $(PCIE_MAP_V) $(PLI_SO) 
+	@if [ ! -d $(WORKDIR) ]; then                           \
+          vlib $(WORKDIR);                                      \
+        fi
+	@vlog $(VLOGFLAGS)
+
 #------------------------------------------------------
 # EXECUTION RULES
 #------------------------------------------------------
 
-sim: vproc_lib pcie_c_lib verilog $(PLI_SO)
+sim: all
 	@vsim -c $(VSIMFLAGS)
 
-run: vproc_lib pcie_c_lib verilog $(PLI_SO)
+run: all
 	@vsim -c $(VSIMFLAGS) -do "run -all" -do "quit"
 
-rungui: vproc_lib pcie_c_lib verilog $(PLI_SO)
+rungui: all
 	@if [ -e wave.do ]; then                            \
          vsim -gui -do wave.do $(VSIMFLAGS) -do "run -all"; \
-     else                                                   \
+        else                                                \
          vsim -gui $(VSIMFLAGS);                            \
-     fi
+        fi
 
 gui: rungui
 
@@ -200,6 +200,6 @@ clean: $(VPROC_TOP)
         fi
 	@$(MAKE) --no-print-directory -C $(PCIE_CLIB_DIR)  clean
 	@$(MAKE) --no-print-directory -C $(VPROC_TOP)/test TESTDIR=$(CURDIR) clean
-	@rm -rf $(PLI_SO) $(PCIE_MAP_V)
+	@rm -rf $(PLI_SO) $(PCIE_MAP_V) work transcript
 
 

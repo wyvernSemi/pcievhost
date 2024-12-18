@@ -44,6 +44,8 @@ static unsigned int Interrupt = 0;
 static int ResetDeasserted(void)
 {
     Interrupt |= RST_DEASSERT_INT;
+    
+    return 0;
 }
 
 //-------------------------------------------------------------

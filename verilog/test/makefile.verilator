@@ -62,7 +62,9 @@ SRCDIR        = ../../src
 USRCDIR       = usercode
 WORKDIR       = work
 
-USER_C        = VUserMain0.c VUserMain1.c
+VPROCLIB      = libvproc.a
+
+USER_C        = VUserMain0.cpp VUserMain1.c
 PCIE_MAP_C    = pcie_vhost_map.h
 
 #
@@ -136,7 +138,7 @@ $(PCIE_MAP_V) : $(SRCDIR)/$(PCIE_MAP_C)
 # PCIe model library
 #
 pcie_c_lib:
-	@$(MAKE) -f makefile.sysvlog --no-print-directory -C $(PCIE_CLIB_DIR) ARCHFLAG=$(ARCHFLAG) VPROC_TOP=$(PWD)/$(VPROC_TOP)
+	@$(MAKE) -f makefile.sysvlog --no-print-directory -C $(PCIE_CLIB_DIR) ARCHFLAG=$(ARCHFLAG) VPROC_TOP=$(CURDIR)/$(VPROC_TOP)
 
 #
 # VProc library.
@@ -147,11 +149,11 @@ vproc_lib: $(VPROC_TOP) pcie_c_lib
              -f makefile.verilator                          \
              ARCHFLAG=$(ARCHFLAG)                           \
              MAX_NUM_VPROC=$(NUM_VPROC)                     \
-             USRFLAGS=-I$(PWD)/$(SRCDIR)                    \
-             USRCDIR=$(PWD)/$(USRCDIR)                      \
+             USRFLAGS=-I$(CURDIR)/$(SRCDIR)                 \
+             USRCDIR=$(CURDIR)/$(USRCDIR)                   \
              USER_C="$(USER_C)"                             \
-             TESTDIR=$(PWD)                                 \
-             $(PWD)/libvproc.a
+             TESTDIR=$(CURDIR)                              \
+             $(CURDIR)/$(VPROCLIB)
 
 #
 # Checkout VProc from github if it doesn't exist at the specified location
@@ -193,6 +195,6 @@ help:
 #------------------------------------------------------
 
 clean: $(VPROC_TOP)
-	@$(MAKE) -f makefile.verilator --no-print-directory -C $(VPROC_TOP)/test TESTDIR=$(PWD) clean
+	@$(MAKE) -f makefile.verilator --no-print-directory -C $(VPROC_TOP)/test TESTDIR=$(CURDIR) clean
 	@$(MAKE) -f makefile.sysvlog --no-print-directory -C $(PCIE_CLIB_DIR) clean
-	@rm -rf $(VPROC_LIB) $(USBCMAP) obj work
+	@rm -rf $(VPROC_LIB) $(USBCMAP) obj work waves.vcd

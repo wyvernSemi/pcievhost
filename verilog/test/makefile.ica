@@ -43,7 +43,7 @@ SIMEXE         = sim
 #
 # Source code
 #
-USER_C         = VUserMain0.c VUserMain1.c
+USER_C         = VUserMain0.cpp VUserMain1.c
 PCIE_MAP_C     = pcie_vhost_map.h
 
 #
@@ -83,9 +83,9 @@ CC             = gcc
 C++            = g++
 CFLAGS         = -g -fPIC                        \
                  -Wno-write-strings              \
-                 -I$(SRCDIR)                     \
-                 -I$(USRCDIR)                    \
-                 -I$(VPROC_TOP)/code             \
+                 -I$(CURDIR)/$(SRCDIR)           \
+                 -I$(CURDIR)/$(USRCDIR)          \
+                 -I$(CURDIR)/$(VPROC_TOP)/code   \
                  -I$(ICADIR)                     \
                  -DICARUS                        \
                  -DVPROC_PLI_VPI                 \
@@ -99,7 +99,9 @@ CFLAGS         = -g -fPIC                        \
 #
 # Build the verilog and the PLI shared object by default
 #
-all: $(PLI_SO) verilog
+all: verilog
+
+.PHONY: verilog, pcie_c_lib, vproc_lib, clean, all
 
 #
 # Create Verilog pcieVHost VProc register mappings from C header
@@ -110,10 +112,9 @@ $(PCIE_MAP_V) : $(SRCDIR)/$(PCIE_MAP_C)
 #
 # PLI shared object
 #
-$(PLI_SO): $(VPROCLIB) $(PCIE_CLIB_DIR)/$(PCIELIB) $(USER_C:%.c=$(USRCDIR)/%.c)
+$(PLI_SO): $(PCIE_CLIB_DIR)/$(PCIELIB) $(VPROCLIB) $(wildcard $(USRCDIR)/*.[ch]*)
 	@$(CC) $(CFLAGS_SO) $(CFLAGS)            \
            -Wl,-whole-archive                    \
-           $(USER_C:%.c=$(USRCDIR)/%.c)          \
            -lpthread                             \
            -ldl                                  \
            -lvpi -lveriuser                      \
@@ -135,10 +136,11 @@ $(VPROCLIB): $(VPROC_TOP)
 	@$(MAKE) --no-print-directory -C $(VPROC_TOP)/test  \
              -f makefile.ica                                \
              CFLAGS="-c $(CFLAGS) -Wno-int-to-pointer-cast" \
-             PWD=./ MAX_NUM_VPROC=$(NUM_VPROC)              \
-             USER_C=""                                      \
+             MAX_NUM_VPROC=$(NUM_VPROC)                     \
              TESTDIR=$(CURDIR)                              \
-             $(CURDIR)/$(VPROCLIB)
+             USRCDIR=$(CURDIR)/$(USRCDIR)                   \
+             USER_C="$(USER_C)"                             \
+             $(CURDIR)/$(VPROCLIB)             
 
 #
 # Checkout VProc from github if it doesn't exist at the specified location
@@ -150,7 +152,7 @@ $(VPROC_TOP):
 #
 # Build the verilog
 #
-verilog: $(VLOGFILES) $(PCIE_MAP_V)
+verilog: $(PLI_SO) $(VLOGFILES) $(PCIE_MAP_V)
 	@iverilog -o $(SIMEXE) $(VLOGFLAGS) -s test
 
 verilog_debug: $(VLOGFILES) $(PCIE_MAP_V)
