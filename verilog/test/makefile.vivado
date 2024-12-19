@@ -23,6 +23,7 @@
 # User overridable variables
 NUM_VPROC     = 2
 ARCHFLAG      = -m64
+USRSIMFLAGS   = 
 
 # Location of VProc directory. Assumes in same directory as pcieVHost.
 # Update if relocated.
@@ -159,7 +160,7 @@ $(VPROC_TOP):
 # Analyse HDL files
 sysverilog: $(PCIE_MAP_V) $(PLI_SO)
 	@xvlog $(ANALYSEFLAGS)
-	@xelab $(ELABFLAGS)
+	@xelab $(USRSIMFLAGS) $(ELABFLAGS)
 
 #------------------------------------------------------
 # EXECUTION RULES

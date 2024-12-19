@@ -2,6 +2,12 @@ onerror {resume}
 quietly WaveActivateNextPane {} 0
 add wave -noupdate /test/Clk
 add wave -noupdate /test/notReset
+add wave -noupdate /test/dispd/dl/Byte
+add wave -noupdate /test/dispd/dl/ByteRaw
+add wave -noupdate /test/dispd/dl/ShiftByte
+add wave -noupdate /test/dispd/dl/NewByte
+add wave -noupdate /test/dispd/dl/Synced
+add wave -noupdate /test/dispd/dl/Control
 add wave -noupdate -radix unsigned /test/Count
 add wave -noupdate /test/DisableScrambleDown
 add wave -noupdate /test/DisableScrambleUp
@@ -64,4 +70,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ps} {3687601 ps}
+WaveRestoreZoom {0 ps} {71400 ps}

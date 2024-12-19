@@ -34,7 +34,7 @@
 
 module RxLogicDisp (Clk, notReset, DecodeCtrl, DecodeByte, OutByteRaw, 
                     LinkIn, Synced,
-                    notResetScrambler, MoveScrambler, Scramble, DisableScramble,
+                    notResetScrambler, MoveScrambler, Scramble, DisableScramble, Disable8b10b,
                     ElecIdleOrderedSet, FtsOrderedSet, SkpOrderedSet, RxTrainingSeq,
                     RxControl);
 
@@ -43,6 +43,7 @@ input          notReset;
 input          DecodeCtrl;
 input          Synced;
 input          DisableScramble;
+input          Disable8b10b;
 input    [7:0] DecodeByte;
 input    [9:0] LinkIn;
 input    [7:0] OutByteRaw;
@@ -83,8 +84,8 @@ assign MoveScrambler          = ~(RxControl & OutByteRaw == `SKP) & Synced;
 assign notResetScrambler      = Synced & ~RxCommaReg;
 assign Scramble               = ~(RxControl | ~Synced | TSRx | DisableScramble/* | CompliancePattern */);
 
-// Enable disparity checks only if synced and received a COMMA
-wire DisparityEnabled         = (DisparityEnabledLast | (LinkIn == `PCOMMA || LinkIn == `NCOMMA)) & Synced;
+// Enable disparity checks only if synced and received a COMMA and not 8b10b disabled
+wire DisparityEnabled         = (DisparityEnabledLast | (LinkIn == `PCOMMA || LinkIn == `NCOMMA)) & Synced & ~Disable8b10b;
 
 // Flag incoming word has a non-zero disparity (even parity)
 wire Disp                     = DisparityEnabled & ~(^LinkIn);

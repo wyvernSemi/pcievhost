@@ -1606,7 +1606,7 @@ int CheckCredits(const int DisableFc, const uint32_t fc_state, const uint32_t hd
 // -------------------------------------------------------------------------
 // InitPcieState()
 //
-// Initialse the pcie state associated with 'node'.
+// Initialise the pcie state associated with 'node'.
 //
 // -------------------------------------------------------------------------
 
@@ -1673,6 +1673,8 @@ void InitPcieState(const pPcieModelState_t const state, const int node)
     usrconf->DisableFc            = 0;
     usrconf->DisableSkips         = 0;
     usrconf->DisableUrCpl         = 0;
+    usrconf->DisableScrambling    = 0;
+    usrconf->Disable8b10b         = 0;
     usrconf->SkipInterval         = DEFAULT_SKIP_INTERVAL;
     usrconf->AckRate              = DEFAULT_ACK_RATE;
 
@@ -1799,7 +1801,7 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
 
     for (idx = 0; idx < state->LinkWidth; idx++)
     {
-        linkin[idx] = Decode (rawlinkin[idx], false, idx, state->LinkWidth, state->thisnode);
+        linkin[idx] = Decode (rawlinkin[idx], state->usrconf.DisableScrambling, state->usrconf.Disable8b10b, idx, state->LinkWidth, state->thisnode);
 
         // ----- Extracting Ordered Sets/Training Sequences for each lane -----
 

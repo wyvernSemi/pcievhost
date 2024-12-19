@@ -31,7 +31,8 @@
 //-------------------------------------------------------------
 module test
 #(parameter VCD_DUMP       = 0,
-  parameter DEBUG_STOP     = 0
+  parameter DEBUG_STOP     = 0,
+  parameter PIPE           = 0
 );
 
 reg     Clk;
@@ -48,7 +49,7 @@ wire   [9:0] LinkUp0,    LinkUp1,    LinkUp2,    LinkUp3;
 wire   [9:0] LinkUp4,    LinkUp5,    LinkUp6,    LinkUp7;
 wire   [9:0] LinkUp8,    LinkUp9,    LinkUp10,   LinkUp11;
 wire   [9:0] LinkUp12,   LinkUp13,   LinkUp14,   LinkUp15;
-                         
+
 wire [15:0] ElecIdleUp, ElecIdleDown;
 
 wire [`DispDataInBits]  DispDataIn;
@@ -59,8 +60,10 @@ wire [31:0] LinkWidth            = `PCIE_NUM_PHY_LANES;
 wire [31:0] NodeNumDown          = `VPCIE_HOST_NODE_NUM;
 wire [31:0] NodeNumUp            = `VPCIE_EP_NODE_NUM;
 
-wire        DisableScrambleDown  = 1'b0;
-wire        DisableScrambleUp    = 1'b0;
+wire        DisableScrambleDown  = (PIPE != 0) ? 1'b1 : 1'b0;
+wire        DisableScrambleUp    = (PIPE != 0) ? 1'b1 : 1'b0;
+wire        Disable8b10bDown     = (PIPE != 0) ? 1'b1 : 1'b0;
+wire        Disable8b10bUp       = (PIPE != 0) ? 1'b1 : 1'b0;
 wire [15:0] InvertTxPolarityDown = 16'h0000;
 wire [15:0] InvertTxPolarityUp   = 16'h0000;
 
@@ -72,7 +75,7 @@ reg   [9:0] IntLinkDown0,  IntLinkDown1,  IntLinkDown2,  IntLinkDown3;
 reg   [9:0] IntLinkDown4,  IntLinkDown5,  IntLinkDown6,  IntLinkDown7;
 reg   [9:0] IntLinkDown8,  IntLinkDown9,  IntLinkDown10, IntLinkDown11;
 reg   [9:0] IntLinkDown12, IntLinkDown13, IntLinkDown14, IntLinkDown15;
- 
+
 reg   [9:0] IntLinkUp0,    IntLinkUp1,    IntLinkUp2,    IntLinkUp3;
 reg   [9:0] IntLinkUp4,    IntLinkUp5,    IntLinkUp6,    IntLinkUp7;
 reg   [9:0] IntLinkUp8,    IntLinkUp9,    IntLinkUp10,   IntLinkUp11;
@@ -84,7 +87,7 @@ begin
                     LinkDown11, LinkDown10, LinkDown9,  LinkDown8,
                     LinkDown7,  LinkDown6,  LinkDown5,  LinkDown4,
                     LinkDown3,  LinkDown2,  LinkDown1,  LinkDown0};
-                    
+
   UpLink        <= {LinkUp15,   LinkUp14,   LinkUp13,   LinkUp12,
                     LinkUp11,   LinkUp10,   LinkUp9,    LinkUp8,
                     LinkUp7,    LinkUp6,    LinkUp5,    LinkUp4,
@@ -185,6 +188,7 @@ wire [9:0] IntLinkUp15    = LinkUp15;
                                             .DispValIn        (DispVal),
                                             .LinkWidth        (LinkWidth[4:0]),
                                             .DisableScramble  (DisableScrambleDown),
+                                            .Disable8b10b     (Disable8b10bDown),
                                             .InvertTxPolarity (InvertTxPolarityDown),
                                             .NodeNum          (NodeNumDown[7:0])
                                             );
@@ -199,6 +203,7 @@ wire [9:0] IntLinkUp15    = LinkUp15;
                                             .DispValIn        (DispVal),
                                             .LinkWidth        (LinkWidth[4:0]),
                                             .DisableScramble  (DisableScrambleUp),
+                                            .Disable8b10b     (Disable8b10bUp),
                                             .InvertTxPolarity (InvertTxPolarityUp),
                                             .NodeNum          (NodeNumUp[7:0])
                                             );

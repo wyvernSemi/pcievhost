@@ -188,7 +188,7 @@ static void ScrambleAdvance(const int reset, uint32_t* const lfsr)
 //
 // -------------------------------------------------------------------------
 
-unsigned int Encode(const int data, const int no_scramble, const int lane, const int linkwidth, const int node)
+unsigned int Encode (const int data, const int no_scramble, const int no_8b10b, const int lane, const int linkwidth, const int node)
 {
     unsigned int code, code3, code5, c, tblidx; 
     const TblType *tbl5, *tbl3;
@@ -202,66 +202,73 @@ unsigned int Encode(const int data, const int no_scramble, const int lane, const
         c = data;
     }
 
-    // Advance scrambler unless a SKIP, or reset if COMMA
-    if (data != SKP && lane == (linkwidth-1))
+    if (!no_8b10b)
     {
-        ScrambleAdvance(data == COM, &(this->elfsr));
-    }
-
-    // For data bytes
-    if (c < 256)
-    {
-        // Pick 5 bit table based on running disparity
-        tbl5 = (this->rd[lane] == -1) ? NegTable5 : PosTable5;
-
-        // 3 bit table based in the disparity of the 5 bit table and current 
-        // running disparity. If total Positive, choose NegTable3 else PosTable3.
-        tbl3 = (tbl5[c & 0x1f].disparity == (this->rd[lane] == 1 ? 0 : 2)) ? NegTable3 : PosTable3;
-
-        // Extract codes
-        code5 = tbl5[c & 0x1f].code;
-        code3 = tbl3[c >> 5].code ; 
-
-        // Bit reverse 3b/4b code to avoid a run of 5 bits
-        if (((code5 & 0x30) == 0x30 && (code3 & 0x7) == 0x7) || ((code5 & 0x30) == 0x0 && (code3 & 0x7) == 0x0)) 
+        // Advance scrambler unless a SKIP, or reset if COMMA
+        if (data != SKP && lane == (linkwidth-1))
         {
-            code3 = Bitrev4[code3];
+            ScrambleAdvance(data == COM, &(this->elfsr));
         }
-
-        // Calculate new running disparity
-        this->rd[lane] += tbl5[c & 0x1f].disparity  +  tbl3[c >> 5].disparity;
-
-    // For control codes
+        
+        // For data bytes
+        if (c < 256)
+        {
+            // Pick 5 bit table based on running disparity
+            tbl5 = (this->rd[lane] == -1) ? NegTable5 : PosTable5;
+        
+            // 3 bit table based in the disparity of the 5 bit table and current 
+            // running disparity. If total Positive, choose NegTable3 else PosTable3.
+            tbl3 = (tbl5[c & 0x1f].disparity == (this->rd[lane] == 1 ? 0 : 2)) ? NegTable3 : PosTable3;
+        
+            // Extract codes
+            code5 = tbl5[c & 0x1f].code;
+            code3 = tbl3[c >> 5].code ; 
+        
+            // Bit reverse 3b/4b code to avoid a run of 5 bits
+            if (((code5 & 0x30) == 0x30 && (code3 & 0x7) == 0x7) || ((code5 & 0x30) == 0x0 && (code3 & 0x7) == 0x0)) 
+            {
+                code3 = Bitrev4[code3];
+            }
+        
+            // Calculate new running disparity
+            this->rd[lane] += tbl5[c & 0x1f].disparity  +  tbl3[c >> 5].disparity;
+        
+        // For control codes
+        }
+        else
+        {
+            // K28.0 to K28.7
+            if ((c & 0xf) == 0xc)
+            {
+                tblidx = (c >> 5) & 0x7;
+            }
+            else 
+            {
+                tblidx = (c == 0x1f7) ? 8 :
+                         (c == 0x1fb) ? 9 :
+                         (c == 0x1fd) ? 10 :
+                                        11;
+            }
+        
+            tbl5 = (this->rd[lane] == -1) ? K_NegTable5 : K_PosTable5;
+        
+            tbl3 = (tbl5[tblidx].disparity == (this->rd[lane] == 1 ? 0 : 2)) ? K_NegTable3 : K_PosTable3;
+        
+            code5 = tbl5[tblidx].code;
+            code3 = tbl3[tblidx].code;
+        
+            // Calculate new running disparity
+            this->rd[lane] += tbl5[tblidx].disparity + tbl3[tblidx].disparity;
+        }
+        
+        // Construct 10 bit code
+        code = code3 << 6 | code5;
     }
     else
     {
-        // K28.0 to K28.7
-        if ((c & 0xf) == 0xc)
-        {
-            tblidx = (c >> 5) & 0x7;
-        }
-        else 
-        {
-            tblidx = (c == 0x1f7) ? 8 :
-                     (c == 0x1fb) ? 9 :
-                     (c == 0x1fd) ? 10 :
-                                    11;
-        }
-
-        tbl5 = (this->rd[lane] == -1) ? K_NegTable5 : K_PosTable5;
-
-        tbl3 = (tbl5[tblidx].disparity == (this->rd[lane] == 1 ? 0 : 2)) ? K_NegTable3 : K_PosTable3;
-
-        code5 = tbl5[tblidx].code;
-        code3 = tbl3[tblidx].code;
-
-        // Calculate new running disparity
-        this->rd[lane] += tbl5[tblidx].disparity + tbl3[tblidx].disparity;
+        code = c;
     }
-
-    // Construct 10 bit code
-    code = code3 << 6 | code5;
-
+    
     return code;
 }
 
@@ -272,58 +279,67 @@ unsigned int Encode(const int data, const int no_scramble, const int lane, const
 //
 // -------------------------------------------------------------------------
 
-unsigned int Decode (const int data, const int no_scramble, const int lane, const int linkwidth, const int node)
+unsigned int Decode (const int data, const int no_scramble, const int no_8b10b, const int lane, const int linkwidth, const int node)
 {
+    int Raw, Control;
 
-    int TwoOnes, ThreeZeros, ThreeOnes;
-    int Invert21, Invert430, Invert4, Invert3210;
-    int Invert31, Invert420, Invert42, Invert310, InvertAll5;
-    int InvertMask5, InvertAll3, InvertMask3;
-    int LowBits, Hibits, Control, Raw;
-
-    // Run length flags of input first 4 bits
-    TwoOnes    = NumOfOnes4[data&0xf] == 2;
-    ThreeZeros = NumOfOnes4[data&0xf] == 1;
-    ThreeOnes  = NumOfOnes4[data&0xf] == 3;
-
-    // Calculate bit inversion requirements for 6b/5b code
-    Invert21   = (TwoOnes     && Data2and1 && Data5xnor4);
-    Invert430  = (TwoOnes     && Data2nor1 && Data5xnor4);
-    Invert4    = (ThreeZeros  && !Data5);
-    Invert3210 = (ThreeOnes   &&  Data5);
-    Invert31   = (TwoOnes     &&  Data0 &&  Data2 && Data5xnor4);
-    Invert420  = (TwoOnes     && !Data0 && !Data2 && Data5xnor4);
-    Invert42   = (Data1nor0   && Data5nor4);
-    Invert310  = (Data1and0   && Data5and4);
-    InvertAll5 = ((ThreeZeros && (Data5to3and || !Data4)) || Data5to2nor);
-
-    // Create an inversion mask for 6b/5b code
-    InvertMask5 = ((Invert430 | Invert4    | Invert420 | Invert42  | InvertAll5) << 4) | 
-                  ((Invert430 | Invert3210 | Invert31  | Invert310 | InvertAll5) << 3) |
-                  ((Invert21  | Invert3210 | Invert420 | Invert42  | InvertAll5) << 2) |
-                  ((Invert21  | Invert3210 | Invert31  | Invert310 | InvertAll5) << 1) |
-                  ((Invert430 | Invert3210 | Invert420 | Invert310 | InvertAll5) << 0); 
-
-    // Low order 5 bits
-    LowBits =  (data & 0x1f) ^ InvertMask5;
-
-    // Flag condition where all 3 bits need inverting
-    InvertAll3 = (Data5to2nor && Data9xor8) || (Data7nor6 && Data9and8) || (Data7and6 && Data9) || (Data8to6nor);
-
-    // Create an inversion mask for 4b/3b code
-    InvertMask3 = (
-                   (((Data9and8 &&  Data6) || Data9to7nor) << 2) |
-                   (((Data9nor8 && !Data6) || Data9to7nor) << 1) |
-                   (((Data9and8 &&  Data6) || Data9to7and)     )) | (InvertAll3 ? 0x07 : 0);
-
-    // High order 3 bits
-    Hibits = ((data >> 6) & 0x7) ^ InvertMask3;
-
-
-    // Output is a control code, not a data byte
-    Control = (Data5to2and) || (Data5to2nor) || (ThreeZeros && !Data4 && Data5 && Data9to7and) || (ThreeOnes && Data4 && !Data5 & Data9to7nor);
-
-    Raw = (Control << 8) | (Hibits << 5) | LowBits;
+    if (!no_8b10b)
+    {
+        int TwoOnes, ThreeZeros, ThreeOnes;
+        int Invert21, Invert430, Invert4, Invert3210;
+        int Invert31, Invert420, Invert42, Invert310, InvertAll5;
+        int InvertMask5, InvertAll3, InvertMask3;
+        int LowBits, Hibits;
+        
+        // Run length flags of input first 4 bits
+        TwoOnes    = NumOfOnes4[data&0xf] == 2;
+        ThreeZeros = NumOfOnes4[data&0xf] == 1;
+        ThreeOnes  = NumOfOnes4[data&0xf] == 3;
+        
+        // Calculate bit inversion requirements for 6b/5b code
+        Invert21   = (TwoOnes     && Data2and1 && Data5xnor4);
+        Invert430  = (TwoOnes     && Data2nor1 && Data5xnor4);
+        Invert4    = (ThreeZeros  && !Data5);
+        Invert3210 = (ThreeOnes   &&  Data5);
+        Invert31   = (TwoOnes     &&  Data0 &&  Data2 && Data5xnor4);
+        Invert420  = (TwoOnes     && !Data0 && !Data2 && Data5xnor4);
+        Invert42   = (Data1nor0   && Data5nor4);
+        Invert310  = (Data1and0   && Data5and4);
+        InvertAll5 = ((ThreeZeros && (Data5to3and || !Data4)) || Data5to2nor);
+        
+        // Create an inversion mask for 6b/5b code
+        InvertMask5 = ((Invert430 | Invert4    | Invert420 | Invert42  | InvertAll5) << 4) | 
+                      ((Invert430 | Invert3210 | Invert31  | Invert310 | InvertAll5) << 3) |
+                      ((Invert21  | Invert3210 | Invert420 | Invert42  | InvertAll5) << 2) |
+                      ((Invert21  | Invert3210 | Invert31  | Invert310 | InvertAll5) << 1) |
+                      ((Invert430 | Invert3210 | Invert420 | Invert310 | InvertAll5) << 0); 
+        
+        // Low order 5 bits
+        LowBits =  (data & 0x1f) ^ InvertMask5;
+        
+        // Flag condition where all 3 bits need inverting
+        InvertAll3 = (Data5to2nor && Data9xor8) || (Data7nor6 && Data9and8) || (Data7and6 && Data9) || (Data8to6nor);
+        
+        // Create an inversion mask for 4b/3b code
+        InvertMask3 = (
+                       (((Data9and8 &&  Data6) || Data9to7nor) << 2) |
+                       (((Data9nor8 && !Data6) || Data9to7nor) << 1) |
+                       (((Data9and8 &&  Data6) || Data9to7and)     )) | (InvertAll3 ? 0x07 : 0);
+        
+        // High order 3 bits
+        Hibits = ((data >> 6) & 0x7) ^ InvertMask3;
+        
+        
+        // Output is a control code, not a data byte
+        Control = (Data5to2and) || (Data5to2nor) || (ThreeZeros && !Data4 && Data5 && Data9to7and) || (ThreeOnes && Data4 && !Data5 & Data9to7nor);
+        
+        Raw = (Control << 8) | (Hibits << 5) | LowBits;
+    }
+    else
+    {
+        Control = data & 0x100;
+        Raw = data;
+    }
 
     // Scrambling
 

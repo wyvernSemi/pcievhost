@@ -137,8 +137,8 @@ typedef struct {
 ////////////////////////
 // User configurable state. 
 typedef struct {
-    uint32_t     HdrConsumptionRate;
-    uint32_t     DataConsumptionRate;
+    uint32_t   HdrConsumptionRate;
+    uint32_t   DataConsumptionRate;
     int        AckRate;
     int        CompletionRate;
     int        CompletionSpread;
@@ -148,6 +148,8 @@ typedef struct {
     int        DisableFc;
     int        DisableSkips;
     int        DisableUrCpl;
+    int        DisableScrambling;
+    int        Disable8b10b;
 
     // Rx buffer sizes
     uint32_t     InitFcDataCr        [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
@@ -189,10 +191,10 @@ typedef struct {
     // Configuration state set by verilog parameters
     int        LinkWidth;
     int        Endpoint;
-    uint32_t     RandNum;
+    uint32_t   RandNum;
 
     // 'real' time (cycle count)
-    uint32_t     TicksSinceReset;
+    uint32_t   TicksSinceReset;
 
     // Send queue pointers
     pPkt_t     head_p;

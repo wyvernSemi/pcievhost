@@ -1,5 +1,5 @@
 //=============================================================
-// 
+//
 // Copyright (c) 2016 Simon Southwell. All rights reserved.
 //
 // Date: 20th Sep 2016
@@ -36,7 +36,7 @@
 // RxLaneDisp
 //-------------------------------------------------------------
 
-module RxLaneDisp (LinkIn, notReset, Clk, RxByte, RxByteRaw, RxControl, Synced, DisableScramble, InvertTxPolarity,
+module RxLaneDisp (LinkIn, notReset, Clk, RxByte, RxByteRaw, RxControl, Synced, DisableScramble, Disable8b10b, InvertTxPolarity,
                    RxTrainingSeq, ElecIdleOrderedSet, FtsOrderedSet, SkpOrderedSet);
 
 input        Clk;
@@ -44,6 +44,7 @@ input  [9:0] LinkIn;
 input        notReset;
 input        Synced;
 input        DisableScramble;
+input        Disable8b10b;
 input        InvertTxPolarity;
 output [7:0] RxByte;
 output [7:0] RxByteRaw;
@@ -52,10 +53,12 @@ output       RxControl;
 output       ElecIdleOrderedSet;
 output       FtsOrderedSet;
 output       SkpOrderedSet;
-output [1:0] RxTrainingSeq; 
+output [1:0] RxTrainingSeq;
 
+wire   [7:0] DecoderByte;
 wire   [7:0] DecodeByte;
 wire   [7:0] ScXor;
+wire         DecoderCtrl;
 wire         DecodeCtrl;
 wire  [15:0] Shift;
 wire         notResetScrambler;
@@ -65,20 +68,25 @@ wire         TSEvent0;
 
 wire [9:0] LinkData = LinkIn ^ {10{InvertTxPolarity}};
 
+assign DecodeByte = Disable8b10b ? LinkData[7:0] : DecoderByte;
+assign DecodeCtrl = Disable8b10b ? LinkData[8]   : DecoderCtrl;
+
     // Combinatorial decode logic
-    Decoder        dc (.Clk(1'b0), 
+    Decoder        dc (.Clk(1'b0),
                        .Input              (LinkData),
-                       .BitRev             (1'b0), 
-                       .InvertDataIn       (1'b0), 
-                       .OutputRaw          (DecodeByte), 
-                       .ControlRaw         (DecodeCtrl),
+                       .BitRev             (1'b0),
+                       .InvertDataIn       (1'b0),
+                       .OutputRaw          (DecoderByte),
+                       .ControlRaw         (DecoderCtrl),
                        .Output             (),
                        .Control            ()
                        );
 
+
+
     // Receiver logic controlling scrambling and flow control, as well as flagging
     // reception events
-    RxLogicDisp   rxl (.Clk                (Clk), 
+    RxLogicDisp   rxl (.Clk                (Clk),
                        .notReset           (notReset),
                        .DecodeCtrl         (DecodeCtrl),
                        .DecodeByte         (DecodeByte),
@@ -89,6 +97,7 @@ wire [9:0] LinkData = LinkIn ^ {10{InvertTxPolarity}};
                        .MoveScrambler      (MoveScrambler),
                        .Scramble           (Scramble),
                        .DisableScramble    (DisableScramble),
+                       .Disable8b10b       (Disable8b10b),
                        .ElecIdleOrderedSet (ElecIdleOrderedSet),
                        .FtsOrderedSet      (FtsOrderedSet),
                        .SkpOrderedSet      (SkpOrderedSet),
@@ -108,11 +117,11 @@ wire [9:0] LinkData = LinkIn ^ {10{InvertTxPolarity}};
                        );
 
     // Receiver data path
-    RxDpDisp     rxdp (.Clk                (Clk), 
+    RxDpDisp     rxdp (.Clk                (Clk),
                        .Scramble           (Scramble),
                        .DecodeByte         (DecodeByte),
                        .ScXor              (ScXor),
-                       .OutByteRaw         (RxByteRaw), 
+                       .OutByteRaw         (RxByteRaw),
                        .OutByteSc          (RxByte)
                        );
 

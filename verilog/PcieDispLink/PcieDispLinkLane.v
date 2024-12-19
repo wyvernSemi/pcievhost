@@ -31,13 +31,15 @@
 
 `WsTimeScale
 
-module PcieDispLinkLane(Link, Clk, RxByte, RxByteRaw, RxControl, Synced, notReset, FwdName, DispVal, LaneNum, Enable, DisableScramble, InvertTxPolarity, NodeNum);
+module PcieDispLinkLane(Link, Clk, RxByte, RxByteRaw, RxControl, Synced, notReset, FwdName, DispVal, LaneNum,
+                        Enable, DisableScramble, Disable8b10b, InvertTxPolarity, NodeNum);
 
 input  [9:0]       Link; 
 input  [7:0]       NodeNum;
 input              Clk;
 input              Enable;
 input              DisableScramble;
+input              Disable8b10b;
 input              InvertTxPolarity;
 
 input              notReset;
@@ -72,6 +74,7 @@ assign LoadReg      = Link;
                      .RxControl          (RxControl),
                      .Synced             (Synced),
                      .DisableScramble    (DisableScramble),
+                     .Disable8b10b       (Disable8b10b),
                      .InvertTxPolarity   (InvertTxPolarity),
                      .RxTrainingSeq      (RxTrainingSeq),
                      .ElecIdleOrderedSet (ElecIdleOrderedSet),

@@ -51,10 +51,12 @@
 
 #define PCIE_MAJOR_VER               1
 #define PCIE_MINOR_VER               2
-#define PCIE_PATCH_VER               0
+#define PCIE_PATCH_VER               1
 
 // Used in macros
 #define BYTE_MASK                    0xff
+
+#define DONT_CARE                    0
 
 #ifndef VP_MAX_NODES
 #define VP_MAX_NODES                 64
@@ -242,6 +244,11 @@
 #define CONFIG_LTSSM_DETECT_QUIET_TO 24
 #define CONFIG_LTSSM_ENABLE_TESTS    25
 #define CONFIG_LTSSM_FORCE_TESTS     26
+
+#define CONFIG_DISABLE_SCRAMBLING    27
+#define CONFIG_ENABLE_SCRAMBLING     28
+#define CONFIG_DISABLE_8B10B         29
+#define CONFIG_ENABLE_8B10B          30
 
 // Valid force/enable test masks
 #define ENABLE_DISABLE               0x1

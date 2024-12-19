@@ -1,5 +1,5 @@
 //=============================================================
-// 
+//
 // Copyright (c) 2016 Simon Southwell. All rights reserved.
 //
 // Date: 20th Sep 2016
@@ -32,8 +32,8 @@
 `WsTimeScale
 
 `define SEQ_NUM_LEN           2
-`define MIN_HDR_LEN          12
-`define LCRC_LEN              4  
+`define MIN_HDR_LEN           12
+`define LCRC_LEN              4
 `define EXTENDED_TAG          1'b0
 
 `ifdef VPROC_SV
@@ -55,9 +55,9 @@ import "DPI-C" function void PciCrc16 (input int data, inout int crc);
 //-------------------------------------------------------------
 
 `ifdef DISP_LINK_WIDE
-module PcieDispLink (ExtClk,              Link, notReset, FwdName, BckName, DispDataIn, DispDataOut, DispValIn, LinkWidth, DisableScramble, InvertTxPolarity, NodeNum);
+module PcieDispLink (ExtClk,              Link, notReset, FwdName, BckName, DispDataIn, DispDataOut, DispValIn, LinkWidth, DisableScramble, Disable8b10b, InvertTxPolarity, NodeNum);
 `else
-module PcieDispLink (ExtClk, ExtClk10, SerLink, notReset, FwdName, BckName, DispDataIn, DispDataOut, DispValIn, LinkWidth, DisableScramble, InvertTxPolarity, NodeNum);
+module PcieDispLink (ExtClk, ExtClk10, SerLink, notReset, FwdName, BckName, DispDataIn, DispDataOut, DispValIn, LinkWidth, DisableScramble, Disable8b10b, InvertTxPolarity, NodeNum);
 `endif
 
 parameter NumOfLanes = 1;
@@ -71,6 +71,7 @@ input [NumOfLanes-1:0]      SerLink;
 
 input                       ExtClk;
 input                       DisableScramble;
+input                       Disable8b10b;
 input [15:0]                InvertTxPolarity;
 input                       notReset;
 input [7:0]                 FwdName, BckName;
@@ -85,16 +86,16 @@ output [`DispDataOutBits]   DispDataOut;
 `ifndef DISP_LINK_WIDE
 wire [(NumOfLanes*10)-1:0]  Link;
 
- Serialiser                     ds (.SerClk           (ExtClk10), 
+ Serialiser                     ds (.SerClk           (ExtClk10),
                                     .BitReverse       (1'b0),
-                                    .ParInVev         (160'h0), 
-                                    .SerOut           (), 
-                                    .SerIn            (SerLink), 
+                                    .ParInVev         (160'h0),
+                                    .SerOut           (),
+                                    .SerIn            (SerLink),
                                     .ParOut           (Link)
                                     );
 `endif
 
- PcieDispLinkCore #(NumOfLanes) dl (.ExtClk           (ExtClk), 
+ PcieDispLinkCore #(NumOfLanes) dl (.ExtClk           (ExtClk),
                                     .Link             (Link),
                                     .notReset         (notReset),
                                     .FwdName          (FwdName),
@@ -104,6 +105,7 @@ wire [(NumOfLanes*10)-1:0]  Link;
                                     .DispValIn        (DispValIn),
                                     .LinkWidth        (LinkWidth),
                                     .DisableScramble  (DisableScramble),
+                                    .Disable8b10b     (Disable8b10b),
                                     .InvertTxPolarity (InvertTxPolarity),
                                     .NodeNum          (NodeNum)
                                     );
@@ -114,12 +116,13 @@ endmodule
 // PcieDispLinkCore
 //-------------------------------------------------------------
 
-module PcieDispLinkCore (ExtClk, Link, notReset, FwdName, BckName, DispDataIn, DispDataOut, DispValIn, LinkWidth, DisableScramble, InvertTxPolarity, NodeNum);
+module PcieDispLinkCore (ExtClk, Link, notReset, FwdName, BckName, DispDataIn, DispDataOut, DispValIn, LinkWidth, DisableScramble, Disable8b10b, InvertTxPolarity, NodeNum);
 
 parameter NumOfLanes = 1;
 
-input                       ExtClk; 
+input                       ExtClk;
 input                       DisableScramble;
+input                       Disable8b10b;
 input [15:0]                InvertTxPolarity;
 input [(NumOfLanes*10)-1:0] Link;
 
@@ -231,7 +234,7 @@ end
 endtask
 
 // Flag TLP data sub-catagories
-  
+
 reg [31:0] DllpCrc;
 reg [31:0] Ecrc, Lcrc;
 
@@ -263,8 +266,8 @@ begin
     3'b100: if (Disp) $write("Completer Abort ");
     default: prot_err(`TXN_2_21_7); //$write("**illegal completion status** ");
     endcase
-    if(Disp) 
-        $display("CID=%h BCM=%b Byte Count=%h RID=%h TAG=%h Lower Addr=%h", 
+    if(Disp)
+        $display("CID=%h BCM=%b Byte Count=%h RID=%h TAG=%h Lower Addr=%h",
                   TlID, TlBCM, TlByteCount, TlCRID, TlCTAG, TlLowAddr);
 end
 endtask
@@ -373,9 +376,9 @@ wire [(8*NumOfLanes)-1:0] Byte, ByteRaw;
 wire [`DispBits] DispVal = DispValIn | {`NoDispBits{DispValIn[`DispAll]}};
 
 
-wire [159:0] LaneNums = {5'h1f, 5'h1e, 5'h1d, 5'h1c, 5'h1b, 5'h1a, 5'h19, 5'h18, 
-                         5'h17, 5'h16, 5'h15, 5'h14, 5'h13, 5'h12, 5'h11, 5'h10, 
-                         5'h0f, 5'h0e, 5'h0d, 5'h0c, 5'h0b, 5'h0a, 5'h09, 5'h08, 
+wire [159:0] LaneNums = {5'h1f, 5'h1e, 5'h1d, 5'h1c, 5'h1b, 5'h1a, 5'h19, 5'h18,
+                         5'h17, 5'h16, 5'h15, 5'h14, 5'h13, 5'h12, 5'h11, 5'h10,
+                         5'h0f, 5'h0e, 5'h0d, 5'h0c, 5'h0b, 5'h0a, 5'h09, 5'h08,
                          5'h07, 5'h06, 5'h05, 5'h04, 5'h03, 5'h02, 5'h01, 5'h00};
 
 wire [(NumOfLanes*5)-1:0] LaneNum = LaneNums[(NumOfLanes*5)-1:0];
@@ -396,6 +399,7 @@ wire [15:0] LaneEnable = ~(16'hffff << LinkWidth);
                          .LaneNum          (LaneNum),
                          .Enable           (LaneEnable),
                          .DisableScramble  (DisableScramble),
+                         .Disable8b10b     (Disable8b10b),
                          .InvertTxPolarity (InvertTxPolarity),
                          .NodeNum          (NodeNum)
                          );
@@ -448,7 +452,7 @@ begin
             $display("PCIE%c%0d: Lane %0d has synchronised at time %0d", FwdName, NodeNum, idx, $time);
             SyncedLast[idx] = 1'b1;
         end
-       
+
         ShiftByte          = Byte >> (idx*8);
         NewByte            = ShiftByte[7:0];
         Buf[ByteCount]     = NewByte;
@@ -463,12 +467,12 @@ begin
             `STP : begin IsTlp = 1; ByteCount = ByteCount + 1; end
             `END : begin IsTlp = 0; ByteCount = ByteCount + 1; end
             `EDB : begin IsTlp = 0; ByteCount = ByteCount + 1; end
-            default: 
-            begin 
-                if (&Synced) 
-                begin 
-                    prot_err(`PHY_2_1_1); 
-                end 
+            default:
+            begin
+                if (&Synced)
+                begin
+                    prot_err(`PHY_2_1_1);
+                end
             end
             endcase
         end
@@ -509,7 +513,7 @@ begin
             end
 
             //////////////////////
-            // Data link layer 
+            // Data link layer
             //////////////////////
 
             if (BufCtrl[0] && Buf[0] == `SDP)
@@ -523,10 +527,10 @@ begin
                 DllpName   = FwdName;
                 DllpDispEn = DispVal[`DispDL];
 
-                if (DllpDispEn) 
+                if (DllpDispEn)
                 begin
                      $write("PCIE%c%0d: ", DllpName, NodeNum);
-                    if (DispVal[`DispPL]) 
+                    if (DispVal[`DispPL])
                     begin
                         $write(`PADSTR);
                     end
@@ -571,10 +575,10 @@ begin
                 default: if (DllpDispEn) $display("*** Unknown DLLP packet type");
                 endcase
 
-                if (DllpDispEn) 
+                if (DllpDispEn)
                 begin
                      $write("PCIE%c%0d: ", DllpName, NodeNum);
-                    if (DispVal[`DispPL]) 
+                    if (DispVal[`DispPL])
                     begin
                         $write(`PADSTR);
                     end
@@ -584,14 +588,14 @@ begin
                 CrcDataIn = {Buf[4],  Buf[3],  Buf[2],  Buf[1]};
                 `PcieCrc16(CrcDataIn, DllpCrc);
                 DllpCrc = {16'h0, MungeCrc16(DllpCrc[15:0])};
- 
+
                 if (DllpCrc[15:0] != {Buf[5], Buf[6]})
                 begin
                     $display("DL Warning : **BAD PCIe DLLP CRC** (%x v %x)", DllpCrc[15:0], {Buf[5], Buf[6]});
                 end
                 else
                 begin
-                    if (DispVal[`DispDL]) 
+                    if (DispVal[`DispDL])
                     begin
                         $display("DL Good DLLP CRC (%x)", DllpCrc[15:0]);
                     end
@@ -606,7 +610,7 @@ begin
             if (DllpDispEn && BufCtrl[0] && Buf[0] == `STP)
             begin
                 $write("PCIE%c%0d: ", TlpName, NodeNum);
-                if(DispVal[`DispPL]) 
+                if(DispVal[`DispPL])
                 begin
                     $write(`PADSTR);
                 end
@@ -665,36 +669,36 @@ begin
                     if (TlpDispEn) $write (", Relaxed ordering (PCI-X)");
                 else
                     if (TlpDispEn) $write (", Strong ordering (PCI)");
-  
+
                 if (TlAttr[0])
                     if (TlpDispEn) $write (", No Snoop");
-  
+
                 if (TlFmt[1])
                     if (TlpDispEn) $write(", Payload Length=0x%h DW", PayloadLen[9:0]);
- 
-                if (TlpDispEn) 
+
+                if (TlpDispEn)
                     $display("");
- 
+
                 // Display the data payload (if any)
- 
+
                 // Calculate the offset into the byte buffer where the payload starts
                 BufOffset = 15 + (TlFmt[0] ? 4 : 0);
                 for (i = 0; i < PayloadLen; i = i + 1)
                 begin
                     // Construct a header word
                     TlWord = {Buf[4*i+BufOffset], Buf[4*i+BufOffset+1], Buf[4*i+BufOffset+2], Buf[4*i+BufOffset+3]};
-                    
+
                     if (i%(`DispLineBrk) == 0)
                     begin
                         if (TlpDispEn) $write("PCIE%c%0d: ", TlpName, NodeNum);
                         if (TlpDispEn && DispVal[`DispDL]) $write(`PADSTR);
                         if (TlpDispEn && DispVal[`DispPL]) $write(`PADSTR);
                     end
- 
+
                     if (TlpDispEn) $write("%x ", TlWord);
                     if (i%(`DispLineBrk) == (`DispLineBrk-1))
                         if (TlpDispEn) $display("");
-                end 
+                end
 
                 if (((i%`DispLineBrk) != 0) ? 1'b1 : 1'b0)
                     if (TlpDispEn) $display("");
@@ -782,7 +786,7 @@ reg firstProtErr;
 initial
 begin
     firstProtErr = 1;
-end 
+end
 
 task prot_err;
 input [31:0] error_type;
@@ -793,7 +797,7 @@ begin
     if (firstProtErr)
     begin
         $display;
-        $display("PCIE%c%0d: ************************** Protocol Error Report For Transaction Layer Packets **************************", FwdName, NodeNum);     
+        $display("PCIE%c%0d: ************************** Protocol Error Report For Transaction Layer Packets **************************", FwdName, NodeNum);
     end
 
     $write ("PCIE%c%0d: ", FwdName, NodeNum);
@@ -801,23 +805,23 @@ begin
     case(error_type)
     `size_difference:
         $write("Packet of unexpected size:-");
-      
+
 //  `TXN_2_0_1: same as TXN.2.21#3
     `TXN_2_0_2:
-        $write("TXN.2.0#2 - Reserved TLP bits should always be zero"); 
+        $write("TXN.2.0#2 - Reserved TLP bits should always be zero");
 
-    `TXN_2_1_2:     
+    `TXN_2_1_2:
         $write("TXN.2.1#2 - Use of reserved Fmt/Type value");
     `TXN_2_1_4:
         $write("TXN.2.1#4 - Data is not four-byte aligned");
-    `TXN_2_1_5:      
+    `TXN_2_1_5:
    //also TXN.2.2#2
         $write("TXN.2.1#5 - Length field should be zero if no data payload");
-      
-//  `TXN_2_2_1:; 
+
+//  `TXN_2_2_1:;
 //  `TXN_2_2_2: see TXN_2_1_5
-//  `TXN_2_2_3: setting of max_payload_size if PayloadLen > Max_Payload_Size prot_error(TXN_2_2_3); 
-//  `TXN_2_2_4: setting of max_payload_size; 
+//  `TXN_2_2_3: setting of max_payload_size if PayloadLen > Max_Payload_Size prot_error(TXN_2_2_3);
+//  `TXN_2_2_4: setting of max_payload_size;
     `TXN_2_2_5:
         $write("TXN.2.2#5 - Payload and Length do not match");
     `TXN_2_2_6:
@@ -825,12 +829,12 @@ begin
         $write("TXN.2.2#6 - Address/Length combination crosses a 4k boundary");
 
     `TXN_2_3_1:
-        $write("TXN.2.3#1 - Either Corrupted TD field or the Payload and Length do not match"); 
+        $write("TXN.2.3#1 - Either Corrupted TD field or the Payload and Length do not match");
 
-    `TXN_2_4_1: 
+    `TXN_2_4_1:
         $write("TXN.2.4#1 - For addresses below 4GB 32 bit addressing format should be used");
     `TXN_2_4_2:
-        $write("TXN.2.4#2 - IO Requests must use 32 bit format only"); 
+        $write("TXN.2.4#2 - IO Requests must use 32 bit format only");
 
     `TXN_2_6_1:
         $write("TXN.2.6#1 - For a payload of over 1DW first DW BE[3:0] must not be 0000b");
@@ -840,34 +844,34 @@ begin
         $write("TXN.2.6#3 - For a payload of more than 1DW last DW BE[3:0] must not equal 0000b");
     `TXN_2_6_9:
         $write("TXN.2.6#9 - Completion of a zero-length Memory Read Request must have a 1DW data payload");
-    `TXN_2_7_2: 
+    `TXN_2_7_2:
         $write("TXN.2.7#2 - Upper three bits of the tag must be zero if the Extended Tag bit is not set");
-    `TXN_2_8_1: 
+    `TXN_2_8_1:
         $write("TXN.2.8#1 - Relaxed Ordering attribute should be set to zero");
-    `TXN_2_9_1: 
+    `TXN_2_9_1:
         $write("TXN.2.9#1 - No Snoop attribute should be set to zero");
-    `TXN_2_11_4: 
+    `TXN_2_11_4:
         $write("TXN.2.11#4 - I/O request restrictions not met (TC, Attr, Length or Last DW BE)");
-    `TXN_2_11_7: 
+    `TXN_2_11_7:
         $write("TXN.2.11#7 - Config request restrictions not met (TC, Attr, Length or Last DW BE)");
     `TXN_2_12_2:
         $write("TXN.2.12#2 - Use of reserved message type field");
     `TXN_2_12_7:
         $write("TXN.2.12#7 - Use of reserved message routing type");
     `TXN_2_21_3:
-        $write("TXN.2.21#3 - Routing ID and RequesterID from corresponding request do not correspond"); 
+        $write("TXN.2.21#3 - Routing ID and RequesterID from corresponding request do not correspond");
     `TXN_2_21_7:
         $write("TXN.2.21#7 - Use of reserved completion status");
     `TXN_2_21_8:
         $write("TXN.2.21#8 - BCM - this bit must not be set by PCI Express Completers, and may only be set by PCI-X completers.");
     `TXN_2_21_19:
-        $write("TXN.2.21#19 - RequesterID, Attributes & Traffic Class should be identical to the corresponding request"); 
+        $write("TXN.2.21#19 - RequesterID, Attributes & Traffic Class should be identical to the corresponding request");
     `TXN_2_21_13:
-        $write("TXN.2.21#13 - Lower Address[6:0] should be zero for all NON memory read completions "); 
+        $write("TXN.2.21#13 - Lower Address[6:0] should be zero for all NON memory read completions ");
     `TXN_2_21_22:
-        $write("TXN.2.21#22 - Byte Count must be 4 for all NON memory read completions"); 
+        $write("TXN.2.21#22 - Byte Count must be 4 for all NON memory read completions");
     `TXN_3_2_3:
-        $write("TXN.3.2#3 - Config or IO Reads must be completed with a single completion"); 
+        $write("TXN.3.2#3 - Config or IO Reads must be completed with a single completion");
     `TXN_2_7_1:
         $write("TXN.2.7#1 - Re-use of an outstanding tag");
     `TXN_3_3_1:
@@ -904,7 +908,7 @@ input [31:0] TLPByteCount;
 reg [31:0] TLPLastByteNum;
 integer    FirstDataByte, LastDataByte;
 integer    i1, CplSlot;
-reg [31:0] TmpWord0, TmpWord1;    
+reg [31:0] TmpWord0, TmpWord1;
 reg [7:0]  TmpTag;
 reg [15:0] TmpRID;
 reg        CmplMatch;
@@ -917,35 +921,35 @@ begin
     if (BufCtrl[0] && Buf[0] == `STP)
     begin
         firstProtErr = 1'b1;
-            
-        // Assumes TlFmt[0] and TlTD are not corrupted 
+
+        // Assumes TlFmt[0] and TlTD are not corrupted
         FirstDataByte = `SEQ_NUM_LEN + `MIN_HDR_LEN + (TlFmt[0] << 2);
         LastDataByte  = TLPLastByteNum - `LCRC_LEN - (TlTD << 2);
-            
-        // General Protocol Errors        
+
+        // General Protocol Errors
 
         if ((TLPLastByteNum) != `SEQ_NUM_LEN + `MIN_HDR_LEN + `LCRC_LEN + ((TlFmt[0] + PayloadLen + TlTD) << 2))
-        begin   
+        begin
             prot_err(`size_difference);
             $write("    TLP buffer = ");
             for(i = 1; i <= (TLPLastByteNum); i = i + 1)
                 $write(" %h ", Buf[i]);
-            $display("%m Expected: %d Actual: %d",(`SEQ_NUM_LEN + `MIN_HDR_LEN + ((TlFmt[0] + PayloadLen + TlTD) << 2)), (TLPLastByteNum+1)); 
+            $display("%m Expected: %d Actual: %d",(`SEQ_NUM_LEN + `MIN_HDR_LEN + ((TlFmt[0] + PayloadLen + TlTD) << 2)), (TLPLastByteNum+1));
         end
-    
+
         if ((LastDataByte - FirstDataByte) != (PayloadLen << 2))
             prot_err(`TXN_2_3_1);
-    
+
         if (|(TlWord0 & `RSVD_MASK))
             prot_err(`TXN_2_0_2);
 
         if (TlBCM && Completion)
             prot_err(`TXN_2_21_8);
-   
+
         if (MessageRequest || Completion)
             if (~TlFmt[1] && |TlLength)
                 prot_err(`TXN_2_1_5);
- 
+
         // Export completion data to other displink
         DispDataOut[`DispComplHdr] = {TlWord0, TlWord1, TlWord2};
 
@@ -973,7 +977,7 @@ begin
 
         if (CplSlot > HighestCmplSlot)
             HighestCmplSlot = CplSlot;
-   
+
         // Transaction layer checking
 `ifdef VERILATOR
         casez(TlType)
@@ -984,7 +988,7 @@ begin
         `TL_MRD64    : begin if (CmplMatch) prot_err(`TXN_2_7_1); ComplPending[CplSlot] = 1'b1; CompletionData[CplSlot] = {TlWord0, TlWord1}; end
         `TL_MRDLCK32 : begin if (CmplMatch) prot_err(`TXN_2_7_1); ComplPending[CplSlot] = 1'b1; CompletionData[CplSlot] = {TlWord0, TlWord1}; end
         `TL_MRDLCK64 : begin if (CmplMatch) prot_err(`TXN_2_7_1); ComplPending[CplSlot] = 1'b1; CompletionData[CplSlot] = {TlWord0, TlWord1}; end
-        `TL_MWR32    : ; 
+        `TL_MWR32    : ;
         `TL_MWR64    : ;
         `TL_IORD     : begin if (CmplMatch) prot_err(`TXN_2_7_1); ComplPending[CplSlot] = 1'b1; CompletionData[CplSlot] = {TlWord0, TlWord1}; end
         `TL_IOWR     : begin if (CmplMatch) prot_err(`TXN_2_7_1); ComplPending[CplSlot] = 1'b1; CompletionData[CplSlot] = {TlWord0, TlWord1}; end
@@ -1021,7 +1025,7 @@ begin
             if ((PayloadLen > 32'h1) && (TlLastBE == 4'b0000))
                 prot_err(`TXN_2_6_3);
             if ((((MemoryRequest || IORequest) && ~TlFmt[0]) && |TlWord2[1:0]) || ((MemoryRequest && TlFmt[0]) && |TlWord3[1:0]))
-                prot_err(`TXN_2_1_4);   
+                prot_err(`TXN_2_1_4);
             if (MemoryRequest && (EndAddr[12] != StartAddr[12]))
             begin
                 prot_err(`TXN_2_2_6);
@@ -1031,11 +1035,11 @@ begin
                 prot_err(`TXN_2_4_1);
             if (IORequest && (|{TlTC, TlAttr, TlLastBE} || (TlLength != 10'b1)))
                 prot_err(`TXN_2_11_4);
-            if (ConfigRequest && (|{TlTC, TlAttr, TlLastBE} || (TlLength != 10'b1))) 
+            if (ConfigRequest && (|{TlTC, TlAttr, TlLastBE} || (TlLength != 10'b1)))
                 prot_err(`TXN_2_11_7);
             if (IORequest && TlFmt[0])
                 prot_err(`TXN_2_4_2);
-            if (`EXTENDED_TAG & |TlTAG[7:5]) 
+            if (`EXTENDED_TAG & |TlTAG[7:5])
                 prot_err(`TXN_2_7_2);
             if (~MemoryRequest)
             begin
@@ -1051,10 +1055,10 @@ begin
     if (BufCtrl[0] && Buf[0] == `SDP)
     begin
         case({DllpWord[31:27], 3'b000})
-        `DL_ACK         , `DL_NAK       , `DL_INITFC1_P  , `DL_INITFC1_NP, `DL_INITFC1_CPL, 
-        `DL_INITFC2_P   , `DL_INITFC2_NP, `DL_INITFC2_CPL, `DL_UPDATEFC_P, `DL_UPDATEFC_NP, 
-        `DL_UPDATEFC_CPL, 
-        `DL_VENDOR      : ; 
+        `DL_ACK         , `DL_NAK       , `DL_INITFC1_P  , `DL_INITFC1_NP, `DL_INITFC1_CPL,
+        `DL_INITFC2_P   , `DL_INITFC2_NP, `DL_INITFC2_CPL, `DL_UPDATEFC_P, `DL_UPDATEFC_NP,
+        `DL_UPDATEFC_CPL,
+        `DL_VENDOR      : ;
         `DL_PM_ENTER_L1 :
         begin
             // Check power management sub-type
@@ -1067,7 +1071,7 @@ begin
         endcase
 
         if (DllpCrc[15:0] !== {Buf[5], Buf[6]})
-            prot_err(`DLL_4_1_34); 
+            prot_err(`DLL_4_1_34);
     end
 `endif
 end
@@ -1129,7 +1133,7 @@ integer i,  CplSlot;
         TlStoredWord1           = TlStoredHeader[31:0];
         TlStoredRID             = TlStoredWord1[`TL_REQID];
         TlStoredTAG             = TlStoredWord1[`TL_TAG];
-        
+
         // Check for a match
         if (TlStoredRID == CmplCRID && TlStoredTAG == CmplCTAG && ComplPending[i])
         begin
@@ -1185,7 +1189,7 @@ integer i,  CplSlot;
             prot_err(`TXN_2_6_9);
         if (|{TlStoredType[6], TlStoredType[4:1]}) //All requests except Memory Reads
         begin
-            if (|CmplLowAddr) 
+            if (|CmplLowAddr)
                 prot_err(`TXN_2_21_13);
             if (CmplByteCount != 13'h4) begin
                 $display ("TlStoredType = %h CmplByteCount =%0d", TlStoredType, CmplByteCount);

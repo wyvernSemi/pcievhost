@@ -23,6 +23,7 @@
 # User overridable variables
 NUM_VPROC     = 2
 ARCHFLAG      = -m64
+USRSIMFLAGS   =
 
 # Location of VProc directory. Assumes in same directory as pcieVHost.
 # Update if relocated.
@@ -52,7 +53,7 @@ PCIE_TOP      = test
 TOP_VC        = test.vc
 HDRDIR        = ../headers
 
-VSIMFLAGS     = -pli $(PLI_SO) $(PCIE_TOP)
+VSIMFLAGS     = $(USRSIMFLAGS) -pli $(PLI_SO) $(PCIE_TOP)
 VLOGFLAGS     = -quiet +define+DISP_LINK_WIDE -incr +incdir+$(VPROC_TOP) -f $(TOP_VC)
 
 PCIE_MAP_V    = $(PCIE_MAP_C:%.h=$(HDRDIR)/%.v)

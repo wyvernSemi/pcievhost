@@ -180,17 +180,17 @@ void SendPacket(const int node)
             // Whilst in padding mode, encode to end of lanes with PAD, else encode data
             if (padding)
             {
-                code = Encode(PAD, false, lanes, this->LinkWidth, node);
+                code = Encode(PAD, usrconf->DisableScrambling, usrconf->Disable8b10b, lanes, this->LinkWidth, node);
             }
 
             // If nothing to send (and not padding), output IDLE
             else if (!this->send_p)
             {
-                code = Encode(0, false, lanes, this->LinkWidth, node);
+                code = Encode(0, usrconf->DisableScrambling, usrconf->Disable8b10b, lanes, this->LinkWidth, node);
             }
             else
             {
-                code = Encode(this->send_p->data[idx++], false, lanes, this->LinkWidth, node);
+                code = Encode(this->send_p->data[idx++], usrconf->DisableScrambling, usrconf->Disable8b10b, lanes, this->LinkWidth, node);
             }
 
             // Output codes to current lanes and read input
@@ -1684,7 +1684,8 @@ void SendOs (const int Type, const int node)
     {
         for (lanes = 0; lanes < this->LinkWidth; lanes++) 
         {
-            LinkIn[lanes] = VWrite(LINKADDR0+lanes, Encode((sequence == 0) ? COM : Type, false, lanes, this->LinkWidth, node), lanes != this->LinkWidth-1, node);
+            LinkIn[lanes] = VWrite(LINKADDR0+lanes, Encode((sequence == 0) ? COM : Type, this->usrconf.DisableScrambling, this->usrconf.Disable8b10b,
+                                   lanes, this->LinkWidth, node), lanes != this->LinkWidth-1, node);
         }
         ExtractPhyInput(this, LinkIn);
     }
@@ -1780,7 +1781,8 @@ void SendTs(const int identifier, const int lane_num, const int link_num, const 
                 data = identifier;
             }
 
-            LinkIn[lanes] = VWrite(LINKADDR0+lanes, Encode(data, true, lanes, this->LinkWidth, node), lanes != this->LinkWidth-1, node);
+            LinkIn[lanes] = VWrite(LINKADDR0+lanes, Encode(data, true, this->usrconf.Disable8b10b,
+                                                           lanes, this->LinkWidth, node), lanes != this->LinkWidth-1, node);
         }
         ExtractPhyInput(this, LinkIn);
     }
@@ -2194,6 +2196,16 @@ void ConfigurePcie (const int type, const int value, const int node)
     case CONFIG_ENABLE_UR_CPL:
     case CONFIG_DISABLE_UR_CPL:
         usrconf->DisableUrCpl = type & 0x1;
+        break;
+        
+    case CONFIG_ENABLE_SCRAMBLING:
+    case CONFIG_DISABLE_SCRAMBLING:
+        usrconf->DisableScrambling = type & 0x1;
+        break;
+
+    case CONFIG_ENABLE_8B10B:
+    case CONFIG_DISABLE_8B10B:
+        usrconf->Disable8b10b = type & 0x1;
         break;
 
     case CONFIG_POST_HDR_CR:

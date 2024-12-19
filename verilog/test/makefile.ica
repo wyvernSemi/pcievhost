@@ -22,6 +22,8 @@
 
 NUM_VPROC      = 2
 
+USRSIMFLAGS    =
+
 # Location of VProc directory. Assumes in same directory as pcieVHost.
 # Update if relocated.
 VPROC_TOP      = ../../../vproc
@@ -52,7 +54,7 @@ PCIE_MAP_C     = pcie_vhost_map.h
 PCIE_TOP       = test
 TOP_VC         = test_ica.vc
 HDRDIR         = ../headers
-VLOGFLAGS      = -DDISP_LINK_WIDE -I$(VPROC_TOP) -c $(TOP_VC) -Ptest.VCD_DUMP=1
+VLOGFLAGS      = $(USRSIMFLAGS) -DDISP_LINK_WIDE -I$(VPROC_TOP) -c $(TOP_VC) -Ptest.VCD_DUMP=1
 VLOGDEBUGFLAGS = $(VLOGFLAGS) -Ptest.DEBUG_STOP=1
 
 #
