@@ -767,7 +767,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
             {
                 // The device completer ID is always updated on config writes
                 state->CplId = GET_CFG_CID(pkt->data);
-                WriteConfigSpaceBuf((uint32_t)(addr & 0xfff), pdata, fbe, 0, 4, state->thisnode);
+                WriteConfigSpaceBuf((uint32_t)(addr & 0xfff), pdata, fbe, 0, 4, true, state->thisnode);
                 
                 if (!state->usrconf.CompletionRate)
                 {

@@ -64,21 +64,25 @@ typedef uint16_t* pPktData_t;
 // PROTOTYPES
 // -------------------------------------------------------------------------
 
-extern void   InitialiseMem       (int node);
+extern void     InitialiseMem           (int node);
 
-extern void     WriteRamByteBlock   (const uint64_t addr, const PktData_t* const data, const int fbe, const int lbe, const int length, const uint32_t node);
-extern int      ReadRamByteBlock    (const uint64_t addr, PktData_t* const data, const int length, const uint32_t node);
-
-extern void     WriteRamByte        (const uint64_t addr, const uint32_t data, const uint32_t node);
-extern void     WriteRamWord        (const uint64_t addr, const uint32_t data, const int little_endian, const uint32_t node);
-extern void     WriteRamDWord       (const uint64_t addr, const uint64_t data, const int little_endian, const uint32_t node);
-extern uint32_t ReadRamByte         (const uint64_t addr, const uint32_t node);
-extern uint32_t ReadRamWord         (const uint64_t addr, const int little_endian, const uint32_t node);
-extern uint64_t ReadRamDWord        (const uint64_t addr, const int little_endian, const uint32_t node);
-
-extern void     WriteConfigSpace    (const uint32_t addr, const uint32_t data, const uint32_t node);
-extern uint32_t ReadConfigSpace     (const uint32_t addr, const uint32_t node);
-extern void     WriteConfigSpaceBuf (const uint32_t addr, const PktData_t* const data, const int fbe, const int lbe, const int length, const uint32_t node);
-extern void     ReadConfigSpaceBuf  (const uint32_t addr, PktData_t* const data, const int length, const uint32_t node);
+extern void     WriteRamByteBlock       (const uint64_t addr, const PktData_t* const data, const int fbe, const int lbe, const int length, const uint32_t node);
+extern int      ReadRamByteBlock        (const uint64_t addr, PktData_t* const data, const int length, const uint32_t node);
+                                        
+extern void     WriteRamByte            (const uint64_t addr, const uint32_t data, const uint32_t node);
+extern void     WriteRamWord            (const uint64_t addr, const uint32_t data, const int little_endian, const uint32_t node);
+extern void     WriteRamDWord           (const uint64_t addr, const uint64_t data, const int little_endian, const uint32_t node);
+extern uint32_t ReadRamByte             (const uint64_t addr, const uint32_t node);
+extern uint32_t ReadRamWord             (const uint64_t addr, const int little_endian, const uint32_t node);
+extern uint64_t ReadRamDWord            (const uint64_t addr, const int little_endian, const uint32_t node);
+                                        
+extern void     WriteConfigSpace        (const uint32_t addr, const uint32_t data, const uint32_t node);
+extern uint32_t ReadConfigSpace         (const uint32_t addr, const uint32_t node);
+extern void     WriteConfigSpaceBuf     (const uint32_t addr, const PktData_t* const data, const int fbe, const int lbe, const int length, const bool use_mask, const uint32_t node);
+extern void     ReadConfigSpaceBuf      (const uint32_t addr, PktData_t* const data, const int length, const uint32_t node);
+extern void     WriteConfigSpaceMask    (const uint32_t addr, const uint32_t data, const uint32_t node);
+extern uint32_t ReadConfigSpaceMask     (const uint32_t addr, const uint32_t node);
+extern void     WriteConfigSpaceMaskBuf (const uint32_t addr, const PktData_t* const data, const int length, const uint32_t node);
+extern void     ReadConfigSpaceMaskBuf  (const uint32_t addr, PktData_t* const data, const int length, const uint32_t node);
 
 #endif

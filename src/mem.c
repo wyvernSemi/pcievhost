@@ -1,5 +1,5 @@
 //=============================================================
-// 
+//
 // Copyright (c) 2016 Simon Southwell. All rights reserved.
 //
 // Date: 20th Sep 2016
@@ -34,7 +34,8 @@
 // -------------------------------------------------------------------------
 
 static pPrimaryTbl_t PrimaryTable[VP_MAX_NODES];
-static char          **pCfgSpace   = NULL;
+static char          **pCfgSpace       = NULL;
+static char          **pCfgSpaceMask   = NULL;
 
 // -------------------------------------------------------------------------
 // InitialiseMem()
@@ -78,7 +79,7 @@ static void InitialisePrimaryTable (const pPrimaryTbl_t table)
     int i;
 
     for (i = 0; i < TABLESIZE; i++)
-    {        
+    {
         table[i].valid = false;
     }
 }
@@ -147,7 +148,7 @@ static uint32_t GenHash12(const uint64_t addr)
 // -------------------------------------------------------------------------
 // WriteRamByteBlock()
 //
-// Write a block of data to memory 
+// Write a block of data to memory
 //
 // -------------------------------------------------------------------------
 
@@ -181,7 +182,7 @@ void WriteRamByteBlock(const uint64_t addr, const PktData_t *data, const int fbe
     while (PrimaryTable[node][pidx].valid && PrimaryTable[node][pidx].addr != (addr & 0xffffffffff000000ULL))
     {
         pidx = (pidx+1) % TABLESIZE;
-        
+
         // If we have searched through the whole table....
         if (pidx == idx)
         {
@@ -286,7 +287,7 @@ int ReadRamByteBlock(const uint64_t addr, PktData_t *data, const int length, con
     }
 
     for (idx = 0; idx < length; idx++)
-    {        
+    {
         data[idx] = ((char *)(PrimaryTable[node][pidx].p)[sidx])[idx+offset] & 0xff;
     }
 
@@ -448,20 +449,22 @@ void WriteConfigSpace (const uint32_t addr, const uint32_t data, const uint32_t 
     buff[2] = (data >>  8) & 0xff;
     buff[3] = (data >>  0) & 0xff;
 
-    WriteConfigSpaceBuf(addr, buff, 0xf, 0xf, 4, node);
+    WriteConfigSpaceBuf(addr, buff, 0xf, 0xf, 4, false, node);
+
 }
 
-void WriteConfigSpaceBuf(const uint32_t addr, const PktData_t *data, const int fbe, const int lbe, const int length, const uint32_t node)
+void WriteConfigSpaceBuf(const uint32_t addr, const PktData_t *data, const int fbe, const int lbe, const int length, bool use_mask, const uint32_t node)
 {
-    int idx; 
+    int  idx;
+    char mask;
 
     if (pCfgSpace == NULL)
     {
-        DebugVPrint("WriteConfigSpace:Allocate space for CfgSpace table\n");
+        DebugVPrint("WriteConfigSpaceBuf:Allocate space for CfgSpace table\n");
 
         if ((pCfgSpace = malloc(sizeof(char*) * VP_MAX_NODES)) == NULL)
         {
-            VPrint("WriteConfigSpace: ***Error --- failed to allocate config space memory\n");
+            VPrint("WriteConfigSpaceBuf: ***Error --- failed to allocate config space memory\n");
             VWrite(PVH_FATAL, 0, 0, node);
         }
         for (idx = 0; idx < VP_MAX_NODES; idx++)
@@ -473,7 +476,7 @@ void WriteConfigSpaceBuf(const uint32_t addr, const PktData_t *data, const int f
     // No config space, so allocate some space for one and initialise
     if (pCfgSpace[node] == NULL)
     {
-        DebugVPrint("WriteConfigSpace:Allocate mem for CfgSpace[%d]\n", node);
+        DebugVPrint("WriteConfigSpaceBuf:Allocate mem for CfgSpace[%d]\n", node);
         if ((pCfgSpace[node] = calloc(TABLESIZE, 1)) == NULL)
         {
             VPrint("WriteConfigSpace: ***Error --- failed to allocate config space memory\n");
@@ -483,12 +486,21 @@ void WriteConfigSpaceBuf(const uint32_t addr, const PktData_t *data, const int f
 
     for (idx = 0; idx < length; idx++)
     {
+        // Generate mask if any specified, else make all bits writable
+        if (use_mask && pCfgSpaceMask != NULL)
+            if (pCfgSpaceMask[node] != NULL)
+                mask = ~pCfgSpace[node][addr + idx];
+            else
+                mask = 0xff;
+        else
+            mask = 0xff;
+
         if ( (idx < 4 && ((1<<idx) & fbe)) ||
              (idx >= (length-4) && ((1<<(4-(length-idx))) & lbe)) ||
              (idx >= 4 && idx < (length-4)))
         {
-            pCfgSpace[node][addr + idx] = (data[idx] & 0xff);
-            DebugVPrint("*****ReadConfigSpace : %02x\n", pCfgSpace[node][addr + idx]);
+            pCfgSpace[node][addr + idx] = (data[idx] & 0xff) & mask;
+            DebugVPrint("*****WriteConfigSpaceBuf: %02x\n", pCfgSpace[node][addr + idx]);
         }
     }
 }
@@ -533,3 +545,102 @@ void ReadConfigSpaceBuf(const uint32_t addr, PktData_t * const data, const int l
     }
 }
 
+// -------------------------------------------------------------------------
+// WriteConfigSpaceMask()
+//
+// Write word to the 4K confg space page mask
+//
+// -------------------------------------------------------------------------
+
+void WriteConfigSpaceMask (const uint32_t addr, const uint32_t data, const uint32_t node)
+{
+    PktData_t buff[4];
+
+    buff[0] = (data >> 24) & 0xff;
+    buff[1] = (data >> 16) & 0xff;
+    buff[2] = (data >>  8) & 0xff;
+    buff[3] = (data >>  0) & 0xff;
+
+    WriteConfigSpaceMaskBuf(addr, buff, 4, node);
+}
+
+// -------------------------------------------------------------------------
+// WriteConfigSpaceMaskBuf
+// -------------------------------------------------------------------------
+
+void WriteConfigSpaceMaskBuf(const uint32_t addr, const PktData_t *data, const int length, const uint32_t node)
+{
+    int idx;
+
+    if (pCfgSpaceMask == NULL)
+    {
+        DebugVPrint("WriteConfigSpaceMask:Allocate space for CfgSpace table\n");
+
+        if ((pCfgSpaceMask = malloc(sizeof(char*) * VP_MAX_NODES)) == NULL)
+        {
+            VPrint("WriteConfigSpaceMask: ***Error --- failed to allocate config space memory\n");
+            VWrite(PVH_FATAL, 0, 0, node);
+        }
+        for (idx = 0; idx < VP_MAX_NODES; idx++)
+        {
+            pCfgSpaceMask[node] = NULL;
+        }
+    }
+
+    // No config space, so allocate some space for one and initialise
+    if (pCfgSpaceMask[node] == NULL)
+    {
+        DebugVPrint("WriteConfigSpaceMask:Allocate mem for CfgSpaceMask[%d]\n", node);
+        if ((pCfgSpaceMask[node] = calloc(TABLESIZE, 1)) == NULL)
+        {
+            VPrint("WriteConfigSpaceMask: ***Error --- failed to allocate config space memory\n");
+            VWrite(PVH_FATAL, 0, 0, node);
+        }
+    }
+
+    for (idx = 0; idx < length; idx++)
+    {
+        pCfgSpaceMask[node][addr + idx] = (data[idx] & 0xff);
+        DebugVPrint("*****WriteConfigSpaceMask : %02x\n", pCfgSpaceMask[node][addr + idx]);
+    }
+}
+
+// -------------------------------------------------------------------------
+// ReadConfigSpaceMask()
+//
+// Read word from the 4K config space mask page
+//
+// -------------------------------------------------------------------------
+
+uint32_t ReadConfigSpaceMask(const uint32_t addr, const uint32_t node)
+{
+    PktData_t buff[4];
+    uint32_t word = 0;
+
+    ReadConfigSpaceMaskBuf(addr & 0xffc, buff, 4, node);
+
+    word = ((buff[0] & 0xff) << 24) |
+           ((buff[1] & 0xff) << 16) |
+           ((buff[2] & 0xff) <<  8) |
+           ((buff[3] & 0xff) <<  0) ;
+
+   return word;
+}
+
+void ReadConfigSpaceMaskBuf(const uint32_t addr, PktData_t * const data, const int len, const uint32_t node)
+{
+    int idx;
+
+    if (pCfgSpaceMask == NULL || pCfgSpaceMask[node] == NULL)
+    {
+        VPrint("ReadConfigSpace: ***Error --- reading from uninitialised config space\n");
+        VWrite(PVH_FATAL, 0, 0, node);
+    }
+
+    for (idx = 0; idx < len; idx++)
+    {
+        data[idx] = pCfgSpaceMask[node][addr + idx];
+
+        DebugVPrint("*****ReadConfigSpaceMask : %02x\n", data[idx] );
+    }
+}

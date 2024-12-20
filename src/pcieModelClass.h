@@ -162,6 +162,24 @@ public:
     void       getPcieVersionStr    (char* sbuf, const int bufsize)
                                                            {getPcieVersionString(sbuf, bufsize);};
 
+    // Memory access
+    void       writeRamByteBlock    (const uint64_t addr, const PktData_t* const data, const int fbe, const int lbe, const int length)
+                                        {WriteRamByteBlock(addr, data, fbe, lbe, length, node);};
+    int        readRamByteBlock     (const uint64_t addr, PktData_t* const data, const int length)
+                                        {return ReadRamByteBlock(addr, data, length, node);};
+
+    void       writeRamByte         (const uint64_t addr, const uint32_t data)                          {WriteRamByte(addr, data, node);};
+    void       writeRamWord         (const uint64_t addr, const uint32_t data, const int little_endian) {WriteRamWord(addr, data, little_endian, node);};
+    void       writeRamDWord        (const uint64_t addr, const uint64_t data, const int little_endian) {WriteRamDWord(addr, data, little_endian, node);};
+    uint32_t   readRamByte          (const uint64_t addr)                                               {return ReadRamByte(addr, node);};
+    uint32_t   readRamWord          (const uint64_t addr, const int little_endian)                      {return ReadRamWord(addr, little_endian, node);};
+    uint64_t   readRamDWord         (const uint64_t addr, const int little_endian)                      {return ReadRamDWord(addr, little_endian, node);};
+
+    void       writeConfigSpace     (const uint32_t addr, const uint32_t data)                          {WriteConfigSpace(addr, data, node);};
+    uint32_t   readConfigSpace      (const uint32_t addr)                                               {return ReadConfigSpace(addr, node);};
+    void       writeConfigSpaceMask (const uint32_t addr, const uint32_t data)                          {WriteConfigSpaceMask(addr, data, node);};
+    uint32_t   readConfigSpaceMask  (const uint32_t addr)                                               {return ReadConfigSpaceMask(addr, node);};
+
 private:
 
     unsigned node;
