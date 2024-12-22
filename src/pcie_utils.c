@@ -1,6 +1,6 @@
 //=============================================================
-// 
-// Copyright (c) 2016 Simon Southwell. All rights reserved.
+//
+// Copyright (c) 2016-2024 Simon Southwell. All rights reserved.
 //
 // Date: 20th Sep 2016
 //
@@ -71,7 +71,7 @@ static uint32_t CalcNewRxCredits(const uint32_t rxfc, const uint32_t currfc, con
 // -------------------------------------------------------------------------
 // ProcessRxFlowControl()
 //
-// Counts received packet credits, and sends out FC 
+// Counts received packet credits, and sends out FC
 // updates when required.
 //
 // -------------------------------------------------------------------------
@@ -215,14 +215,14 @@ static void UpdateConsumedFC(const pPcieModelState_t const state)
     {
         return;
     }
-    
+
     current_cycle = GetCycleCount(state->thisnode);
 
-    DebugVPrint ("CONSUMED --- NPOSTED: hdr %x data %x, POSTED: hdr %x data %x, CPL: hdr %x data %x\n", 
+    DebugVPrint ("CONSUMED --- NPOSTED: hdr %x data %x, POSTED: hdr %x data %x, CPL: hdr %x data %x\n",
                  flw->ConsumedHdrCredits[0][FC_NONPOST], flw->ConsumedDataCredits[0][FC_NONPOST], flw->ConsumedHdrCredits[0][FC_POST], flw->ConsumedDataCredits[0][FC_POST], flw->ConsumedHdrCredits[0][FC_CMPL], flw->ConsumedDataCredits[0][FC_CMPL]);
-    DebugVPrint ("ADVERT   --- NPOSTED: hdr %x data %x, POSTED: hdr %x data %x, CPL: hdr %x data %x\n", 
+    DebugVPrint ("ADVERT   --- NPOSTED: hdr %x data %x, POSTED: hdr %x data %x, CPL: hdr %x data %x\n",
                  flw->AdvertisedHdrCredits[0][FC_NONPOST], flw->AdvertisedDataCredits[0][FC_NONPOST], flw->AdvertisedHdrCredits[0][FC_POST], flw->AdvertisedDataCredits[0][FC_POST], flw->AdvertisedHdrCredits[0][FC_CMPL], flw->AdvertisedDataCredits[0][FC_CMPL]);
-    DebugVPrint ("CREDITS  --- NPOSTED: hdr %x data %x, POSTED: hdr %x data %x, CPL: hdr %x data %x\n", 
+    DebugVPrint ("CREDITS  --- NPOSTED: hdr %x data %x, POSTED: hdr %x data %x, CPL: hdr %x data %x\n",
                  flw->RxHdrCredits[0][FC_NONPOST], flw->RxDataCredits[0][FC_NONPOST], flw->RxHdrCredits[0][FC_POST], flw->RxDataCredits[0][FC_POST], flw->RxHdrCredits[0][FC_CMPL], flw->RxDataCredits[0][FC_CMPL]);
 
 
@@ -256,7 +256,7 @@ static void UpdateConsumedFC(const pPcieModelState_t const state)
 
     // Flag if a flow control timeout for any of the types
     for (i = 0; i < FC_NUMTYPES; i++)
-    {        
+    {
         // If a timeout, pretend there's been a change to force sending of flow control
         if (fc_timeout[i] = ((GetCycleCount(state->thisnode) - flw->LastSentFcTime[0][i]) > DEFAULT_FC_TIME))
         {
@@ -264,18 +264,18 @@ static void UpdateConsumedFC(const pPcieModelState_t const state)
         }
     }
 
-    // We need to send an update if not both header and data infinite, if there's been 
+    // We need to send an update if not both header and data infinite, if there's been
     // a change in consumed credits and if no header space left or data space
     // less than max payload size (or equal 0 for non-posted).
 
     // Non-posted
     if (flw->ConsumedHdrCredits[0][FC_NONPOST] || flw->ConsumedDataCredits[0][FC_NONPOST])
     {
-        if ((flw->ConsumedHdrUpdated[0][FC_NONPOST]  && ((flw->AdvertisedHdrCredits[0][FC_NONPOST]  - flw->RxHdrCredits[0][FC_NONPOST]) == 0)) || 
-            (flw->ConsumedDataUpdated[0][FC_NONPOST] && ((flw->AdvertisedDataCredits[0][FC_NONPOST] - flw->RxDataCredits[0][FC_NONPOST]) == 0)) || 
+        if ((flw->ConsumedHdrUpdated[0][FC_NONPOST]  && ((flw->AdvertisedHdrCredits[0][FC_NONPOST]  - flw->RxHdrCredits[0][FC_NONPOST]) == 0)) ||
+            (flw->ConsumedDataUpdated[0][FC_NONPOST] && ((flw->AdvertisedDataCredits[0][FC_NONPOST] - flw->RxDataCredits[0][FC_NONPOST]) == 0)) ||
             ((flw->ConsumedHdrUpdated[0][FC_NONPOST] || flw->ConsumedDataUpdated[0][FC_NONPOST]) && (state->send_p == NULL)) ||
             fc_timeout[FC_NONPOST])
-        {   
+        {
             SendFC (DL_UPDATEFC_NP, 0, flw->ConsumedHdrCredits[0][FC_NONPOST]%(DL_MAX_HDRFC+1), flw->ConsumedDataCredits[0][FC_NONPOST]%(DL_MAX_DATAFC+1), state->draining_queue, state->thisnode);
             flw->AdvertisedHdrCredits[0][FC_NONPOST] = flw->ConsumedHdrCredits[0][FC_NONPOST];
             flw->AdvertisedDataCredits[0][FC_NONPOST] = flw->ConsumedDataCredits[0][FC_NONPOST];
@@ -288,11 +288,11 @@ static void UpdateConsumedFC(const pPcieModelState_t const state)
     // Completions
     if (flw->ConsumedHdrCredits[0][FC_CMPL] || flw->ConsumedDataCredits[0][FC_CMPL])
     {
-        if ((flw->ConsumedHdrUpdated[0][FC_CMPL]  && ((flw->AdvertisedHdrCredits[0][FC_CMPL]  - flw->RxHdrCredits[0][FC_CMPL]) == 0)) || 
-            (flw->ConsumedDataUpdated[0][FC_CMPL] && ((flw->AdvertisedDataCredits[0][FC_CMPL] - flw->RxDataCredits[0][FC_CMPL]) < DEFAULT_MAX_PAYLOAD_SIZE)) || 
+        if ((flw->ConsumedHdrUpdated[0][FC_CMPL]  && ((flw->AdvertisedHdrCredits[0][FC_CMPL]  - flw->RxHdrCredits[0][FC_CMPL]) == 0)) ||
+            (flw->ConsumedDataUpdated[0][FC_CMPL] && ((flw->AdvertisedDataCredits[0][FC_CMPL] - flw->RxDataCredits[0][FC_CMPL]) < DEFAULT_MAX_PAYLOAD_SIZE)) ||
             ((flw->ConsumedHdrUpdated[0][FC_CMPL] || flw->ConsumedDataUpdated[0][FC_CMPL]) && (state->send_p == NULL)) ||
             fc_timeout[FC_CMPL])
-        {  
+        {
             SendFC (DL_UPDATEFC_CPL, 0, flw->ConsumedHdrCredits[0][FC_CMPL]%(DL_MAX_HDRFC+1), flw->ConsumedDataCredits[0][FC_CMPL]%(DL_MAX_DATAFC+1), state->draining_queue, state->thisnode);
             flw->AdvertisedHdrCredits[0][FC_CMPL] = flw->ConsumedHdrCredits[0][FC_CMPL];
             flw->AdvertisedDataCredits[0][FC_CMPL] = flw->ConsumedDataCredits[0][FC_CMPL];
@@ -305,12 +305,12 @@ static void UpdateConsumedFC(const pPcieModelState_t const state)
     // Posted
     if (flw->ConsumedHdrCredits[0][FC_POST] || flw->ConsumedDataCredits[0][FC_POST])
     {
-        if ((flw->ConsumedHdrUpdated[0][FC_POST]  && ((flw->AdvertisedHdrCredits[0][FC_POST]  - flw->RxHdrCredits[0][FC_POST]) == 0)) || 
-            (flw->ConsumedDataUpdated[0][FC_POST] && ((flw->AdvertisedDataCredits[0][FC_POST] - flw->RxDataCredits[0][FC_POST]) < DEFAULT_MAX_PAYLOAD_SIZE)) || 
+        if ((flw->ConsumedHdrUpdated[0][FC_POST]  && ((flw->AdvertisedHdrCredits[0][FC_POST]  - flw->RxHdrCredits[0][FC_POST]) == 0)) ||
+            (flw->ConsumedDataUpdated[0][FC_POST] && ((flw->AdvertisedDataCredits[0][FC_POST] - flw->RxDataCredits[0][FC_POST]) < DEFAULT_MAX_PAYLOAD_SIZE)) ||
             ((flw->ConsumedHdrUpdated[0][FC_POST] || flw->ConsumedDataUpdated[0][FC_POST]) && (state->send_p == NULL)) ||
             fc_timeout[FC_POST])
         {
-                
+
             SendFC (DL_UPDATEFC_P, 0, flw->ConsumedHdrCredits[0][FC_POST]%(DL_MAX_HDRFC+1), flw->ConsumedDataCredits[0][FC_POST]%(DL_MAX_DATAFC+1), state->draining_queue, state->thisnode);
             flw->AdvertisedHdrCredits[0][FC_POST] = flw->ConsumedHdrCredits[0][FC_POST];
             flw->AdvertisedDataCredits[0][FC_POST] = flw->ConsumedDataCredits[0][FC_POST];
@@ -324,7 +324,7 @@ static void UpdateConsumedFC(const pPcieModelState_t const state)
 // -------------------------------------------------------------------------
 // CheckSkips()
 //
-// Checks time since last skip OS and flags a requirement 
+// Checks time since last skip OS and flags a requirement
 // if necessary. (OS sequences not queued, so cannot simply
 // call SendOS(), but must flag to SendPacket() which can
 // insert it at an appropriate time.)
@@ -344,14 +344,14 @@ static void CheckSkips(const pPcieModelState_t const state)
 // AckPkt()
 //
 // Acknowledging packets consists of updating curr_ack to
-// acknowledge sequence, only if acknowledge sequence is 
+// acknowledge sequence, only if acknowledge sequence is
 // higher *and* there is no higher outstanding NAK.
 //
 // -------------------------------------------------------------------------
 
 static void AckPkt(const pPcieModelState_t const state, const int sequence)
 {
-    if (sequence < state->curr_nak && (sequence > state->curr_ack || state->curr_ack == NULLACK)) 
+    if (sequence < state->curr_nak && (sequence > state->curr_ack || state->curr_ack == NULLACK))
     {
         state->curr_ack = sequence;
     }
@@ -392,12 +392,83 @@ static void CheckDelayQueue (const pPcieModelState_t const state)
 }
 
 // -------------------------------------------------------------------------
+// checkBars()
+//
+// Check address against BARs. Returns true if with in a configured
+// BARs region. Also returns true if this node's configuration space
+// or configuration space mask aren't configured, when all address
+// space is available.
+//
+// -------------------------------------------------------------------------
+
+static bool checkBars(const uint64_t addr, const unsigned node)
+{
+    uint64_t BAR[3];
+    uint64_t BARMASK[3];
+
+    bool ok_to_access = false;
+
+    PktData_t buf[4];
+
+    // Go through all three 64-bit BARs
+    for (unsigned idx = 0; idx < 3; idx++)
+    {
+       // Read the first word of the BAR. Returns true if a config space configured.
+       if (ReadConfigSpaceBufChk(0x10 + 8*idx, buf, 4, false, node))
+       {
+           // Set BAR lower address bits and mask lower type/locatable and prefetchable bits
+           BAR[idx] = ((uint64_t)buf[0] | ((uint64_t)buf[1] << 8) | ((uint64_t)buf[2] << 16) | ((uint64_t)buf[3] << 24)) & 0xfffffffffffffff0ULL;
+
+           // Read the upper BAR bits and OR into BAR value
+           ReadConfigSpaceBufChk(0x14 + 8*idx, buf, 4, false, node);
+           BAR[idx] = ((uint64_t)buf[0] <<  32) | ((uint64_t)buf[1] << 40) | ((uint64_t)buf[2] << 48) | ((uint64_t)buf[3] << 56);
+       }
+       // If no config space configured, always allow access
+       else
+       {
+           ok_to_access = true;
+           break;
+       }
+
+       // Read the first word of the BAR mask. Returns true if a config space mask configured.
+       if (ReadConfigSpaceMaskBufChk(0x10 + 8*idx, buf, 4, false, node))
+       {
+           // Set BAR lower mask bits
+           BARMASK[idx] = (uint64_t)buf[0] | ((uint64_t)buf[1] << 8) | ((uint64_t)buf[2] << 16) | ((uint64_t)buf[3] << 24);
+
+           // Read the upper BAR mask bits and OR into BAR mask value
+           ReadConfigSpaceMaskBufChk(0x14 + 8*idx, buf, 4, false, node);
+           BARMASK[idx] = ((uint64_t)buf[0] <<  32) | ((uint64_t)buf[1] << 40) | ((uint64_t)buf[2] << 48) | ((uint64_t)buf[3] << 56);
+       }
+       else
+       {
+           // If no config space masks configured, always allow access
+           ok_to_access = true;
+           break;
+       }
+
+        // Calculate the length from the mask bits => invert and add 1
+        uint64_t length = ~(BARMASK[idx] & 0xfULL) + 1;
+
+        // Check if address is in the BAR's range
+        if (addr >= BAR[idx] && addr < (BAR[idx] + length))
+        {
+            // OK to access if it is.
+            ok_to_access = true;
+            break;
+        }
+    }
+
+    return ok_to_access;
+}
+
+// -------------------------------------------------------------------------
 // ProcessInput()
 //
-// Gets called for every DLLP or TLP packet seen at the 
+// Gets called for every DLLP or TLP packet seen at the
 // input link. Processes Acks/Naks and flow control DLLPs,
 // and manages local memory reads and writes, generating
-// completions for reads (by calling Completion() ). 
+// completions for reads (by calling Completion() ).
 // Returned completions get passed up to user registered
 // callback function.
 //
@@ -550,7 +621,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
         }
         else
         {
-            DebugVPrint( "ProcessInput: Warning --- received bad DLLP on node %d\n", state->thisnode); 
+            DebugVPrint( "ProcessInput: Warning --- received bad DLLP on node %d\n", state->thisnode);
             status = PKT_STATUS_BAD_DLLP_CRC;
 
             // Return bad packet to user process, if one registered. Otherwise discard.
@@ -564,7 +635,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
     }
     else
     {
-        // Check LCRC 
+        // Check LCRC
         lcrc_offset = 15 + 4 * (GET_TLP_LENGTH(pkt->data) + TLP_HAS_DIGEST(pkt->data) + TLP_HDR_4DW(pkt->data));
         crc[0] = pkt->data[lcrc_offset+0];
         crc[1] = pkt->data[lcrc_offset+1];
@@ -586,7 +657,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
         if (crc[0] != pkt->data[lcrc_offset+0] || crc[1] != pkt->data[lcrc_offset+1] ||
             crc[2] != pkt->data[lcrc_offset+2] || crc[3] != pkt->data[lcrc_offset+3] )
             {
-            
+
             // Check to see if it isn't a discarded TLP, and NAK if not.
             if (Edb && ((~crc[0] & 0xff) == pkt->data[lcrc_offset+0] &&
                         (~crc[1] & 0xff) == pkt->data[lcrc_offset+1] &&
@@ -621,7 +692,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
         // Check ECRC, if present
         if (TLP_HAS_DIGEST(pkt->data) && (ecrc[0] != pkt->data[ecrc_offset+0] || ecrc[1] != pkt->data[ecrc_offset+1] ||
                                           ecrc[2] != pkt->data[ecrc_offset+2] || ecrc[3] != pkt->data[ecrc_offset+3] ))
-        {    
+        {
             VPrint("ProcessInput: Info --- Tlp ECRC failure at node %d\n", state->thisnode);
             status |= PKT_STATUS_BAD_ECRC;
             if (state->vuser_cb != NULL)
@@ -651,68 +722,90 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
             // Update memory
             if (type == TL_MWR32)
             {
-                addr   = (uint64_t)(pkt->data[TLP_ADDR_OFFSET]   << 24) | (uint64_t)(pkt->data[TLP_ADDR_OFFSET+1] << 16) | 
+                addr   = (uint64_t)(pkt->data[TLP_ADDR_OFFSET]   << 24) | (uint64_t)(pkt->data[TLP_ADDR_OFFSET+1] << 16) |
                          (uint64_t)(pkt->data[TLP_ADDR_OFFSET+2] << 8)  | (uint64_t)(pkt->data[TLP_ADDR_OFFSET+3] << 0) ;
             }
             else
             {
-                addr   = ((uint64_t)pkt->data[TLP_ADDR_OFFSET]   << 56) | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+1] << 48) | 
+                addr   = ((uint64_t)pkt->data[TLP_ADDR_OFFSET]   << 56) | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+1] << 48) |
                          ((uint64_t)pkt->data[TLP_ADDR_OFFSET+2] << 40) | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+3] << 32) |
-                         ((uint64_t)pkt->data[TLP_ADDR_OFFSET+4] << 24) | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+5] << 16) | 
+                         ((uint64_t)pkt->data[TLP_ADDR_OFFSET+4] << 24) | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+5] << 16) |
                          ((uint64_t)pkt->data[TLP_ADDR_OFFSET+6] << 8)  | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+7] << 0) ;
             }
-            pdata  = (type == TL_MWR32) ? &(pkt->data[TLP_DATA_OFFSET32]) : &(pkt->data[TLP_DATA_OFFSET64]);
-            length = GET_TLP_LENGTH(pkt->data);
-            fbe    = GET_TLP_FBE(pkt->data);
-            lbe    = GET_TLP_LBE(pkt->data);
-            WriteRamByteBlock(addr, pdata, fbe, lbe, length*4, state->thisnode);
+
+            // Check if address is ok to to use
+            if (checkBars(addr, state->thisnode))
+            {
+                pdata  = (type == TL_MWR32) ? &(pkt->data[TLP_DATA_OFFSET32]) : &(pkt->data[TLP_DATA_OFFSET64]);
+                length = GET_TLP_LENGTH(pkt->data);
+                fbe    = GET_TLP_FBE(pkt->data);
+                lbe    = GET_TLP_LBE(pkt->data);
+                WriteRamByteBlock(addr, pdata, fbe, lbe, length*4, state->thisnode);
+            }
 
             CheckFree(pkt->data);
             CheckFree(pkt);
-            
+
         // If mem read ...
-        } 
+        }
         else if (!state->usrconf.DisableMem && (type == TL_MRD32 || type == TL_MRD64))
         {
             // Construct completion and add to queue
             if (type == TL_MRD32)
             {
-                addr   = (uint64_t)(pkt->data[TLP_ADDR_OFFSET]   << 24) | (uint64_t)(pkt->data[TLP_ADDR_OFFSET+1] << 16) | 
+                addr   = (uint64_t)(pkt->data[TLP_ADDR_OFFSET]   << 24) | (uint64_t)(pkt->data[TLP_ADDR_OFFSET+1] << 16) |
                          (uint64_t)(pkt->data[TLP_ADDR_OFFSET+2] << 8)  | (uint64_t)(pkt->data[TLP_ADDR_OFFSET+3] << 0) ;
-            } 
+            }
             else
             {
-                addr   = ((uint64_t)pkt->data[TLP_ADDR_OFFSET]   << 56) | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+1] << 48) | 
+                addr   = ((uint64_t)pkt->data[TLP_ADDR_OFFSET]   << 56) | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+1] << 48) |
                          ((uint64_t)pkt->data[TLP_ADDR_OFFSET+2] << 40) | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+3] << 32) |
-                         ((uint64_t)pkt->data[TLP_ADDR_OFFSET+4] << 24) | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+5] << 16) | 
+                         ((uint64_t)pkt->data[TLP_ADDR_OFFSET+4] << 24) | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+5] << 16) |
                          ((uint64_t)pkt->data[TLP_ADDR_OFFSET+6] << 8)  | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+7] << 0) ;
             }
-            pdata      = (type == TL_MRD32) ? &(pkt->data[TLP_DATA_OFFSET32]) : &(pkt->data[TLP_DATA_OFFSET64]);
-            length     = GET_TLP_LENGTH(pkt->data);
-            fbe        = GET_TLP_FBE(pkt->data);
-            lbe        = GET_TLP_LBE(pkt->data);
-            rid        = GET_TLP_RID(pkt->data);
-            cid        = state->CplId;
-            tag        = GET_TLP_TAG(pkt->data);
 
-            if (ReadRamByteBlock (addr, buff, length*4, state->thisnode))
+            // Check address is good for an access
+            if (checkBars(addr, state->thisnode))
             {
-                VPrint("ProcessInput: ***Error --- ReadRamByteBlock for address %llx returned bad status at node %d\n", (long long)addr, state->thisnode);
-                VWrite(PVH_FATAL, 0, 0, state->thisnode);
-            }
+                pdata      = (type == TL_MRD32) ? &(pkt->data[TLP_DATA_OFFSET32]) : &(pkt->data[TLP_DATA_OFFSET64]);
+                length     = GET_TLP_LENGTH(pkt->data);
+                fbe        = GET_TLP_FBE(pkt->data);
+                lbe        = GET_TLP_LBE(pkt->data);
+                rid        = GET_TLP_RID(pkt->data);
+                cid        = state->CplId;
+                tag        = GET_TLP_TAG(pkt->data);
 
-            if (!state->usrconf.CompletionRate)
-            {
-                Completion (addr, buff, CPL_SUCCESS, fbe, lbe, (length ? length : MAX_PAYLOAD_BYTES/4), tag, cid, rid, true, state->thisnode);
+                if (ReadRamByteBlock (addr, buff, length*4, state->thisnode))
+                {
+                    VPrint("ProcessInput: ***Error --- ReadRamByteBlock for address %llx returned bad status at node %d\n", (long long)addr, state->thisnode);
+                    VWrite(PVH_FATAL, 0, 0, state->thisnode);
+                }
+
+                if (!state->usrconf.CompletionRate)
+                {
+                    Completion (addr, buff, CPL_SUCCESS, fbe, lbe, (length ? length : MAX_PAYLOAD_BYTES/4), tag, cid, rid, true, state->thisnode);
+                }
+                else
+                {
+                    CompletionDelay (addr, buff, CPL_SUCCESS, fbe, lbe, (length ? length : MAX_PAYLOAD_BYTES/4), tag, cid, rid, state->thisnode);
+                }
             }
             else
             {
-                CompletionDelay (addr, buff, CPL_SUCCESS, fbe, lbe, (length ? length : MAX_PAYLOAD_BYTES/4), tag, cid, rid, state->thisnode);
+                // If memory read invalid, send back an unsupported packet completion
+                if (!state->usrconf.CompletionRate)
+                {
+                    Completion (0, NULL, CPL_UNSUPPORTED, 0x0, 0x0, 0, tag, cid, rid, true, state->thisnode);
+                }
+                else
+                {
+                    CompletionDelay (0, NULL, CPL_UNSUPPORTED, 0x0, 0x0, 0, tag, cid, rid, state->thisnode);
+                }
             }
 
             CheckFree(pkt->data);
             CheckFree(pkt);
-            
+
         // If Completion TLP...
         }
         else if (type == TL_CPLD || type == TL_CPL || type == TL_CPLLK || type == TL_CPLDLK)
@@ -740,7 +833,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
         }
         else if (!state->usrconf.DisableMem && state->Endpoint && (type == TL_CFGWR0 || type == TL_CFGRD0))
         {
-            addr   = (uint64_t)(pkt->data[TLP_ADDR_OFFSET]   << 24) | (uint64_t)(pkt->data[TLP_ADDR_OFFSET+1] << 16) | 
+            addr   = (uint64_t)(pkt->data[TLP_ADDR_OFFSET]   << 24) | (uint64_t)(pkt->data[TLP_ADDR_OFFSET+1] << 16) |
                      (uint64_t)(pkt->data[TLP_ADDR_OFFSET+2] << 8)  | (uint64_t)(pkt->data[TLP_ADDR_OFFSET+3] << 0) ;
 
             pdata  = &(pkt->data[TLP_DATA_OFFSET32]);
@@ -768,7 +861,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
                 // The device completer ID is always updated on config writes
                 state->CplId = GET_CFG_CID(pkt->data);
                 WriteConfigSpaceBuf((uint32_t)(addr & 0xfff), pdata, fbe, 0, 4, true, state->thisnode);
-                
+
                 if (!state->usrconf.CompletionRate)
                 {
                     Completion (0, buff, CPL_SUCCESS, 0xf, 0x0, 0, tag, cid, rid, true, state->thisnode);
@@ -794,7 +887,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
             tag = GET_TLP_TAG(pkt->data);
 
             // Accesses, other than messages and memory accesses, require a completion of some sort
-            if (!state->usrconf.DisableUrCpl && 
+            if (!state->usrconf.DisableUrCpl &&
                (type & DL_ROUTE_MASK) != TL_MSG && (type & DL_ROUTE_MASK) != TL_MSGD &&
                 type != TL_MWR32 && type != TL_MWR64 && type != TL_MRD32 && type != TL_MRD64)
             {
@@ -831,12 +924,12 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
 // -------------------------------------------------------------------------
 // ProcessOS()
 //
-// Maintains state on received orders sets and training 
+// Maintains state on received orders sets and training
 // sequences. As yet, nothing uses this data.
 //
 // -------------------------------------------------------------------------
 
-static void ProcessOS(const pLinkEventCount_t const linkevent, const int lane, const int type, const pTS_t const ts_data, 
+static void ProcessOS(const pLinkEventCount_t const linkevent, const int lane, const int type, const pTS_t const ts_data,
                       const os_callback_t cb, void* usrptr, const int node)
 {
     if (cb != NULL)
@@ -868,7 +961,7 @@ static void ProcessOS(const pLinkEventCount_t const linkevent, const int lane, c
         DebugVPrint("ProcessOS: Seen TS1 on lane %d at node %d\n", lane, node);
         DebugVPrint("           linknum=0x%02x lanenum=0x%02x n_fts=%d datarate=%d control=%d\n", ts_data->linknum, ts_data->lanenum, ts_data->n_fts, ts_data->datarate, ts_data->control);
         DebugVPrint("# PCIED%d %02d: PL TS1 OS Link= %2d Lane= %2d N_FTS=%3d DataRate=%s %s %s %s %s\n",
-               node,  lane,  ts_data->linknum, ts_data->lanenum, ts_data->n_fts, 
+               node,  lane,  ts_data->linknum, ts_data->lanenum, ts_data->n_fts,
                (ts_data->datarate == 6) ? "GEN2" : (ts_data->datarate == 2) ? "GEN1" : "GEN?",
                (ts_data->control & 0x01) ? "AssertReset" : "",
                (ts_data->control & 0x02) ? "DisableLink" : "",
@@ -884,7 +977,7 @@ static void ProcessOS(const pLinkEventCount_t const linkevent, const int lane, c
         DebugVPrint("ProcessOS: Seen TS2 on lane %d at node %d\n", lane, node);
         DebugVPrint("           linknum=0x%02x lanenum=0x%02x n_fts=%d datarate=%d control=%d\n", ts_data->linknum, ts_data->lanenum, ts_data->n_fts, ts_data->datarate, ts_data->control);
         DebugVPrint("# PCIED%d %02d: PL TS2 OS Link= %2d Lane= %2d N_FTS=%3d DataRate=%s %s %s %s %s\n",
-               node,  lane,  ts_data->linknum, ts_data->lanenum, ts_data->n_fts, 
+               node,  lane,  ts_data->linknum, ts_data->lanenum, ts_data->n_fts,
                (ts_data->datarate == 6) ? "GEN2" : (ts_data->datarate == 2) ? "GEN1" : "GEN?",
                (ts_data->control & 0x01) ? "AssertReset" : "",
                (ts_data->control & 0x02) ? "DisableLink" : "",
@@ -904,9 +997,9 @@ static void ProcessOS(const pLinkEventCount_t const linkevent, const int lane, c
 
 // -------------------------------------------------------------------------
 // CheckFree()
-// 
+//
 // Free memory pointed to by ptr, with check it isn't NULL.
-// 
+//
 // -------------------------------------------------------------------------
 
 void CheckFree (void*  ptr)
@@ -933,7 +1026,7 @@ void CheckFree (void*  ptr)
 static const unsigned int checktab[32]    = PRN_CHECKTAB_INIT;
 static const unsigned int ByteParity[256] = PARITY_ARRAY_INIT;
 
-uint32_t CalcNewRand(const unsigned int Seed) 
+uint32_t CalcNewRand(const unsigned int Seed)
 {
      register uint32_t NewNum = 0;
      register int i;
@@ -1009,10 +1102,10 @@ static pPkt_t PcieSortQueue (const pPkt_t const head_p, pPkt_t* end, const int n
     }
 
     len = idx;
-    
+
     // Perform sorting
     qsort ((void *)array, len, sizeof(pPkt_t), PcieCompare);
-    
+
     // Reconstruct list
     newhead_p = array[0];
     for (idx = 0; idx < len; idx++)
@@ -1033,7 +1126,7 @@ static pPkt_t PcieSortQueue (const pPkt_t const head_p, pPkt_t* end, const int n
 
 // -------------------------------------------------------------------------
 // CalcByteCount()
-// 
+//
 // TLP completion header byte count calculator.
 //
 // -------------------------------------------------------------------------
@@ -1045,10 +1138,10 @@ int CalcByteCount (const int len, const int fbe, const int lbe)
         VPrint( "CalcByteCount: ***Error --- Len = 0, with valid byte enables \n");
         exit (EXIT_FAILURE);
     }
-        
+
     if (lbe == 0)
     {
-        return (((fbe & 0x9) == 0x9)                          ? 4 : 
+        return (((fbe & 0x9) == 0x9)                          ? 4 :
                (((fbe & 0xd) == 0x5) || ((fbe & 0xb) == 0xa)) ? 3 :
                  (fbe == 0x3 || fbe == 0x6 || fbe == 0xc)     ? 2 :
                                                                 1);
@@ -1075,7 +1168,7 @@ int CalcLoAddr (const int fbe)
 
 // -------------------------------------------------------------------------
 // CalcBe()
-// 
+//
 // Returns the 8 bit LBE/FBE TLP header field, based on
 // address and byte length.
 //
@@ -1085,7 +1178,7 @@ int CalcBe (const int inaddr, const int byte_len)
 {
     int val, endpos;
     int addr = inaddr & 0x3;
-    
+
     endpos = addr + byte_len;
 
     // First BE
@@ -1194,8 +1287,8 @@ void CalcLcrc(PktData_t *pkt)
 // -------------------------------------------------------------------------
 // CreateTlpTemplate()
 //
-// Creates a TLP data packet, based on requested type, 
-// filling in various fields with defaults, which may 
+// Creates a TLP data packet, based on requested type,
+// filling in various fields with defaults, which may
 // subsequently be overwritten. Memory is dynamically
 // allocated for the data packet, and must be freed when
 // the packet is no longer required. I.e. after it has
@@ -1203,7 +1296,7 @@ void CalcLcrc(PktData_t *pkt)
 //
 // -------------------------------------------------------------------------
 
-PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int bytelen, const int digest_present, PktData_t **payload_start) 
+PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int bytelen, const int digest_present, PktData_t **payload_start)
 {
     int type = Type;
     int payload_length, header_length, tail_length; // length units are bytes
@@ -1236,7 +1329,7 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int by
             payload_length = 4;
         }
     }
-        
+
     tail_length    = digest_present ? TAILDWDIGEST : TAILDWNODIGEST;
 
 
@@ -1253,15 +1346,15 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int by
 
         // If upper 32 bits of 64 bit address are clear, PCIE requires
         // the packet to be a 32 bit address TLP type
-        if (!(addr & ADDR_HI_BIT_MASK)) 
+        if (!(addr & ADDR_HI_BIT_MASK))
         {
             type &= TL_ADDR64_MASK;
         }
-        
+
         // 3 or 4 DW header?
         header_length  = (type & ~TL_ADDR64_MASK) ? HDR4DW : HDR3DW;
 
-        // Actual payload length may be different 
+        // Actual payload length may be different
         actual_length  = (type == TL_MWR32 || type == TL_MWR64 || type == TL_IOWR) ? payload_length : 0;
 
         total_length = header_length + actual_length + tail_length + FIXED_OVERHEAD_LENGTH;
@@ -1523,16 +1616,16 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int by
 
 // -------------------------------------------------------------------------
 // CreateDllpTemplate()
-// 
+//
 // Create a template data packet for a DLLP of given Type,
 // and fill in with some defaults which can be overridden
-// at a later date. Memory for the data packet is 
+// at a later date. Memory for the data packet is
 // dynamically allocated, and must be freed when the packet
 // is no longer required. I.e. when sent over the link.
 //
 // -------------------------------------------------------------------------
 
-PktData_t * CreateDllpTemplate (const int Type, PktData_t **payload_start) 
+PktData_t * CreateDllpTemplate (const int Type, PktData_t **payload_start)
 {
     PktData_t *pmem;
     int SwitchType = Type;
@@ -1598,7 +1691,7 @@ PktData_t * CreateDllpTemplate (const int Type, PktData_t **payload_start)
 int CheckCredits(const int DisableFc, const uint32_t fc_state, const uint32_t hdr_credits, const uint32_t data_credits,
                  const uint32_t tx_hdr, const uint32_t tx_data, const int payload_len)
 {
-    return (DisableFc || ((((hdr_credits - tx_hdr) > 0) || !hdr_credits) /* && (fc_state == INITFC_FI2)*/  && 
+    return (DisableFc || ((((hdr_credits - tx_hdr) > 0) || !hdr_credits) /* && (fc_state == INITFC_FI2)*/  &&
            (((data_credits - tx_data) >= (payload_len/4 + ((payload_len%4)?1:0))) || !data_credits)));
 
 }
@@ -1748,7 +1841,7 @@ void AddPktToQueue(const pPcieModelState_t const state, const pPkt_t const packe
 //
 // Similar to AddPktToQueue(), but keeps a separate queue
 // of completions with a calculated process timestamp
-// (based on config values). List is re-ordered on 
+// (based on config values). List is re-ordered on
 // modified timestamps.
 //
 // -------------------------------------------------------------------------
@@ -1784,7 +1877,7 @@ void AddPktToQueueDelay (const pPcieModelState_t const state, const pPkt_t const
 // -------------------------------------------------------------------------
 // ExtractPhyInput()
 //
-// This is called once per symbol time. It constructs 
+// This is called once per symbol time. It constructs
 // incoming DLLP and TLP packets, and calls ProcessInput()
 // when a new input packet is complete. If order sets or
 // training sequences are seen, the event is passed to
@@ -1809,7 +1902,7 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
         if (linkin[idx] == COM)
         {
             // If active OS, check that we haven't had a bad OS boundary.
-            if (linkevent->OsState[idx] && ((linkevent->OsCount [idx] > 15) || 
+            if (linkevent->OsState[idx] && ((linkevent->OsCount [idx] > 15) ||
                 (linkevent->OsState [idx] == IDL && linkevent->OsCount [idx] != 3) ||
                 (linkevent->OsState [idx] == FTS && linkevent->OsCount [idx] != 3) ||
                 (linkevent->OsState [idx] == SKP && (linkevent->OsCount [idx] > 6 || linkevent->OsCount [idx] < 1))))
@@ -1868,7 +1961,7 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
                 // Symbol selections for training sequence
                 switch (linkevent->OsCount [idx])
                 {
-                case  1: 
+                case  1:
                     linkevent->Tseq[idx].linknum  = linkin[idx];
                     break;
                 case  2: linkevent->Tseq[idx].lanenum  = linkin[idx];
@@ -2006,7 +2099,7 @@ void TxFcInitInt (const pFlowControl_t const flw, const pUserConfig_t const usrc
 	}
     }
 
-    while (flw->fc_state[0] == INITFC_FI1 || flw->fc_state[0] == INITFC_FI2) 
+    while (flw->fc_state[0] == INITFC_FI1 || flw->fc_state[0] == INITFC_FI2)
     {
         SendFC(DL_INITFC2_P,   0, usrcfg->InitFcHdrCr[0][FC_POST],    usrcfg->InitFcDataCr[0][FC_POST],    QUEUE, node);
         SendFC(DL_INITFC2_NP,  0, usrcfg->InitFcHdrCr[0][FC_NONPOST], usrcfg->InitFcDataCr[0][FC_NONPOST], QUEUE, node);

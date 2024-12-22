@@ -1,6 +1,6 @@
 //=============================================================
 //
-// Copyright (c) 2016 Simon Southwell. All rights reserved.
+// Copyright (c) 2016-2024 Simon Southwell. All rights reserved.
 //
 // Date: 20th Sep 2016
 //
@@ -527,22 +527,56 @@ uint32_t ReadConfigSpace(const uint32_t addr, const uint32_t node)
    return word;
 }
 
+// -------------------------------------------------------------------------
+// ReadConfigSpaceBuf()
+//
+// Read a number of words from the configuration space into a data buffer
+// with checking for unconfigured configuration space.
+// 
+// -------------------------------------------------------------------------
+
 void ReadConfigSpaceBuf(const uint32_t addr, PktData_t * const data, const int len, const uint32_t node)
 {
-    int idx;
+    bool valid_config_space = ReadConfigSpaceBufChk(addr, data, len, true, node);
+}
 
-    if (pCfgSpace == NULL || pCfgSpace[node] == NULL)
+// -------------------------------------------------------------------------
+// ReadConfigSpaceBufChk()
+//
+// Read a number of words from the configuration space into a data buffer
+// with configurable checking for unconfigured configuration space.
+//
+// -------------------------------------------------------------------------
+
+bool ReadConfigSpaceBufChk(const uint32_t addr, PktData_t * const data, const int len, const bool check, const uint32_t node)
+{
+    int  idx;
+    bool valid_config_space = true;
+
+    if (pCfgSpace == NULL)
+        valid_config_space = false;
+    else if (pCfgSpace[node] == NULL)
+        valid_config_space = false;
+
+    if (!valid_config_space)
     {
-        VPrint("ReadConfigSpace: ***Error --- reading from uninitialised config space\n");
-        VWrite(PVH_FATAL, 0, 0, node);
+        if (check)
+        {
+            VPrint("ReadConfigSpaceBuf: ***Error --- reading from uninitialised config space\n");
+            VWrite(PVH_FATAL, 0, 0, node);
+        }
+    }
+    else
+    {
+        for (idx = 0; idx < len; idx++)
+        {
+            data[idx] = pCfgSpace[node][addr + idx];
+
+            DebugVPrint("*****ReadConfigSpace : %02x\n", data[idx] );
+        }
     }
 
-    for (idx = 0; idx < len; idx++)
-    {
-        data[idx] = pCfgSpace[node][addr + idx];
-
-        DebugVPrint("*****ReadConfigSpace : %02x\n", data[idx] );
-    }
+    return valid_config_space;
 }
 
 // -------------------------------------------------------------------------
@@ -565,7 +599,7 @@ void WriteConfigSpaceMask (const uint32_t addr, const uint32_t data, const uint3
 }
 
 // -------------------------------------------------------------------------
-// WriteConfigSpaceMaskBuf
+// WriteConfigSpaceMaskBuf()
 // -------------------------------------------------------------------------
 
 void WriteConfigSpaceMaskBuf(const uint32_t addr, const PktData_t *data, const int length, const uint32_t node)
@@ -627,20 +661,55 @@ uint32_t ReadConfigSpaceMask(const uint32_t addr, const uint32_t node)
    return word;
 }
 
+// -------------------------------------------------------------------------
+// ReadConfigSpaceMaskBuf()
+//
+// Read a number of words from the configuration space mask buffer into a
+// data buffer with checking for unconfigured configuration space.
+//
+// -------------------------------------------------------------------------
+
 void ReadConfigSpaceMaskBuf(const uint32_t addr, PktData_t * const data, const int len, const uint32_t node)
 {
-    int idx;
+    bool valid_config_space = ReadConfigSpaceMaskBufChk(addr, data, len, true, node);
+}
 
-    if (pCfgSpaceMask == NULL || pCfgSpaceMask[node] == NULL)
+// -------------------------------------------------------------------------
+// ReadConfigSpaceMaskBufChk()
+// 
+// Read a number of words from the configuration space mask buffer into a
+// data buffer with configurable checking for unconfigured configuration
+// space.
+//
+// -------------------------------------------------------------------------
+
+bool ReadConfigSpaceMaskBufChk(const uint32_t addr, PktData_t * const data, const int len, const bool check, const uint32_t node)
+{
+    int  idx;
+    bool valid_config_space = true;
+
+    if (pCfgSpaceMask == NULL)
+        valid_config_space = false;
+    else if (pCfgSpaceMask[node] == NULL)
+        valid_config_space = false;
+
+    if (!valid_config_space)
     {
-        VPrint("ReadConfigSpace: ***Error --- reading from uninitialised config space\n");
-        VWrite(PVH_FATAL, 0, 0, node);
+        if (check)
+        {
+            VPrint("ReadConfigSpaceMaskBuf: ***Error --- reading from uninitialised config space\n");
+            VWrite(PVH_FATAL, 0, 0, node);
+        }
+    }
+    else
+    {
+        for (idx = 0; idx < len; idx++)
+        {
+            data[idx] = pCfgSpaceMask[node][addr + idx];
+
+            DebugVPrint("*****ReadConfigSpaceMaskBuf: %02x\n", data[idx] );
+        }
     }
 
-    for (idx = 0; idx < len; idx++)
-    {
-        data[idx] = pCfgSpaceMask[node][addr + idx];
-
-        DebugVPrint("*****ReadConfigSpaceMask : %02x\n", data[idx] );
-    }
+    return valid_config_space;
 }

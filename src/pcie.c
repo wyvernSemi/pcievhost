@@ -1,6 +1,6 @@
 //=============================================================
 // 
-// Copyright (c) 2016 Simon Southwell. All rights reserved.
+// Copyright (c) 2016-2024 Simon Southwell. All rights reserved.
 //
 // Date: 20th Sep 2016
 //
