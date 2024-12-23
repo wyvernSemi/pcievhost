@@ -403,25 +403,31 @@ static void CheckDelayQueue (const pPcieModelState_t const state)
 
 static bool checkBars(const uint64_t addr, const unsigned node)
 {
-    uint64_t BAR[3];
-    uint64_t BARMASK[3];
+    uint64_t BAR;
+    uint64_t BARMASK;
 
     bool ok_to_access = false;
+    unsigned locatable;
 
     PktData_t buf[4];
 
-    // Go through all three 64-bit BARs
-    for (unsigned idx = 0; idx < 3; idx++)
+    // Go through all six  BARs
+    for (unsigned idx = 0; idx < 6; idx++)
     {
        // Read the first word of the BAR. Returns true if a config space configured.
-       if (ReadConfigSpaceBufChk(0x10 + 8*idx, buf, 4, false, node))
+       if (ReadConfigSpaceBufChk(CFG_BAR_HDR_OFFSET + 4*idx, buf, 4, false, node))
        {
-           // Set BAR lower address bits and mask lower type/locatable and prefetchable bits
-           BAR[idx] = ((uint64_t)buf[0] | ((uint64_t)buf[1] << 8) | ((uint64_t)buf[2] << 16) | ((uint64_t)buf[3] << 24)) & 0xfffffffffffffff0ULL;
+           locatable = (buf[0] >> 1) & 0x3;
 
-           // Read the upper BAR bits and OR into BAR value
-           ReadConfigSpaceBufChk(0x14 + 8*idx, buf, 4, false, node);
-           BAR[idx] = ((uint64_t)buf[0] <<  32) | ((uint64_t)buf[1] << 40) | ((uint64_t)buf[2] << 48) | ((uint64_t)buf[3] << 56);
+           // Set BAR lower address bits and mask lower type/locatable and prefetchable bits
+           BAR = ((uint64_t)buf[0] | ((uint64_t)buf[1] << 8) | ((uint64_t)buf[2] << 16) | ((uint64_t)buf[3] << 24)) & 0xfffffffffffffff0ULL;
+
+           if (locatable == CFG_BAR_LOCATABLE_64_BIT)
+           {
+               // Read the upper BAR bits and OR into BAR value
+               ReadConfigSpaceBufChk(CFG_BAR_HDR_OFFSET + 4 + 4*idx, buf, 4, false, node);
+               BAR = ((uint64_t)buf[0] <<  32) | ((uint64_t)buf[1] << 40) | ((uint64_t)buf[2] << 48) | ((uint64_t)buf[3] << 56);
+           }
        }
        // If no config space configured, always allow access
        else
@@ -431,14 +437,20 @@ static bool checkBars(const uint64_t addr, const unsigned node)
        }
 
        // Read the first word of the BAR mask. Returns true if a config space mask configured.
-       if (ReadConfigSpaceMaskBufChk(0x10 + 8*idx, buf, 4, false, node))
+       if (ReadConfigSpaceMaskBufChk(CFG_BAR_HDR_OFFSET + 4*idx, buf, 4, false, node))
        {
            // Set BAR lower mask bits
-           BARMASK[idx] = (uint64_t)buf[0] | ((uint64_t)buf[1] << 8) | ((uint64_t)buf[2] << 16) | ((uint64_t)buf[3] << 24);
+           BARMASK = (uint64_t)buf[0] | ((uint64_t)buf[1] << 8) | ((uint64_t)buf[2] << 16) | ((uint64_t)buf[3] << 24);
 
-           // Read the upper BAR mask bits and OR into BAR mask value
-           ReadConfigSpaceMaskBufChk(0x14 + 8*idx, buf, 4, false, node);
-           BARMASK[idx] = ((uint64_t)buf[0] <<  32) | ((uint64_t)buf[1] << 40) | ((uint64_t)buf[2] << 48) | ((uint64_t)buf[3] << 56);
+           if (locatable == CFG_BAR_LOCATABLE_64_BIT)
+           {
+               // Read the upper BAR mask bits and OR into BAR mask value
+               ReadConfigSpaceMaskBufChk(CFG_BAR_HDR_OFFSET + 4 + 4*idx, buf, 4, false, node);
+               BARMASK = ((uint64_t)buf[0] <<  32) | ((uint64_t)buf[1] << 40) | ((uint64_t)buf[2] << 48) | ((uint64_t)buf[3] << 56);
+
+               // Skip over upper bits of 64-bit BAR
+               idx++;
+           }
        }
        else
        {
@@ -448,10 +460,10 @@ static bool checkBars(const uint64_t addr, const unsigned node)
        }
 
         // Calculate the length from the mask bits => invert and add 1
-        uint64_t length = ~(BARMASK[idx] & 0xfULL) + 1;
+        uint64_t length = ~(BARMASK & 0xfULL) + 1;
 
         // Check if address is in the BAR's range
-        if (addr >= BAR[idx] && addr < (BAR[idx] + length))
+        if (addr >= BAR && addr < (BAR + length))
         {
             // OK to access if it is.
             ok_to_access = true;

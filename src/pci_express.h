@@ -152,4 +152,6 @@
 #define OS_LENGTH                  4
 #define TS_LENGTH                  16
 
+#define CFG_BAR_LOCATABLE_64_BIT   2
+#define CFG_BAR_HDR_OFFSET         0x10
 #endif
