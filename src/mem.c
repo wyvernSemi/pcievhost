@@ -444,10 +444,10 @@ void WriteConfigSpace (const uint32_t addr, const uint32_t data, const uint32_t 
 {
     PktData_t buff[4];
 
-    buff[0] = (data >> 24) & 0xff;
-    buff[1] = (data >> 16) & 0xff;
-    buff[2] = (data >>  8) & 0xff;
-    buff[3] = (data >>  0) & 0xff;
+    buff[3] = (data >> 24) & 0xff;
+    buff[2] = (data >> 16) & 0xff;
+    buff[1] = (data >>  8) & 0xff;
+    buff[0] = (data >>  0) & 0xff;
 
     WriteConfigSpaceBuf(addr, buff, 0xf, 0xf, 4, false, node);
 
@@ -489,7 +489,7 @@ void WriteConfigSpaceBuf(const uint32_t addr, const PktData_t *data, const int f
         // Generate mask if any specified, else make all bits writable
         if (use_mask && pCfgSpaceMask != NULL)
             if (pCfgSpaceMask[node] != NULL)
-                mask = ~pCfgSpace[node][addr + idx];
+                mask = ~pCfgSpaceMask[node][addr + idx];
             else
                 mask = 0xff;
         else
@@ -519,10 +519,10 @@ uint32_t ReadConfigSpace(const uint32_t addr, const uint32_t node)
 
     ReadConfigSpaceBuf(addr & 0xffc, buff, 4, node);
 
-    word = ((buff[0] & 0xff) << 24) |
-           ((buff[1] & 0xff) << 16) |
-           ((buff[2] & 0xff) <<  8) |
-           ((buff[3] & 0xff) <<  0) ;
+    word = ((buff[3] & 0xff) << 24) |
+           ((buff[2] & 0xff) << 16) |
+           ((buff[1] & 0xff) <<  8) |
+           ((buff[0] & 0xff) <<  0) ;
 
    return word;
 }
@@ -590,10 +590,10 @@ void WriteConfigSpaceMask (const uint32_t addr, const uint32_t data, const uint3
 {
     PktData_t buff[4];
 
-    buff[0] = (data >> 24) & 0xff;
-    buff[1] = (data >> 16) & 0xff;
-    buff[2] = (data >>  8) & 0xff;
-    buff[3] = (data >>  0) & 0xff;
+    buff[3] = (data >> 24) & 0xff;
+    buff[2] = (data >> 16) & 0xff;
+    buff[1] = (data >>  8) & 0xff;
+    buff[0] = (data >>  0) & 0xff;
 
     WriteConfigSpaceMaskBuf(addr, buff, 4, node);
 }
@@ -653,10 +653,10 @@ uint32_t ReadConfigSpaceMask(const uint32_t addr, const uint32_t node)
 
     ReadConfigSpaceMaskBuf(addr & 0xffc, buff, 4, node);
 
-    word = ((buff[0] & 0xff) << 24) |
-           ((buff[1] & 0xff) << 16) |
-           ((buff[2] & 0xff) <<  8) |
-           ((buff[3] & 0xff) <<  0) ;
+    word = ((buff[3] & 0xff) << 24) |
+           ((buff[2] & 0xff) << 16) |
+           ((buff[1] & 0xff) <<  8) |
+           ((buff[0] & 0xff) <<  0) ;
 
    return word;
 }
