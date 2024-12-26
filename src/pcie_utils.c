@@ -420,13 +420,13 @@ static bool checkBars(const uint64_t addr, const unsigned node)
            locatable = (buf[0] >> 1) & 0x3;
 
            // Set BAR lower address bits and mask lower type/locatable and prefetchable bits
-           BAR = ((uint64_t)buf[0] | ((uint64_t)buf[1] << 8) | ((uint64_t)buf[2] << 16) | ((uint64_t)buf[3] << 24)) & 0xfffffffffffffff0ULL;
+           BAR = ((uint64_t)buf[3] | ((uint64_t)buf[2] << 8) | ((uint64_t)buf[1] << 16) | ((uint64_t)buf[0] << 24)) & 0xfffffffffffffff0ULL;
 
            if (locatable == CFG_BAR_LOCATABLE_64_BIT)
            {
                // Read the upper BAR bits and OR into BAR value
                ReadConfigSpaceBufChk(CFG_BAR_HDR_OFFSET + 4 + 4*idx, buf, 4, false, node);
-               BAR = ((uint64_t)buf[0] <<  32) | ((uint64_t)buf[1] << 40) | ((uint64_t)buf[2] << 48) | ((uint64_t)buf[3] << 56);
+               BAR = ((uint64_t)buf[3] <<  32) | ((uint64_t)buf[2] << 40) | ((uint64_t)buf[1] << 48) | ((uint64_t)buf[0] << 56);
            }
        }
        // If no config space configured, always allow access
@@ -440,13 +440,13 @@ static bool checkBars(const uint64_t addr, const unsigned node)
        if (ReadConfigSpaceMaskBufChk(CFG_BAR_HDR_OFFSET + 4*idx, buf, 4, false, node))
        {
            // Set BAR lower mask bits
-           BARMASK = (uint64_t)buf[0] | ((uint64_t)buf[1] << 8) | ((uint64_t)buf[2] << 16) | ((uint64_t)buf[3] << 24);
+           BARMASK = (uint64_t)buf[3] | ((uint64_t)buf[2] << 8) | ((uint64_t)buf[1] << 16) | ((uint64_t)buf[0] << 24);
 
            if (locatable == CFG_BAR_LOCATABLE_64_BIT)
            {
                // Read the upper BAR mask bits and OR into BAR mask value
                ReadConfigSpaceMaskBufChk(CFG_BAR_HDR_OFFSET + 4 + 4*idx, buf, 4, false, node);
-               BARMASK = ((uint64_t)buf[0] <<  32) | ((uint64_t)buf[1] << 40) | ((uint64_t)buf[2] << 48) | ((uint64_t)buf[3] << 56);
+               BARMASK = ((uint64_t)buf[3] <<  32) | ((uint64_t)buf[2] << 40) | ((uint64_t)buf[1] << 48) | ((uint64_t)buf[0] << 56);
 
                // Skip over upper bits of 64-bit BAR
                idx++;
