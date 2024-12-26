@@ -154,6 +154,20 @@ extern "C" void VUserMain0()
     // Initialise flow control
     pcie->initFc();
 
+    // Initialise BAR0
+    buff[0] = 0x78;
+    buff[1] = 0x56;
+    buff[2] = 0x34;
+    buff[3] = 0x12;
+    pcie->cfgWrite (CFG_BAR_HDR_OFFSET, buff, 4, tag++, rid, SEND);
+
+    // Initialise BAR1
+    buff[0] = 0x00;
+    buff[1] = 0x00;
+    buff[2] = 0x00;
+    buff[3] = 0xa0;
+    pcie->cfgWrite (CFG_BAR_HDR_OFFSET + 4, buff, 4, tag++, rid, SEND);
+
     // Send out various example transactions for a bit
     for (i = 0; i < 10; i++)
     {

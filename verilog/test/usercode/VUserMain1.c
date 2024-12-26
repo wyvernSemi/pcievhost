@@ -1,5 +1,5 @@
 //=============================================================
-// 
+//
 // Copyright (c) 2016 Simon Southwell. All rights reserved.
 //
 // Date: 20th Sep 2016
@@ -44,7 +44,7 @@ static unsigned int Interrupt = 0;
 static int ResetDeasserted(void)
 {
     Interrupt |= RST_DEASSERT_INT;
-    
+
     return 0;
 }
 
@@ -54,11 +54,11 @@ static int ResetDeasserted(void)
 // Consumes the unhandled input Packets
 //-------------------------------------------------------------
 
-static void VUserInput_1(pPkt_t pkt, int status, void* usrptr) 
+static void VUserInput_1(pPkt_t pkt, int status, void* usrptr)
 {
     int idx;
 
-    if (pkt->seq == DLLP_SEQ_ID) 
+    if (pkt->seq == DLLP_SEQ_ID)
     {
         DebugVPrint("---> VUserInput_1 received DLLP\n");
     }
@@ -81,7 +81,7 @@ static void VUserInput_1(pPkt_t pkt, int status, void* usrptr)
 //
 //-------------------------------------------------------------
 
-void VUserMain1() 
+void VUserMain1()
 {
 
     // Initialise PCIe VHost, with input callback function and no user pointer.
@@ -96,6 +96,18 @@ void VUserMain1()
 
     // Use node number as seed
     PcieSeed(node, node);
+
+    // Set up BARs 0 & 1
+    WriteConfigSpace     (CFG_BAR_HDR_OFFSET,     0x00000008, node); // 32-bit, prefetchable
+    WriteConfigSpaceMask (CFG_BAR_HDR_OFFSET,     0x00000fff, node); // 4K
+    WriteConfigSpace     (CFG_BAR_HDR_OFFSET + 4, 0x00000008, node); // 32-bit, prefetchable
+    WriteConfigSpaceMask (CFG_BAR_HDR_OFFSET + 4, 0x000000ff, node); // 256
+
+    // Unused BARS just need to be read only
+    WriteConfigSpaceMask (CFG_BAR_HDR_OFFSET + 8, 0xffffffff, node);
+    WriteConfigSpaceMask (CFG_BAR_HDR_OFFSET + 12, 0xffffffff, node);
+    WriteConfigSpaceMask (CFG_BAR_HDR_OFFSET + 16, 0xffffffff, node);
+    WriteConfigSpaceMask (CFG_BAR_HDR_OFFSET + 20, 0xffffffff, node);
 
     // Send out idles until we recieve an interrupt
     do
@@ -118,4 +130,4 @@ void VUserMain1()
         SendIdle(100, node);
     }
 }
-    
+
