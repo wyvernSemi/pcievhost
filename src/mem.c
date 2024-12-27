@@ -34,8 +34,8 @@
 // -------------------------------------------------------------------------
 
 static pPrimaryTbl_t PrimaryTable[VP_MAX_NODES];
-static char          **pCfgSpace       = NULL;
-static char          **pCfgSpaceMask   = NULL;
+static uint8_t       **pCfgSpace       = NULL;
+static uint8_t       **pCfgSpaceMask   = NULL;
 
 // -------------------------------------------------------------------------
 // InitialiseMem()
@@ -255,7 +255,7 @@ int ReadRamByteBlock(const uint64_t addr, PktData_t *data, const int length, con
 
     if (PrimaryTable[node] == NULL)
     {
-        DebugVPrint("ReadRamByteBlock: ***Error --- reading from uninitialised primary table\n");
+        VPrint("ReadRamByteBlock: ***Error --- reading from uninitialised primary table\n");
         return MEM_BAD_STATUS;
     }
 
@@ -275,14 +275,14 @@ int ReadRamByteBlock(const uint64_t addr, PktData_t *data, const int length, con
     // No secondary table, so flag an error
     if (PrimaryTable[node][pidx].p == NULL)
     {
-        DebugVPrint("ReadRamByteBlock: ***Error --- reading from uninitialised secondary table\n");
+        VPrint("ReadRamByteBlock: ***Error --- reading from uninitialised secondary table\n");
         return MEM_BAD_STATUS;
     }
 
     // No memory block allocated, so flag an error
     if ((PrimaryTable[node][pidx].p)[sidx] == NULL)
     {
-        DebugVPrint("ReadRamByteBlock: ***Error --- reading from uninitialised memory block\n");
+        VPrint("ReadRamByteBlock: ***Error --- reading from uninitialised memory block\n");
         return MEM_BAD_STATUS;
     }
 
@@ -499,7 +499,7 @@ void WriteConfigSpaceBuf(const uint32_t addr, const PktData_t *data, const int f
              (idx >= (length-4) && ((1<<(4-(length-idx))) & lbe)) ||
              (idx >= 4 && idx < (length-4)))
         {
-            pCfgSpace[node][addr + idx] = (data[idx] & 0xff) & mask;
+            pCfgSpace[node][addr + idx] = (pCfgSpace[node][addr + idx] & ~mask) | ((data[idx] & 0xff) & mask);
             DebugVPrint("*****WriteConfigSpaceBuf: %02x\n", pCfgSpace[node][addr + idx]);
         }
     }

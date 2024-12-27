@@ -420,13 +420,13 @@ static bool checkBars(const uint64_t addr, const unsigned node)
            locatable = (buf[0] >> 1) & 0x3;
 
            // Set BAR lower address bits and mask lower type/locatable and prefetchable bits
-           BAR = ((uint64_t)buf[3] | ((uint64_t)buf[2] << 8) | ((uint64_t)buf[1] << 16) | ((uint64_t)buf[0] << 24)) & 0xfffffffffffffff0ULL;
+           BAR = ((uint64_t)buf[0] | ((uint64_t)buf[1] << 8) | ((uint64_t)buf[2] << 16) | ((uint64_t)buf[3] << 24)) & 0xfffffffffffffff0ULL;
 
            if (locatable == CFG_BAR_LOCATABLE_64_BIT)
            {
                // Read the upper BAR bits and OR into BAR value
                ReadConfigSpaceBufChk(CFG_BAR_HDR_OFFSET + 4 + 4*idx, buf, 4, false, node);
-               BAR = ((uint64_t)buf[3] <<  32) | ((uint64_t)buf[2] << 40) | ((uint64_t)buf[1] << 48) | ((uint64_t)buf[0] << 56);
+               BAR = ((uint64_t)buf[0] <<  32) | ((uint64_t)buf[1] << 40) | ((uint64_t)buf[2] << 48) | ((uint64_t)buf[3] << 56);
            }
        }
        // If no config space configured, always allow access
@@ -440,13 +440,13 @@ static bool checkBars(const uint64_t addr, const unsigned node)
        if (ReadConfigSpaceMaskBufChk(CFG_BAR_HDR_OFFSET + 4*idx, buf, 4, false, node))
        {
            // Set BAR lower mask bits
-           BARMASK = (uint64_t)buf[3] | ((uint64_t)buf[2] << 8) | ((uint64_t)buf[1] << 16) | ((uint64_t)buf[0] << 24);
+           BARMASK = (uint64_t)buf[0] | ((uint64_t)buf[1] << 8) | ((uint64_t)buf[2] << 16) | ((uint64_t)buf[3] << 24);
 
            if (locatable == CFG_BAR_LOCATABLE_64_BIT)
            {
                // Read the upper BAR mask bits and OR into BAR mask value
                ReadConfigSpaceMaskBufChk(CFG_BAR_HDR_OFFSET + 4 + 4*idx, buf, 4, false, node);
-               BARMASK = ((uint64_t)buf[3] <<  32) | ((uint64_t)buf[2] << 40) | ((uint64_t)buf[1] << 48) | ((uint64_t)buf[0] << 56);
+               BARMASK = ((uint64_t)buf[0] <<  32) | ((uint64_t)buf[1] << 40) | ((uint64_t)buf[2] << 48) | ((uint64_t)buf[3] << 56);
 
                // Skip over upper bits of 64-bit BAR
                idx++;
@@ -459,8 +459,8 @@ static bool checkBars(const uint64_t addr, const unsigned node)
            break;
        }
 
-        // Calculate the length from the mask bits => invert and add 1
-        uint64_t length = ~(BARMASK & 0xfULL) + 1;
+        // Calculate the length from the mask bits
+        uint64_t length = (BARMASK + 1) & (locatable ? 0xffffffffffffffffULL : 0x00000000ffffffffULL);
 
         // Check if address is in the BAR's range
         if (addr >= BAR && addr < (BAR + length))
@@ -734,8 +734,8 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
             // Update memory
             if (type == TL_MWR32)
             {
-                addr   = (uint64_t)(pkt->data[TLP_ADDR_OFFSET]   << 24) | (uint64_t)(pkt->data[TLP_ADDR_OFFSET+1] << 16) |
-                         (uint64_t)(pkt->data[TLP_ADDR_OFFSET+2] << 8)  | (uint64_t)(pkt->data[TLP_ADDR_OFFSET+3] << 0) ;
+                addr   = ((uint64_t)pkt->data[TLP_ADDR_OFFSET]   << 24) | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+1] << 16) |
+                         ((uint64_t)pkt->data[TLP_ADDR_OFFSET+2] << 8)  | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+3] << 0) ;
             }
             else
             {
@@ -765,8 +765,8 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
             // Construct completion and add to queue
             if (type == TL_MRD32)
             {
-                addr   = (uint64_t)(pkt->data[TLP_ADDR_OFFSET]   << 24) | (uint64_t)(pkt->data[TLP_ADDR_OFFSET+1] << 16) |
-                         (uint64_t)(pkt->data[TLP_ADDR_OFFSET+2] << 8)  | (uint64_t)(pkt->data[TLP_ADDR_OFFSET+3] << 0) ;
+                addr   = ((uint64_t)pkt->data[TLP_ADDR_OFFSET]   << 24) | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+1] << 16) |
+                         ((uint64_t)pkt->data[TLP_ADDR_OFFSET+2] << 8)  | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+3] << 0) ;
             }
             else
             {
@@ -789,7 +789,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
 
                 if (ReadRamByteBlock (addr, buff, length*4, state->thisnode))
                 {
-                    VPrint("ProcessInput: ***Error --- ReadRamByteBlock for address %llx returned bad status at node %d\n", (long long)addr, state->thisnode);
+                    VPrint("ProcessInput: ***Error --- ReadRamByteBlock for address %llx returned bad status at node %d\n", addr, state->thisnode);
                     VWrite(PVH_FATAL, 0, 0, state->thisnode);
                 }
 

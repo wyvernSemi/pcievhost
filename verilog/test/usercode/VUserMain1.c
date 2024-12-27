@@ -101,7 +101,7 @@ void VUserMain1()
     WriteConfigSpace     (CFG_BAR_HDR_OFFSET,     0x00000008, node); // 32-bit, prefetchable
     WriteConfigSpaceMask (CFG_BAR_HDR_OFFSET,     0x00000fff, node); // 4K
     WriteConfigSpace     (CFG_BAR_HDR_OFFSET + 4, 0x00000008, node); // 32-bit, prefetchable
-    WriteConfigSpaceMask (CFG_BAR_HDR_OFFSET + 4, 0x000000ff, node); // 256
+    WriteConfigSpaceMask (CFG_BAR_HDR_OFFSET + 4, 0x000003ff, node); // 1K
 
     // Unused BARS just need to be read only
     WriteConfigSpaceMask (CFG_BAR_HDR_OFFSET + 8, 0xffffffff, node);
