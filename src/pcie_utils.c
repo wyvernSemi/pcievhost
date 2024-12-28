@@ -394,14 +394,14 @@ static void CheckDelayQueue (const pPcieModelState_t const state)
 // -------------------------------------------------------------------------
 // checkBars()
 //
-// Check address against BARs. Returns true if with in a configured
+// Check address against BARs. Returns true if within a configured
 // BARs region. Also returns true if this node's configuration space
 // or configuration space mask aren't configured, when all address
-// space is available.
+// space is made available.
 //
 // -------------------------------------------------------------------------
 
-static bool checkBars(const uint64_t addr, const unsigned node)
+static bool checkBars(const uint64_t addr, const uint32_t bytelen, const unsigned node)
 {
     uint64_t BAR;
     uint64_t BARMASK;
@@ -460,10 +460,13 @@ static bool checkBars(const uint64_t addr, const unsigned node)
        }
 
         // Calculate the length from the mask bits
-        uint64_t length = (BARMASK + 1) & (locatable ? 0xffffffffffffffffULL : 0x00000000ffffffffULL);
+        uint64_t length = (BARMASK + 1) & ((locatable == CFG_BAR_LOCATABLE_64_BIT) ? 0xffffffffffffffffULL : 0x00000000ffffffffULL);
+        
+        // Calculate end address of burst
+        uint64_t endaddr = addr + bytelen;
 
-        // Check if address is in the BAR's range
-        if (addr >= BAR && addr < (BAR + length))
+        // Check if all addresses are within the BAR's range
+        if (addr >= BAR && addr < (BAR + length) && endaddr >= BAR && endaddr < (BAR + length))
         {
             // OK to access if it is.
             ok_to_access = true;
@@ -744,12 +747,13 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
                          ((uint64_t)pkt->data[TLP_ADDR_OFFSET+4] << 24) | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+5] << 16) |
                          ((uint64_t)pkt->data[TLP_ADDR_OFFSET+6] << 8)  | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+7] << 0) ;
             }
+            
+            length     = GET_TLP_LENGTH(pkt->data);
 
             // Check if address is ok to to use
-            if (checkBars(addr, state->thisnode))
+            if (checkBars(addr, length*4, state->thisnode))
             {
                 pdata  = (type == TL_MWR32) ? &(pkt->data[TLP_DATA_OFFSET32]) : &(pkt->data[TLP_DATA_OFFSET64]);
-                length = GET_TLP_LENGTH(pkt->data);
                 fbe    = GET_TLP_FBE(pkt->data);
                 lbe    = GET_TLP_LBE(pkt->data);
                 WriteRamByteBlock(addr, pdata, fbe, lbe, length*4, state->thisnode);
@@ -775,17 +779,18 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
                          ((uint64_t)pkt->data[TLP_ADDR_OFFSET+4] << 24) | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+5] << 16) |
                          ((uint64_t)pkt->data[TLP_ADDR_OFFSET+6] << 8)  | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+7] << 0) ;
             }
+            
+            length     = GET_TLP_LENGTH(pkt->data);
 
             // Check address is good for an access
-            if (checkBars(addr, state->thisnode))
+            if (checkBars(addr, length*4, state->thisnode))
             {
-                pdata      = (type == TL_MRD32) ? &(pkt->data[TLP_DATA_OFFSET32]) : &(pkt->data[TLP_DATA_OFFSET64]);
-                length     = GET_TLP_LENGTH(pkt->data);
-                fbe        = GET_TLP_FBE(pkt->data);
-                lbe        = GET_TLP_LBE(pkt->data);
-                rid        = GET_TLP_RID(pkt->data);
-                cid        = state->CplId;
-                tag        = GET_TLP_TAG(pkt->data);
+                pdata  = (type == TL_MRD32) ? &(pkt->data[TLP_DATA_OFFSET32]) : &(pkt->data[TLP_DATA_OFFSET64]);
+                fbe    = GET_TLP_FBE(pkt->data);
+                lbe    = GET_TLP_LBE(pkt->data);
+                rid    = GET_TLP_RID(pkt->data);
+                cid    = state->CplId;
+                tag    = GET_TLP_TAG(pkt->data);
 
                 if (ReadRamByteBlock (addr, buff, length*4, state->thisnode))
                 {
