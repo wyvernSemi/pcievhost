@@ -94,7 +94,7 @@ static void VUserInput_0(pPkt_t pkt, int status, void* usrptr)
 
         // Once packet is finished with, the allocated space *must* be freed.
         // All input packets have their own memory space to avoid overwrites
-        // which shared buffers.
+        // with shared buffers.
         DISCARD_PACKET(pkt);
     }
 }
@@ -205,10 +205,10 @@ extern "C" void VUserMain0()
 
         //---------------------------------------------
 
-        buff[0] = 0x55;
-        buff[1] = 0xaa;
-        buff[2] = 0xf0;
-        buff[3] = 0x00;
+        buff[0] = 0x00;
+        buff[1] = 0xf0;
+        buff[2] = 0xaa;
+        buff[3] = 0x55;
         pcie->cfgWrite (0x30, buff, 4, tag++, rid, SEND);
 
         pcie->cfgRead (0x31, 1, tag++, rid, SEND);
