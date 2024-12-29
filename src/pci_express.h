@@ -1,5 +1,5 @@
 //=============================================================
-// 
+//
 // Copyright (c) 2016 Simon Southwell. All rights reserved.
 //
 // Date: 20th Sep 2016
@@ -60,8 +60,8 @@
 #define TS_CNTL_HOT_RESET          0x01
 #define TS_CNTL_DISABLE_LINK       0x02
 #define TS_CNTL_LOOPBACK           0x04
-#define TS_CNTL_NO_SCRAMBLING      0x08 
-#define TS_CNTL_COMPLIANCE_RX      0x10 
+#define TS_CNTL_NO_SCRAMBLING      0x08
+#define TS_CNTL_COMPLIANCE_RX      0x10
 #define TS_CNTL_MAX_VALUE          0x1f
 #define TS_N_FTS_MAX_VALUE         0xff
 #define TS_LINK_NUM_MAX_VALUE      0xff
@@ -152,6 +152,136 @@
 #define OS_LENGTH                  4
 #define TS_LENGTH                  16
 
-#define CFG_BAR_LOCATABLE_64_BIT   2
-#define CFG_BAR_HDR_OFFSET         0x10
+// Common field offsets of PCI compatible config space
+#define CFG_VENDOR_ID_OFFSET            0x00
+#define CFG_DEVICE_ID_OFFSET            0x02
+#define CFG_COMMAND_OFFSET              0x04
+#define CFG_STATUS_OFFSET               0x06
+#define CFG_REVISION_ID_OFFSET          0x08
+#define CFG_CLASS_CODE_OFFSET           0x09
+#define CFG_CACHE_LINE_SIZE_OFFSET      0x0c
+#define CFG_MASTER_LATENCY_TIMER_OFFSET 0x0d
+#define CFG_HEADER_TYPE_OFFSET          0x0e
+#define CFG_BIST_OFFSET                 0x0f
+#define CFG_CAPABILITIES_PTR_OFFSET     0x34
+#define CFG_INTERRUPT_LINE_OFFSET       0x3c
+#define CFG_INTERRUPT_PIN_OFFSET        0x3d
+
+// TYPE 0 field offsets of PCI compatible config space
+#define CFG_BAR_HDR_OFFSET              0x10
+#define CFG_CARDBUS_CIS_PTR_OFFSET      0x28
+#define CFG_SUBSYS_VENDOR_ID_OFFSET     0x2c
+#define CFG_SUBSYS_ID_OFFSET            0x2e
+#define CFG_EXPANSION_ROM_BASE_OFFSET   0x30
+#define CFG_MIN_GNT_OFFSET              0x3e
+#define CFG_MAX_LAT_OFFSET              0x3f
+
+// BAR definitions
+#define CFG_BAR_LOCATABLE_32_BIT        0
+#define CFG_BAR_LOCATABLE_LT_1MB        1
+#define CFG_BAR_LOCATABLE_64_BIT        2
+#define CFG_BAR_REGION_TYPE_IO          0
+#define CFG_BAR_REGION_TYPE_MEM         1
+#define CFG_BAR_NOT_PREFETCHABLE        0
+#define CFG_BAR_PREFETCHABLE            1
+
+#define CFG_PCI_HDR_SIZE_BYTES          0x40
+#define CFG_PCIE_CAPS_SIZE_BYTES        0x3C
+#define CFG_MSI_CAPS_SIZE_BYTES         0x18
+#define CFG_PWR_MGMT_CAPS_SIZE_BYTES    0x08
+
+typedef struct  __attribute__ ((__packed__)) {
+    uint16_t vendor_id;
+    uint16_t device_id;
+    uint16_t command;
+    uint16_t status;
+    uint8_t  revision_id;
+    uint8_t  prog_if;
+    uint8_t  subclass;
+    uint8_t  class_code;
+    uint8_t  cache_line_size;
+    uint8_t  master_latency_timer;
+    uint8_t  header_type;
+    uint8_t  bist;
+    uint32_t bar[6];
+    uint32_t cardbus_cis_ptr;
+    uint16_t subsys_vendor_id;
+    uint16_t subsys_id;
+    uint32_t expansion_rom_base_addr;
+    uint8_t  capabilities_ptr;
+    uint8_t  rsvd0[7];
+    uint8_t  interrupt_line;
+    uint8_t  interrupt_pin;
+    uint8_t  min_gnt;
+    uint8_t  max_lat;
+} cfg_spc_type0_struct_t;
+
+typedef union {
+    cfg_spc_type0_struct_t type0_struct;
+    uint32_t               words[0x10];
+} cfg_spc_type0_t;
+
+typedef struct  __attribute__ ((__packed__)) {
+    uint8_t  cap_id;
+    uint8_t  next_cap_ptr;
+    uint16_t pcie_cap_reg;
+    uint32_t device_caps;
+    uint16_t device_control;
+    uint16_t device_status;
+    uint32_t link_caps;
+    uint16_t link_control;
+    uint16_t link_status;
+    uint32_t slot_caps;
+    uint16_t slot_control;
+    uint16_t slot_status;
+    uint16_t root_control;
+    uint16_t root_caps;
+    uint32_t root_status;
+    uint32_t device_caps2;
+    uint16_t device_control2;
+    uint16_t device_status2;
+    uint32_t link_caps2;
+    uint16_t link_control2;
+    uint16_t link_status2;
+    uint32_t slot_caps2;
+    uint16_t slot_control2;
+    uint16_t slot_status2;
+} cfg_spc_pcie_caps_struct_t;
+
+typedef union {
+    cfg_spc_pcie_caps_struct_t pcie_caps_struct;
+    uint32_t                   words[0x0e];
+} cfg_spc_pcie_caps_t;
+
+typedef struct  __attribute__ ((__packed__)) {
+    uint8_t  cap_id;
+    uint8_t  next_cap_ptr;
+    uint16_t mess_control;
+    uint32_t mess_addr_lo;
+    uint32_t mess_addr_hi;
+    uint16_t mess_data;
+    uint16_t rsvd;
+    uint32_t mask;
+    uint32_t pending;
+} cfg_spc_msi_caps_struct_t;
+
+typedef union {
+    cfg_spc_msi_caps_struct_t msi_caps_struct;
+    uint32_t                  words[0x06];
+} cfg_spc_msi_caps_t;
+
+typedef struct  __attribute__ ((__packed__)) {
+    uint8_t  cap_id;
+    uint8_t  next_cap_ptr;
+    uint16_t pwr_mgmnt_caps;
+    uint16_t pwr_mgmnt_control_status;
+    uint8_t  pmcsr_bse;
+    uint8_t  data;
+} pwr_mgmnt_caps_struct_t;
+
+typedef union {
+    pwr_mgmnt_caps_struct_t pwr_mgmnt_caps_struct;
+    uint32_t                words[0x02];
+} pwr_mgmnt_caps_t;
+
 #endif
