@@ -41,9 +41,9 @@ static unsigned int Interrupt = 0;
 //
 //-------------------------------------------------------------
 
-static int ResetDeasserted(void)
+static int ResetDeasserted(int irq)
 {
-    Interrupt |= RST_DEASSERT_INT;
+    Interrupt |= irq & RST_DEASSERT_INT;
 
     return 0;
 }
@@ -231,7 +231,7 @@ void VUserMain1()
 
     DebugVPrint("VUserMain: in node %d\n", node);
 
-    VRegInterrupt(RST_DEASSERT_INT, ResetDeasserted, node);
+    VRegIrq(ResetDeasserted, node);
 
     // Use node number as seed
     PcieSeed(node, node);
