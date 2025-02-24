@@ -292,7 +292,7 @@ wire [9:0] PLinkOut12, PLinkOut13, PLinkOut14, PLinkOut15;
                     .notReset (notReset),
 `ifdef VERILATOR
                     .ElecIdleOut (),
-                    .ElecIdleIn  (16'h0),
+                    .ElecIdleIn  ({LinkWidth{1'b0}}),
 `endif
                     .LinkIn0   (PLinkIn0),
                     .LinkIn1   (PLinkIn1),

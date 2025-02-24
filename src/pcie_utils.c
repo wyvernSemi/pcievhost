@@ -794,7 +794,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
 
                 if (ReadRamByteBlock (addr, buff, length*4, state->thisnode))
                 {
-                    VPrint("ProcessInput: ***Error --- ReadRamByteBlock for address %llx returned bad status at node %d\n", addr, state->thisnode);
+                    VPrint("ProcessInput: ***Error --- ReadRamByteBlock for address %llx returned bad status at node %d\n", (long long unsigned)addr, state->thisnode);
                     VWrite(PVH_FATAL, 0, 0, state->thisnode);
                 }
 

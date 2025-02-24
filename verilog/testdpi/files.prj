@@ -1,0 +1,15 @@
+verilog work ../lib/Crc16Gen.v
+verilog work ../lib/Decoder.v
+verilog work ../lib/RxDP.v
+verilog work ../lib/ScrambleCodec.v
+verilog work ../lib/Serialiser.v
+
+sv      work ../PcieDispLink/PcieDispLink.v
+verilog work ../PcieDispLink/PcieDispLinkLane.v
+verilog work ../PcieDispLink/RxLaneDisp.v
+verilog work ../PcieDispLink/RxLogicDisp.v
+
+sv      work ../pcieVHost/pcieVHost.sv
+
+verilog work ../test/ContDisps.v
+sv      work test.sv

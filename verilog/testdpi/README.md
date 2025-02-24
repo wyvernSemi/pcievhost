@@ -1,0 +1,9 @@
+# Pcie Virtual Host DPI-C demonstration for Vivado XSIM
+
+<p align="center"><img src="https://github.com/user-attachments/assets/ea10d5cc-e74f-42e6-ba6c-b8f491e7004d"></p>
+
+This test directory compiles a DPI only _pceivhost_ (no _VProc_) test bench suitable for Xilinx's **Vivado XSIM only**. It is meant only for demonstration purposes and as an example of the DPI-C interface using both import and export DPI tasks/functions. It has only been tested on Windows under the `MSYS2` + `mingw-w64` environment but should work under Linux or even directly in Windows if suitable `make` and `sed` binaries are available. To comile and run from a Windows `cmd` console a `compile.bat` batch file has made available, but this will always build everything regardless.
+
+This test bench is self contained, but uses two new C files, `pcie_dpi.c` and `pcie_dpi.h` in the `src/` directory and a new `pcieVHost.sv` top level HDL module, in the `verilog/pcieVHost` directory, in place of the `pcieVHost.v` Verilog top level. The C source and header provide the `VWrite`, `VRead` and `VTick` functions used by the PCIe software model that are normally provided by the _VProc_ C API. The `pcie_dpi.h` header provides prototypes for the imported and exported DPI functions and some other definitions normally in the _VProc_ software. The nature of using DPI directly, without _VProc_, means that the demonstration code is limited to just a two model instantiations at node 0 and 1.
+
+In the past, this DPI only model arrangement has been successfully tried with the Aldec _ActiveHDL_ and _RivieraPRO_ simulators (see `aldecSysVerilog` branch of this repository), but has not been successfully ported to Siemens simulators (_Questa_ and _ModelSim_) or with _Verilator_ due to limitations in the DPI implementation of those tools. I believe that _Icarus Verilog_ is yet to implement DPI.

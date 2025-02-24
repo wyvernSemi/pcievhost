@@ -31,8 +31,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#ifndef OSVVM
+#if !defined(OSVVM) && !defined(PCIEDPI)
 #include "VUser.h"
+#endif
+#ifdef PCIEDPI
+#include "pcie_dpi.h"
 #endif
 #include "pcie.h"
 

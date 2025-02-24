@@ -33,8 +33,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#ifndef OSVVM
+#if !defined(OSVVM) && !defined(PCIEDPI)
 #include "VUser.h"
+#endif
+
+#ifdef PCIEDPI
+#include "pcie_dpi.h"
 #endif
 
 // -------------------------------------------------------------------------
