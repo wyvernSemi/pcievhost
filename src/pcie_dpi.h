@@ -100,7 +100,6 @@ extern int notReset;
 // VUser function prototypes
 EXTERN int  VWrite        (unsigned int addr,  unsigned int  data, int delta, unsigned int node);
 EXTERN int  VRead         (unsigned int addr,  unsigned int *data, int delta, unsigned int node);
-EXTERN int  VTick         (unsigned int ticks, unsigned int node);
 EXTERN void PcieInit      (int node);
 EXTERN void PcieGetReset  (int* nRstVal);
 EXTERN void PcieUpdate0   (int addr, int wdata, int* rdata, int rnw, int ticks);

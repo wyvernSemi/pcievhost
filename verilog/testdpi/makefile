@@ -83,10 +83,9 @@ DPILIB        = xsim.dir/work/xsc/dpi.a
 all: sysverilog
 
 #
-# Verilog. Phony target, as ModelSim does incremental compile
-# and decides what the dependencies are; so always build.
+# Phony targets
 #
-.PHONY: sysverilog, clean, all
+.PHONY: help, sim, run, rungui, gui, sysverilog, clean, all
 
 #
 # Create Verilog pcieVHost VProc register mappings from C header

@@ -129,23 +129,4 @@ EXTERN int VRead (unsigned int Addr, unsigned int *rdata, int Delta, uint32_t no
     return 0;
 }
 
-// -------------------------------------------------------------------------
-// Invokes a tick message exchange
-// -------------------------------------------------------------------------
-
-EXTERN int VTick (unsigned int ticks, uint32_t node)
-{
-    rcv_buf_t rbuf;
-    send_buf_t sbuf;
-
-    sbuf.addr     = 0;
-    sbuf.data_out = 0;
-    sbuf.rw       = V_IDLE;
-    sbuf.ticks    = ticks;
-
-    VExch(&sbuf, &rbuf, node);
-
-    return 0;
-}
-
 
