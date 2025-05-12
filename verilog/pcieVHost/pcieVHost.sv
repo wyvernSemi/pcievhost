@@ -384,10 +384,10 @@ PcieLinkLanes16 LinkOut();
                     .SerOut     (SerLinkOut),
 
                     .SerIn      (SerLinkIn),
-                    .ParOut     ({LinkOut.Lane15,  LinkOut.Lane14,  LinkOut.Lane13,  LinkOut.Lane12,
-                                  LinkOut.Lane11,  LinkOut.Lane10,  LinkOut.Lane9,   LinkOut.Lane8,
-                                  LinkOut.Lane7,   LinkOut.Lane6,   LinkOut.Lane5,   LinkOut.Lane4,
-                                  LinkOut.Lane3,   LinkOut.Lane2,   LinkOut.Lane1,  LinkOut.Lane0})
+                    .ParOut     ({LinkIn.Lane15,  LinkIn.Lane14,  LinkIn.Lane13,  LinkIn.Lane12,
+                                  LinkIn.Lane11,  LinkIn.Lane10,  LinkIn.Lane9,   LinkIn.Lane8,
+                                  LinkIn.Lane7,   LinkIn.Lane6,   LinkIn.Lane5,   LinkIn.Lane4,
+                                  LinkIn.Lane3,   LinkIn.Lane2,   LinkIn.Lane1,   LinkIn.Lane0})
                     );
 
 endmodule
@@ -428,10 +428,10 @@ PcieLinkLanes16 LinkOut();
                     .SerOut     (SerLinkOut),
 
                     .SerIn      (SerLinkIn),
-                    .ParOut     ({LinkOut.Lane15, LinkOut.Lane14, LinkOut.Lane13, LinkOut.Lane12,
-                                  LinkOut.Lane11, LinkOut.Lane10, LinkOut.Lane9,  LinkOut.Lane8,
-                                  LinkOut.Lane7,  LinkOut.Lane6,  LinkOut.Lane5,  LinkOut.Lane4,
-                                  LinkOut.Lane3,  LinkOut.Lane2,  LinkOut.Lane1,  LinkOut.Lane0})
+                    .ParOut     ({LinkIn.Lane15, LinkIn.Lane14, LinkIn.Lane13, LinkIn.Lane12,
+                                  LinkIn.Lane11, LinkIn.Lane10, LinkIn.Lane9,  LinkIn.Lane8,
+                                  LinkIn.Lane7,  LinkIn.Lane6,  LinkIn.Lane5,  LinkIn.Lane4,
+                                  LinkIn.Lane3,  LinkIn.Lane2,  LinkIn.Lane1,  LinkIn.Lane0})
                     );
 endmodule
 
