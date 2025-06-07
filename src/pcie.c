@@ -938,7 +938,7 @@ pPktData_t CfgWriteDigest (const uint64_t addr, const PktData_t *data, const int
     } 
     else if ((addr & 0xffff) > TLP_CFG_LO_ADDR_MASK)
     {
-        VPrint( "CfgWrite: ***Error --- address > 7 bits at node %d\n", node);
+        VPrint( "CfgWrite: ***Error --- index out of range at node %d\n", node);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -1054,7 +1054,7 @@ pPktData_t CfgReadDigest (const uint64_t addr, const int length, const int tag, 
     }
     else if ((addr & 0xffff) > TLP_CFG_LO_ADDR_MASK)
     {
-        VPrint( "CfgRead: ***Error --- address > 7 bits at node %d\n", node);
+        VPrint( "CfgRead: ***Error --- index out of range at node %d\n", node);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 

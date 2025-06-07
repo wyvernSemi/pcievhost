@@ -62,7 +62,7 @@
 
 #define PCIE_MAJOR_VER               1
 #define PCIE_MINOR_VER               3
-#define PCIE_PATCH_VER               10
+#define PCIE_PATCH_VER               11
 
 // Used in macros
 #define BYTE_MASK                    0xff
@@ -121,7 +121,7 @@
 
 #define TL_ADDR64_MASK               0x5f
 #define TLP_TYPE_MASK                0x7f
-#define TLP_CFG_LO_ADDR_MASK         0x7fULL
+#define TLP_CFG_LO_ADDR_MASK         0xfffULL
 #define TLP_CPL_LO_ADDR_MASK         0x3fULL
 #define TLP_TYPE_VARIANT_BIT         0x01
 #define TLP_EP_VARIANT_BIT           0x40
