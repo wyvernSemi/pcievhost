@@ -37,7 +37,7 @@
 #include "ltssm.h"
 
 // -------------------------------------------------------------------------
-// STATICS
+// GLOBALS
 // -------------------------------------------------------------------------
 
 // Pointer to model's private internal state for each instantiation
@@ -1922,7 +1922,7 @@ void InitialisePcie (const callback_t cb_func, void *usrptr, const int node)
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
-    if ((this = malloc(sizeof(PcieModelState_t))) == NULL)
+    if ((this = calloc(1, sizeof(PcieModelState_t))) == NULL)
     {
         VPrint( "InitialisePcie: ***Error --- memory allocation failed at node %d\n", node);
         VWrite(PVH_FATAL, 0, 0, node);
