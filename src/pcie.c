@@ -1,5 +1,5 @@
 //=============================================================
-// 
+//
 // Copyright (c) 2016-2024 Simon Southwell. All rights reserved.
 //
 // Date: 20th Sep 2016
@@ -22,7 +22,7 @@
 //=============================================================
 //
 // A PCIe model of a host/endpoint which use the Virtual
-// Processor (VProc) PLI package to generate and receive PCIe 
+// Processor (VProc) PLI package to generate and receive PCIe
 // traffic over a 16 lane link in a Verilog simulation.
 //
 //=============================================================
@@ -82,7 +82,7 @@ void SendPacket(const int node)
     }
 
     this->draining_queue = true;
-    
+
     // If we have outstanding Acks, clear the head of the queue for the
     // acknowledged packets
     if (!usrconf->DisableAck)
@@ -91,8 +91,8 @@ void SendPacket(const int node)
 
         if (this->curr_ack != NULLACK)
         {
-            while ((this->head_p != NULL && this->head_p != this->send_p) && 
-                   ((this->head_p->seq != DLLP_SEQ_ID && this->head_p->seq <= this->curr_ack) || 
+            while ((this->head_p != NULL && this->head_p != this->send_p) &&
+                   ((this->head_p->seq != DLLP_SEQ_ID && this->head_p->seq <= this->curr_ack) ||
                     (this->head_p->seq == DLLP_SEQ_ID)))
             {
                 tmp_p = this->head_p;
@@ -119,7 +119,7 @@ void SendPacket(const int node)
         }
 
         // If we've ACk/NAKs to send, insert to front of send list
-        if (this->nak_to_send_p != NULL && ((GetCycleCount(node) - this->nak_to_send_p->TimeStamp) > usrconf->AckRate)) 
+        if (this->nak_to_send_p != NULL && ((GetCycleCount(node) - this->nak_to_send_p->TimeStamp) > usrconf->AckRate))
         {
             // Snap shot the Nak to send (it may get overwritten by new input)
             NakHolder = *(this->nak_to_send_p);
@@ -159,12 +159,6 @@ void SendPacket(const int node)
         }
     }
 
-    // Send out any accumulated skips
-    while (this->SkipScheduled)
-    {        
-        SendOs(SKP, node);
-    }
-
     // Main output packet loop
     do
     {
@@ -196,7 +190,7 @@ void SendPacket(const int node)
             // Output codes to current lanes and read input
             LinkIn[lanes] = (uint32_t)VWrite(LINKADDR0+lanes, code, lanes != this->LinkWidth-1, node);
 
-            // last lane, so process input values 
+            // last lane, so process input values
             if (lanes == (this->LinkWidth-1))
             {
                 ExtractPhyInput(this, LinkIn);
@@ -207,14 +201,14 @@ void SendPacket(const int node)
             {
                 padding = 0;
                 sdp_output = false;
-            } 
+            }
             else
             {
                 // If not already padding, monitor for padding status; i.e. Output DLLP and
                 // next to send is DLLP, or nothing to send.
                 if (!padding)
                 {
-                    padding = (this->send_p && (this->send_p->data[idx] == PKT_TERMINATION) && sdp_output && 
+                    padding = (this->send_p && (this->send_p->data[idx] == PKT_TERMINATION) && sdp_output &&
                               (this->send_p->NextPkt != NULL) && (this->send_p->NextPkt->seq == DLLP_SEQ_ID));
                 }
             }
@@ -231,7 +225,7 @@ void SendPacket(const int node)
                 }
             }
         }
-    } 
+    }
     while (this->send_p != NULL);
 
     // If acknowledges disabled, then delete all the packets
@@ -251,6 +245,12 @@ void SendPacket(const int node)
     // If we've terminated midway through the lanes, then flush with PADs
     this->draining_queue = false;
     
+    // Send out any accumulated skips
+    while (this->SkipScheduled)
+    {
+        SendOs(SKP, node);
+    }
+
     DebugVPrint("** Exiting SendPacket (send_p=%p)\n", this->send_p);
 }
 
@@ -296,7 +296,7 @@ pPktData_t MemWriteDigest (const uint64_t addr, const PktData_t *data, const int
     {
         VPrint( "MemWrite: ***Error --- invalid payload length (%d) at node %d\n", length, node);
         VWrite(PVH_FATAL, 0, 0, node);
-    } 
+    }
     else if (length && (((addr + (uint64_t)(length-1)) & ~(MASK_4K_BITS)) > (addr & ~(MASK_4K_BITS))))
     {
         VPrint( "MemWrite: ***Error --- address + length crosses 4K boundary at node %d\n", node);
@@ -340,16 +340,16 @@ pPktData_t MemWriteDigest (const uint64_t addr, const PktData_t *data, const int
 
     this->seq++;
 
-    // Check there's enough space. If not call SendPacket to force out 
+    // Check there's enough space. If not call SendPacket to force out
     // any packets on queue (that do have space), or idle if queue empty
-    if (!this->usrconf.DisableFc) 
-    {        
+    if (!this->usrconf.DisableFc)
+    {
         while (!CheckCredits(this->usrconf.DisableFc,
-                             this->flwcntl.fc_state[0], 
-                             this->flwcntl.FlowCntlHdrCredits[0][FC_POST], 
-                             this->flwcntl.FlowCntlDataCredits[0][FC_POST], 
-                             this->flwcntl.TxHdrCredits[0][FC_POST], 
-                             this->flwcntl.TxDataCredits[0][FC_POST], 
+                             this->flwcntl.fc_state[0],
+                             this->flwcntl.FlowCntlHdrCredits[0][FC_POST],
+                             this->flwcntl.FlowCntlDataCredits[0][FC_POST],
+                             this->flwcntl.TxHdrCredits[0][FC_POST],
+                             this->flwcntl.TxDataCredits[0][FC_POST],
                              GET_TLP_LENGTH_ADJ(packet->data)))
         {
             SendPacket(node);
@@ -368,9 +368,9 @@ pPktData_t MemWriteDigest (const uint64_t addr, const PktData_t *data, const int
     {
         SendPacket (node);
         return NULL;
-    } 
+    }
     else
-    {        
+    {
         return packet->data;
     }
 }
@@ -394,7 +394,7 @@ pPktData_t MemRead (const uint64_t addr, const int length, const int tag, const 
     return MemReadDigest (addr, length, tag, rid, true, queue, node);
 }
 
-pPktData_t MemReadDigest (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool digest, 
+pPktData_t MemReadDigest (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool digest,
                           const bool queue, const int node)
 {
     PktData_t *pkt_p, *data_p;
@@ -418,7 +418,7 @@ pPktData_t MemReadDigest (const uint64_t addr, const int length, const int tag, 
     {
         VPrint( "MemRead: ***Error --- invalid payload (%d) at node %d\n", length, node);
         VWrite(PVH_FATAL, 0, 0, node);
-    } 
+    }
     else if (length && (((addr + (uint64_t)(length-1)) & ~(MASK_4K_BITS)) > (addr & ~(MASK_4K_BITS))))
     {
         VPrint( "MemRead: ***Error --- address + length crosses 4K boundary at node %d, addr 0x%lx, length 0x%x\n", node, addr, length);
@@ -461,13 +461,13 @@ pPktData_t MemReadDigest (const uint64_t addr, const int length, const int tag, 
     if (!this->usrconf.DisableFc)
     {
         while (!CheckCredits(this->usrconf.DisableFc,
-                             this->flwcntl.fc_state[0], 
-                             this->flwcntl.FlowCntlHdrCredits[0][FC_NONPOST], 
-                             this->flwcntl.FlowCntlDataCredits[0][FC_NONPOST], 
-                             this->flwcntl.TxHdrCredits[0][FC_NONPOST], 
-                             this->flwcntl.TxDataCredits[0][FC_NONPOST], 
+                             this->flwcntl.fc_state[0],
+                             this->flwcntl.FlowCntlHdrCredits[0][FC_NONPOST],
+                             this->flwcntl.FlowCntlDataCredits[0][FC_NONPOST],
+                             this->flwcntl.TxHdrCredits[0][FC_NONPOST],
+                             this->flwcntl.TxDataCredits[0][FC_NONPOST],
                              0))
-        {                     
+        {
             SendPacket(node);
         }
     }
@@ -483,7 +483,7 @@ pPktData_t MemReadDigest (const uint64_t addr, const int length, const int tag, 
     {
         SendPacket (node);
         return NULL;
-    } 
+    }
     else
     {
         return packet->data;
@@ -500,7 +500,7 @@ pPktData_t MemReadDigest (const uint64_t addr, const int length, const int tag, 
 //
 // -------------------------------------------------------------------------
 
-pPktData_t Completion (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int length, 
+pPktData_t Completion (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int length,
                        const int tag, const uint32_t cid, const uint32_t rid, const bool queue, const int node)
 {
     return CompletionDigest(addr, data, status, fbe, lbe, length, tag, cid, rid, true, queue, node);
@@ -530,14 +530,14 @@ pPktData_t CompletionDigest (uint64_t addr, const PktData_t *data, int status, i
     {
         VPrint( "Completion: ***Error --- invalid payload (%d) at node %d\n", length, node);
         VWrite(PVH_FATAL, 0, 0, node);
-    } 
+    }
 
     // A full completion uses the PartCompletion function, where a remaining length
     // is equal to the actual length indicating no further completions.
     return PartCompletionDigest(addr, data, status, fbe, lbe, length, length, tag, cid, rid, digest, queue, node);
 }
 
-pPktData_t CompletionDelay (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, 
+pPktData_t CompletionDelay (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe,
                             const int length, const int tag, const uint32_t cid, const uint32_t rid, const int node)
 {
      return PartCompletionDelay (addr, data, status, fbe, lbe, length, length, tag, cid, rid, true, true, true, node);
@@ -553,14 +553,14 @@ pPktData_t CompletionDelay (const uint64_t addr, const PktData_t *data, const in
 //
 // -------------------------------------------------------------------------
 
-pPktData_t PartCompletion (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, 
+pPktData_t PartCompletion (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe,
                            const int rlength, const int length, const int tag, const uint32_t cid, const uint32_t rid,
                            const bool queue, const int node)
 {
     return PartCompletionDigest (addr, data, status, fbe, lbe, rlength, length, tag, cid, rid, true, queue, node);
 }
 
-pPktData_t PartCompletionDelay (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, 
+pPktData_t PartCompletionDelay (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe,
                                 const int rlength, const int length, const int tag, const uint32_t cid, const uint32_t rid,
                                 const bool digest, const bool delay, const bool queue, const int node)
 {
@@ -585,7 +585,7 @@ pPktData_t PartCompletionDelay (const uint64_t addr, const PktData_t *data, cons
     {
         VPrint( "PCompletion: ***Error --- invalid payload (%d) at node %d\n", length, node);
         VWrite(PVH_FATAL, 0, 0, node);
-    } 
+    }
 
     // Create a template for a mem read completiom
     if ((pkt_p = CreateTlpTemplate (length ? TL_CPLD : TL_CPL, addr, length*4, digest, &data_p)) == NULL)
@@ -627,14 +627,14 @@ pPktData_t PartCompletionDelay (const uint64_t addr, const PktData_t *data, cons
     packet->Retry = 0;
     packet->TimeStamp = this->TicksSinceReset;
 
-    if (!this->usrconf.DisableFc) 
+    if (!this->usrconf.DisableFc)
     {
         while (!CheckCredits(this->usrconf.DisableFc,
-                             this->flwcntl.fc_state[0], 
-                             this->flwcntl.FlowCntlHdrCredits[0][FC_CMPL], 
-                             this->flwcntl.FlowCntlDataCredits[0][FC_CMPL], 
-                             this->flwcntl.TxHdrCredits[0][FC_CMPL], 
-                             this->flwcntl.TxDataCredits[0][FC_CMPL], 
+                             this->flwcntl.fc_state[0],
+                             this->flwcntl.FlowCntlHdrCredits[0][FC_CMPL],
+                             this->flwcntl.FlowCntlDataCredits[0][FC_CMPL],
+                             this->flwcntl.TxHdrCredits[0][FC_CMPL],
+                             this->flwcntl.TxDataCredits[0][FC_CMPL],
                              GET_TLP_LENGTH_ADJ(packet->data)))
         {
             SendPacket(node);
@@ -669,7 +669,7 @@ pPktData_t PartCompletionDelay (const uint64_t addr, const PktData_t *data, cons
     }
 }
 
-pPktData_t PartCompletionDigest (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int rlength, 
+pPktData_t PartCompletionDigest (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int rlength,
                                  const int length, const int tag , const uint32_t cid, const uint32_t rid, const bool digest, const bool queue, const int node)
 {
     return PartCompletionDelay (addr, data, status, fbe, lbe, rlength, length, tag, cid, rid, digest, false, queue, node);
@@ -687,7 +687,7 @@ pPktData_t IoWrite (const uint64_t addr, const PktData_t *data, const int length
     return IoWriteDigest(addr, data, length, tag, rid, true, queue, node);
 }
 
-pPktData_t IoWriteDigest (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool digest, 
+pPktData_t IoWriteDigest (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool digest,
                           const bool queue, const int node)
 {
     PktData_t *pkt_p, *data_p;
@@ -759,11 +759,11 @@ pPktData_t IoWriteDigest (const uint64_t addr, const PktData_t *data, const int 
     if (!this->usrconf.DisableFc)
     {
         while (!CheckCredits(this->usrconf.DisableFc,
-                             this->flwcntl.fc_state[0], 
-                             this->flwcntl.FlowCntlHdrCredits[0][FC_NONPOST], 
-                             this->flwcntl.FlowCntlDataCredits[0][FC_NONPOST], 
-                             this->flwcntl.TxHdrCredits[0][FC_NONPOST], 
-                             this->flwcntl.TxDataCredits[0][FC_NONPOST], 
+                             this->flwcntl.fc_state[0],
+                             this->flwcntl.FlowCntlHdrCredits[0][FC_NONPOST],
+                             this->flwcntl.FlowCntlDataCredits[0][FC_NONPOST],
+                             this->flwcntl.TxHdrCredits[0][FC_NONPOST],
+                             this->flwcntl.TxDataCredits[0][FC_NONPOST],
                              GET_TLP_LENGTH_ADJ(packet->data)))
         {
             SendPacket(node);
@@ -782,7 +782,7 @@ pPktData_t IoWriteDigest (const uint64_t addr, const PktData_t *data, const int 
     {
         SendPacket (node);
         return NULL;
-    } 
+    }
     else
     {
         return packet->data;
@@ -824,7 +824,7 @@ pPktData_t IoReadDigest (const uint64_t addr, const int length, const int tag, c
     {
         VPrint( "IoRead: ***Error --- payload > 1 at bode %d\n", node);
         VWrite(PVH_FATAL, 0, 0, node);
-    } 
+    }
     else if (addr > ADDR_LO_BIT_MASK)
     {
         VPrint( "IoRead: ***Error --- 64 bit address at node %d\n", node);
@@ -867,11 +867,11 @@ pPktData_t IoReadDigest (const uint64_t addr, const int length, const int tag, c
     if (!this->usrconf.DisableFc)
     {
         while (!CheckCredits(this->usrconf.DisableFc,
-                             this->flwcntl.fc_state[0], 
-                             this->flwcntl.FlowCntlHdrCredits[0][FC_NONPOST], 
-                             this->flwcntl.FlowCntlDataCredits[0][FC_NONPOST], 
-                             this->flwcntl.TxHdrCredits[0][FC_NONPOST], 
-                             this->flwcntl.TxDataCredits[0][FC_NONPOST], 
+                             this->flwcntl.fc_state[0],
+                             this->flwcntl.FlowCntlHdrCredits[0][FC_NONPOST],
+                             this->flwcntl.FlowCntlDataCredits[0][FC_NONPOST],
+                             this->flwcntl.TxHdrCredits[0][FC_NONPOST],
+                             this->flwcntl.TxDataCredits[0][FC_NONPOST],
                              0))
         {
             SendPacket(node);
@@ -889,7 +889,7 @@ pPktData_t IoReadDigest (const uint64_t addr, const int length, const int tag, c
     {
         SendPacket (node);
         return NULL;
-    } 
+    }
     else
     {
         return packet->data;
@@ -899,13 +899,13 @@ pPktData_t IoReadDigest (const uint64_t addr, const int length, const int tag, c
 
 // -------------------------------------------------------------------------
 // CfgWrite()
-// 
+//
 // Similar to MemWrite, but to configuration space and
 // limited to 1 DW.
 //
 // -------------------------------------------------------------------------
 
-pPktData_t CfgWrite (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid, 
+pPktData_t CfgWrite (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid,
                      const bool queue, const int node)
 {
     return CfgWriteDigest (addr, data, length, tag, rid, true, queue, node);
@@ -935,7 +935,7 @@ pPktData_t CfgWriteDigest (const uint64_t addr, const PktData_t *data, const int
     {
         VPrint( "CfgWrite: ***Error --- payload length > 1 at node %d\n", node);
         VWrite(PVH_FATAL, 0, 0, node);
-    } 
+    }
     else if ((addr & 0xffff) > TLP_CFG_LO_ADDR_MASK)
     {
         VPrint( "CfgWrite: ***Error --- index out of range at node %d\n", node);
@@ -984,13 +984,13 @@ pPktData_t CfgWriteDigest (const uint64_t addr, const PktData_t *data, const int
     if (!this->usrconf.DisableFc)
     {
         while (!CheckCredits(this->usrconf.DisableFc,
-                             this->flwcntl.fc_state[0], 
-                             this->flwcntl.FlowCntlHdrCredits[0][FC_NONPOST], 
-                             this->flwcntl.FlowCntlDataCredits[0][FC_NONPOST], 
-                             this->flwcntl.TxHdrCredits[0][FC_NONPOST], 
-                             this->flwcntl.TxDataCredits[0][FC_NONPOST], 
+                             this->flwcntl.fc_state[0],
+                             this->flwcntl.FlowCntlHdrCredits[0][FC_NONPOST],
+                             this->flwcntl.FlowCntlDataCredits[0][FC_NONPOST],
+                             this->flwcntl.TxHdrCredits[0][FC_NONPOST],
+                             this->flwcntl.TxDataCredits[0][FC_NONPOST],
                              GET_TLP_LENGTH_ADJ(packet->data)))
-        {                     
+        {
             SendPacket(node);
         }
     }
@@ -1007,7 +1007,7 @@ pPktData_t CfgWriteDigest (const uint64_t addr, const PktData_t *data, const int
     {
         SendPacket (node);
         return NULL;
-    } 
+    }
     else
     {
         return packet->data;
@@ -1027,7 +1027,7 @@ pPktData_t CfgRead (const uint64_t addr, const int length, const int tag, const 
     return CfgReadDigest(addr, length, tag, rid, true, queue, node);
 }
 
-pPktData_t CfgReadDigest (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool digest, 
+pPktData_t CfgReadDigest (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool digest,
                           const bool queue, const int node)
 {
     PktData_t *pkt_p, *data_p;
@@ -1094,11 +1094,11 @@ pPktData_t CfgReadDigest (const uint64_t addr, const int length, const int tag, 
     if (!this->usrconf.DisableFc)
     {
         while (!CheckCredits(this->usrconf.DisableFc,
-                             this->flwcntl.fc_state[0], 
-                             this->flwcntl.FlowCntlHdrCredits[0][FC_NONPOST], 
-                             this->flwcntl.FlowCntlDataCredits[0][FC_NONPOST], 
-                             this->flwcntl.TxHdrCredits[0][FC_NONPOST], 
-                             this->flwcntl.TxDataCredits[0][FC_NONPOST], 
+                             this->flwcntl.fc_state[0],
+                             this->flwcntl.FlowCntlHdrCredits[0][FC_NONPOST],
+                             this->flwcntl.FlowCntlDataCredits[0][FC_NONPOST],
+                             this->flwcntl.TxHdrCredits[0][FC_NONPOST],
+                             this->flwcntl.TxDataCredits[0][FC_NONPOST],
                              0))
         {
             SendPacket(node);
@@ -1127,9 +1127,9 @@ pPktData_t CfgReadDigest (const uint64_t addr, const int length, const int tag, 
 // -------------------------------------------------------------------------
 // Message()
 //
-// Generates a message packet, adds to the send queue 
+// Generates a message packet, adds to the send queue
 // (see MemWrite) and sends over the link (if requested).
-// Most messages have no data, but for those that do, 
+// Most messages have no data, but for those that do,
 // a pointer to an array of packet data is passed in.
 //
 // -------------------------------------------------------------------------
@@ -1259,11 +1259,11 @@ pPktData_t MessageDigest (const int code, const PktData_t *data, const int lengt
     if (!this->usrconf.DisableFc)
     {
         while (!CheckCredits(this->usrconf.DisableFc,
-                             this->flwcntl.fc_state[0], 
-                             this->flwcntl.FlowCntlHdrCredits[0][FC_POST], 
-                             this->flwcntl.FlowCntlDataCredits[0][FC_POST], 
-                             this->flwcntl.TxHdrCredits[0][FC_POST], 
-                             this->flwcntl.TxDataCredits[0][FC_POST], 
+                             this->flwcntl.fc_state[0],
+                             this->flwcntl.FlowCntlHdrCredits[0][FC_POST],
+                             this->flwcntl.FlowCntlDataCredits[0][FC_POST],
+                             this->flwcntl.TxHdrCredits[0][FC_POST],
+                             this->flwcntl.TxDataCredits[0][FC_POST],
                              length ? GET_TLP_LENGTH_ADJ(packet->data) : 0))
         {
             SendPacket(node);
@@ -1282,9 +1282,9 @@ pPktData_t MessageDigest (const int code, const PktData_t *data, const int lengt
     {
         SendPacket (node);
         return NULL;
-    } 
+    }
     else
-    {        
+    {
         return packet->data;
     }
 
@@ -1293,7 +1293,7 @@ pPktData_t MessageDigest (const int code, const PktData_t *data, const int lengt
 // -------------------------------------------------------------------------
 // SendAck()
 //
-// Send an acknowledge over the link. Normally called 
+// Send an acknowledge over the link. Normally called
 // from within ProcessInput(), it is made available to the
 // user for potentially generating error cases. There should
 // only ever be 0 or 1 Ack to send, so packet is not added
@@ -1341,7 +1341,7 @@ void SendAck (const int sequence, const int node)
             CheckFree(this->ack_to_send_p->data);
             CheckFree(this->ack_to_send_p);
         }
-        
+
         // Generate an Ack data template
         pkt_p = CreateDllpTemplate (DL_ACK, &data_p);
 
@@ -1381,7 +1381,7 @@ void SendAck (const int sequence, const int node)
 // -------------------------------------------------------------------------
 // SendNak()
 //
-// Send an bad acknowledge over the link. Normally called 
+// Send an bad acknowledge over the link. Normally called
 // from within ProcessInput(), it is made available to the
 // user for potentially generating error cases. Operation
 // is similar to SendAck().
@@ -1423,7 +1423,7 @@ void SendNak (const int sequence, const int node)
             CheckFree(this->nak_to_send_p->data);
             CheckFree(this->nak_to_send_p);
         }
-        
+
         // Generate a NAK data template
         pkt_p = CreateDllpTemplate (DL_NAK, &data_p);
 
@@ -1459,7 +1459,7 @@ void SendNak (const int sequence, const int node)
         }
 
         this->nak_to_send_p = packet;
-    }    
+    }
 }
 
 // -------------------------------------------------------------------------
@@ -1468,7 +1468,7 @@ void SendNak (const int sequence, const int node)
 // Creates a flow control packet of given type and credits,
 // adds to the queue and sends it over the link (if requested).
 // The model can always accept packets, and Rx flow control must
-// be managed at the user level. 
+// be managed at the user level.
 //
 // -------------------------------------------------------------------------
 
@@ -1496,7 +1496,7 @@ void SendFC (const int type, const int vc, const int hdrfc, const int datafc, co
     {
         VPrint( "SendFC: ***Error --- invalid virtual channel (%d). Maximum supported = %d at node %d\n", vc, NUM_VIRTUAL_CHANNELS, node);
         VWrite(PVH_FATAL, 0, 0, node);
-    } 
+    }
     else if (hdrfc < 0 || hdrfc > DL_MAX_HDRFC || datafc < 0 || datafc > DL_MAX_DATAFC)
     {
         VPrint( "SendFC: ***Error --- invalid FC credits (hdr=%d data=%d) at node %d\n", hdrfc, datafc, node);
@@ -1640,13 +1640,13 @@ void SendVendor (const bool queue, const int node)
 
 // -------------------------------------------------------------------------
 // SendOS()
-// 
+//
 // Sends an ordered set of a given Type. Not queued with TLPs,
 // and will send immediately.
 //
 // -------------------------------------------------------------------------
 
-void SendOs (const int Type, const int node) 
+void SendOs (const int Type, const int node)
 {
 
     int lanes, sequence;
@@ -1682,7 +1682,7 @@ void SendOs (const int Type, const int node)
 
     for (sequence = 0; sequence < OS_LENGTH; sequence++)
     {
-        for (lanes = 0; lanes < this->LinkWidth; lanes++) 
+        for (lanes = 0; lanes < this->LinkWidth; lanes++)
         {
             LinkIn[lanes] = VWrite(LINKADDR0+lanes, Encode((sequence == 0) ? COM : Type, this->usrconf.DisableScrambling, this->usrconf.Disable8b10b,
                                    lanes, this->LinkWidth, node), lanes != this->LinkWidth-1, node);
@@ -1704,7 +1704,7 @@ void SendOs (const int Type, const int node)
 //
 // -------------------------------------------------------------------------
 
-void SendTs(const int identifier, const int lane_num, const int link_num, const int n_fts, const int control, const bool is_gen2, const int node) 
+void SendTs(const int identifier, const int lane_num, const int link_num, const int n_fts, const int control, const bool is_gen2, const int node)
 {
     int lanes, sequence;
     int data;
@@ -1728,12 +1728,12 @@ void SendTs(const int identifier, const int lane_num, const int link_num, const 
     {
         VPrint( "SendTs: ***Error --- bad identifier (%02x) at node %d\n", identifier, node);
         VWrite(PVH_FATAL, 0, 0, node);
-    } 
+    }
     else if (link_num != PAD && (link_num < 0 || link_num > TS_LINK_NUM_MAX_VALUE))
     {
         VPrint( "SendTs: ***Error --- bad link number (%02x) at node %d\n", link_num, node);
         VWrite(PVH_FATAL, 0, 0, node);
-    } 
+    }
     else if (n_fts < 0 || n_fts > TS_N_FTS_MAX_VALUE)
     {
         VPrint( "SendTs: ***Error --- bad N FTS (%02x) at node %d\n", n_fts, node);
@@ -1880,12 +1880,12 @@ void WaitForCompletion(int node)
 // -------------------------------------------------------------------------
 // InitialisePcie()
 //
-// Initialisation of Pcie routines. First argument is 
+// Initialisation of Pcie routines. First argument is
 // a pointer to user supplied callback function, called
-// whenever a completion packet is not caught and processed 
-// internally. The second argument is the number of the 
+// whenever a completion packet is not caught and processed
+// internally. The second argument is the number of the
 // virtual processor we're are running on. InitialisePcie()
-// *must* be called before attempting to generate Pcie 
+// *must* be called before attempting to generate Pcie
 // traffic. Note that, currently, only one virtual processor
 // can run PCIe code.
 //
@@ -1944,8 +1944,8 @@ void InitialisePcie (const callback_t cb_func, void *usrptr, const int node)
     {
         VPrint( "InitialisePcie: Info --- valid linkwidth (%d) at node %d\n", linkwidth, node);
         this->LinkWidth = linkwidth;
-    } 
-    else 
+    }
+    else
     {
         VPrint( "InitialisePcie: ***Error --- invalid linkwidth (%d) at node %d\n", linkwidth, node);
         VWrite(PVH_FATAL, 0, 0, node);
@@ -1973,7 +1973,7 @@ void RegisterOsCallback (const os_callback_t cb_func, const int node)
 int ResetEventCount(const int type, const int node)
 {
     int i;
-    
+
     if (type == 0)
     {
         for (i = 0; i < MAX_LINK_WIDTH; i++)
@@ -2008,7 +2008,7 @@ int ResetEventCount(const int type, const int node)
         {
             this->linkevent.Ts1Count[i] = 0;
         }
-    } 
+    }
     else if (type == TS2_ID)
     {
         for (i = 0; i < MAX_LINK_WIDTH; i++)
@@ -2057,7 +2057,7 @@ int ReadEventCount (const int type, uint32_t *ts_data, const int node)
     else if (type == TS1_ID)
     {
         ptr = this->linkevent.Ts1Count;
-    } 
+    }
     else if (type == TS2_ID)
     {
         ptr = this->linkevent.Ts2Count;
@@ -2132,8 +2132,8 @@ void ConfigurePcie (const int type, const int value, const int node)
     switch (type)
     {
     case CONFIG_FC_HDR_RATE:
-        if (value < 0) 
-        {   
+        if (value < 0)
+        {
             VPrint("ConfigurePcie: ***Error --- bad config value at node %d\n", node);
             VWrite(PVH_FATAL, 0, 0, node);
         }
@@ -2163,7 +2163,7 @@ void ConfigurePcie (const int type, const int value, const int node)
             {
                 VPrint("ConfigurePcie: ***Error --- an ACK rate of %d is a bit daft, at node %d\n", value, node);
                 VWrite(PVH_FATAL, 0, 0, node);
-            } 
+            }
             else
             {
                 usrconf->AckRate = value;
@@ -2197,7 +2197,7 @@ void ConfigurePcie (const int type, const int value, const int node)
     case CONFIG_DISABLE_UR_CPL:
         usrconf->DisableUrCpl = type & 0x1;
         break;
-        
+
     case CONFIG_ENABLE_SCRAMBLING:
     case CONFIG_DISABLE_SCRAMBLING:
         usrconf->DisableScrambling = type & 0x1;
@@ -2252,8 +2252,8 @@ void ConfigurePcie (const int type, const int value, const int node)
         }
         else
         {
-            if (flw->ConsumedHdrCredits[0][FC_CMPL] != usrconf->InitFcHdrCr[0][FC_CMPL] || flw->AdvertisedHdrCredits[0][FC_CMPL] != usrconf->InitFcHdrCr[0][FC_CMPL]) 
-            {    
+            if (flw->ConsumedHdrCredits[0][FC_CMPL] != usrconf->InitFcHdrCr[0][FC_CMPL] || flw->AdvertisedHdrCredits[0][FC_CMPL] != usrconf->InitFcHdrCr[0][FC_CMPL])
+            {
                 DebugVPrint("ConfigurePcie: ***Warning --- completion header FC init value altered after active flow control. May by out of sync with other end of link at node %d\n", node);
             }
             usrconf->InitFcHdrCr[0][FC_CMPL] = value;
@@ -2270,8 +2270,8 @@ void ConfigurePcie (const int type, const int value, const int node)
         }
         else
         {
-            if (flw->ConsumedDataCredits[0][FC_POST] != usrconf->InitFcDataCr[0][FC_POST] || flw->AdvertisedDataCredits[0][FC_POST] != usrconf->InitFcDataCr[0][FC_POST]) 
-            {    
+            if (flw->ConsumedDataCredits[0][FC_POST] != usrconf->InitFcDataCr[0][FC_POST] || flw->AdvertisedDataCredits[0][FC_POST] != usrconf->InitFcDataCr[0][FC_POST])
+            {
                 DebugVPrint("ConfigurePcie: ***Warning --- posted data FC init value altered after active flow control. May by out of sync with other end of link at node %d\n", node);
             }
             usrconf->InitFcDataCr[0][FC_POST] = value;
@@ -2288,8 +2288,8 @@ void ConfigurePcie (const int type, const int value, const int node)
         }
         else
         {
-            if (flw->ConsumedDataCredits[0][FC_NONPOST] != usrconf->InitFcDataCr[0][FC_NONPOST] || flw->AdvertisedDataCredits[0][FC_NONPOST] != usrconf->InitFcDataCr[0][FC_NONPOST]) 
-            {    
+            if (flw->ConsumedDataCredits[0][FC_NONPOST] != usrconf->InitFcDataCr[0][FC_NONPOST] || flw->AdvertisedDataCredits[0][FC_NONPOST] != usrconf->InitFcDataCr[0][FC_NONPOST])
+            {
                 DebugVPrint("ConfigurePcie: ***Warning --- non-posted data FC init value altered after active flow control. May by out of sync with other end of link at node %d\n", node);
             }
             usrconf->InitFcDataCr[0][FC_NONPOST] = value;
@@ -2306,7 +2306,7 @@ void ConfigurePcie (const int type, const int value, const int node)
         }
         else
         {
-            if (flw->ConsumedDataCredits[0][FC_CMPL] != usrconf->InitFcDataCr[0][FC_CMPL] || flw->AdvertisedDataCredits[0][FC_CMPL] != usrconf->InitFcDataCr[0][FC_CMPL]) 
+            if (flw->ConsumedDataCredits[0][FC_CMPL] != usrconf->InitFcDataCr[0][FC_CMPL] || flw->AdvertisedDataCredits[0][FC_CMPL] != usrconf->InitFcDataCr[0][FC_CMPL])
             {
                 DebugVPrint("ConfigurePcie: ***Warning --- completion data FC init value altered after active flow control. May by out of sync with other end of link at node %d\n", node);
             }
@@ -2389,7 +2389,7 @@ void ConfigurePcie (const int type, const int value, const int node)
 
 uint32_t PcieRand (const int node)
 {
-    this->RandNum = CalcNewRand(this->RandNum);   
+    this->RandNum = CalcNewRand(this->RandNum);
     return this->RandNum;
 }
 
