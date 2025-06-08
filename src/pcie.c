@@ -931,9 +931,9 @@ pPktData_t CfgWriteDigest (const uint64_t addr, const PktData_t *data, const int
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
-    if (((addr & ADDR_DW_OFFSET_MASK) + length) > 4)
+    if (length > 4)
     {
-        VPrint( "CfgWrite: ***Error --- payload > 1 at node %d\n", node);
+        VPrint( "CfgWrite: ***Error --- payload length > 1 at node %d\n", node);
         VWrite(PVH_FATAL, 0, 0, node);
     } 
     else if ((addr & 0xffff) > TLP_CFG_LO_ADDR_MASK)
@@ -1047,9 +1047,9 @@ pPktData_t CfgReadDigest (const uint64_t addr, const int length, const int tag, 
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
-    if (((addr & ADDR_DW_OFFSET_MASK) + length) > 4)
+    if (length > 4)
     {
-        VPrint( "CfgRead: ***Error --- payload > 1 at node %d\n", node);
+        VPrint( "CfgRead: ***Error --- payload length > 1 at node %d\n", node);
         VWrite(PVH_FATAL, 0, 0, node);
     }
     else if ((addr & 0xffff) > TLP_CFG_LO_ADDR_MASK)

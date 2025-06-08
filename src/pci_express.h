@@ -190,6 +190,10 @@
 #define CFG_MSI_CAPS_SIZE_BYTES         0x18
 #define CFG_PWR_MGMT_CAPS_SIZE_BYTES    0x08
 
+#define PWRMGMTCAPTYPE                  0x01
+#define MSICAPTYPE                      0x05
+#define PCIECAPTYPE                     0x10
+
 typedef struct  __attribute__ ((__packed__)) {
     uint16_t vendor_id;
     uint16_t device_id;
