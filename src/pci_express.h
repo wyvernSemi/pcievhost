@@ -48,6 +48,8 @@
 #define RV2                        0x19c // K28.4
 #define RV3                        0x1dc // K28.6
 
+#define SYMCTRLBIT                 0x100
+
 // Training sequence definitions
 #define TS1_ID                     0x4a
 #define TS2_ID                     0x45
