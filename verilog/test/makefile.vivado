@@ -191,8 +191,8 @@ help:
 #------------------------------------------------------
 
 clean: $(VPROC_TOP)
-	@$(MAKE) --no-print-directory -C $(PCIE_CLIB_DIR)  clean
-	@$(MAKE) --no-print-directory -C $(VPROC_TOP)/test TESTDIR=$(CURDIR) clean
+	@$(MAKE) --no-print-directory -C $(PCIE_CLIB_DIR) clean
+	@$(MAKE) --no-print-directory -C $(VPROC_TOP)/test -f makefile.vivado TESTDIR=$(CURDIR) clean
 	@rm -rf $(PLI_SO) $(PCIE_MAP_V) xsim* xvlog* xelab* *.wdb work
 
 
