@@ -180,6 +180,8 @@
 #define CFG_BAR_LOCATABLE_32_BIT        0
 #define CFG_BAR_LOCATABLE_LT_1MB        1
 #define CFG_BAR_LOCATABLE_64_BIT        2
+#define CFG_BAR_LOCATABLE_MASK          0x6
+#define CFG_BAR_LOCATABLE_BIT_POS       0x1
 #define CFG_BAR_REGION_TYPE_IO          0
 #define CFG_BAR_REGION_TYPE_MEM         1
 #define CFG_BAR_NOT_PREFETCHABLE        0
