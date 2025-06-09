@@ -121,6 +121,10 @@ void ConfigureType0PcieCfg (void)
     type0.type0_struct.cache_line_size         = 0x00;       type0_mask.type0_struct.cache_line_size         = 0x00; 
     type0.type0_struct.bar[0]                  = 0x00000008; type0_mask.type0_struct.bar[0]                  = 0x00000fff; // 32-bit, prefetchable, 4K
     type0.type0_struct.bar[1]                  = 0x00000008; type0_mask.type0_struct.bar[1]                  = 0x000003ff; // 32-bit, prefetchable, 1K
+    type0.type0_struct.bar[2]                  = 0x00000000;
+    type0.type0_struct.bar[3]                  = 0x00000000;
+    type0.type0_struct.bar[4]                  = 0x00000000;
+    type0.type0_struct.bar[5]                  = 0x00000000;
     type0.type0_struct.expansion_rom_base_addr = 0x00000000; type0_mask.type0_struct.expansion_rom_base_addr = 0x000007fe;
     type0.type0_struct.capabilities_ptr        = next_cap_ptr;
 
@@ -146,7 +150,7 @@ void ConfigureType0PcieCfg (void)
 
     pcie_caps.pcie_caps_struct.cap_id         = 0x10;
     pcie_caps.pcie_caps_struct.next_cap_ptr   = next_cap_ptr;
-    pcie_caps.pcie_caps_struct.device_caps    = 0x0001;       // max payload = 256 bytes
+    pcie_caps.pcie_caps_struct.device_caps    = 0x00000001;   // max payload = 256 bytes
     pcie_caps.pcie_caps_struct.device_control = 0x2810;       pcie_caps_mask.pcie_caps_struct.device_control = 0x0000;
     pcie_caps.pcie_caps_struct.link_caps      = 0x0003fc12;   
     pcie_caps.pcie_caps_struct.link_control   = 0x0000;       pcie_caps_mask.pcie_caps_struct.link_control   = 0xf004;
