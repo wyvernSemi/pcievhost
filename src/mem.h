@@ -75,8 +75,10 @@ extern int      ReadRamByteBlock          (const uint64_t addr, PktData_t* const
                                           
 extern void     WriteRamByte              (const uint64_t addr, const uint32_t data, const uint32_t node);
 extern void     WriteRamWord              (const uint64_t addr, const uint32_t data, const int little_endian, const uint32_t node);
+extern void     WriteRamHWord             (const uint64_t addr, const uint32_t data, const int little_endian, const uint32_t node);
 extern void     WriteRamDWord             (const uint64_t addr, const uint64_t data, const int little_endian, const uint32_t node);
 extern uint32_t ReadRamByte               (const uint64_t addr, const uint32_t node);
+extern uint32_t ReadRamHWord              (const uint64_t addr, const int little_endian, const uint32_t node);
 extern uint32_t ReadRamWord               (const uint64_t addr, const int little_endian, const uint32_t node);
 extern uint64_t ReadRamDWord              (const uint64_t addr, const int little_endian, const uint32_t node);
                                           
