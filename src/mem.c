@@ -316,6 +316,32 @@ void WriteRamByte(const uint64_t inaddr, const uint32_t data, const uint32_t nod
 }
 
 // -------------------------------------------------------------------------
+// WriteRamHWord()
+//
+// Write a data half word to memory.
+//
+// -------------------------------------------------------------------------
+
+void WriteRamHWord (const uint64_t addr, const uint32_t data, const int le, const uint32_t node)
+{
+    uint32_t data_out;
+    int addr_lo, fbe;
+    PktData_t buf[4];
+    int i;
+
+    addr_lo  =  (int)(addr & 2ULL);
+    fbe      = 0x3 << addr_lo;
+    data_out = (addr_lo) ? (data << 16) : data;
+
+    for (i = 0; i < 4; i++)
+    {
+        buf[i] = (le ? (data_out >> (i*8))  & 0xffffUL: (data_out >> ((3-i)*8))) & 0xff;
+    }
+
+    WriteRamByteBlock (addr & ~3ULL, buf, fbe, 0x0, 4, node);
+}
+
+// -------------------------------------------------------------------------
 // WriteRamWord()
 //
 // Write a data word to memory.
@@ -376,6 +402,34 @@ uint32_t ReadRamByte (const uint64_t addr, const uint32_t node)
     i = (int)(addr & 3ULL);
 
     return buf[i];
+}
+
+// -------------------------------------------------------------------------
+// ReadRamHWord()
+//
+// Read a half word from memory
+//
+// -------------------------------------------------------------------------
+
+uint32_t ReadRamHWord (const uint64_t addr, const int le, const uint32_t node)
+{
+    PktData_t buf[4];
+    uint32_t data = 0;
+    int addr_lo = addr & 0x2;
+    int i;
+
+    // If ReadRamByteBlock fails, return 0
+    if (ReadRamByteBlock (addr & ~3ULL, buf, 4, node))
+    {
+        return 0;
+    }
+
+    for (i = addr_lo; i < (2+addr_lo); i++)
+    {
+        data |= (buf[i] & 0xff) << (le ? (i*8) : ((3-i)*8));
+    }
+
+    return (addr_lo) ? (data >> 16) : data;
 }
 
 // -------------------------------------------------------------------------

@@ -52,7 +52,6 @@
 // STATICS
 //-------------------------------------------------------------
 
-static int          node      = 0;
 static unsigned int Interrupt = 0;
 
 // Input buffer and counter. Updated from input callback.
@@ -139,7 +138,7 @@ static void VUserInput_0(pPkt_t pkt, int status, void* usrptr)
 //
 //-------------------------------------------------------------
 
-extern "C" void VUserMain0()
+extern "C" void VUserMain0(int node)
 {
     int idx;
     PktData_t buff[4096];
@@ -149,6 +148,7 @@ extern "C" void VUserMain0()
     uint32_t  baraddr[6];
     int       errors = 0;
     uint64_t  bar64;
+   
 
     // Create an API object for this node
     pcieModelClass* pcie = new pcieModelClass(node);
