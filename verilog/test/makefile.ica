@@ -23,6 +23,7 @@
 NUM_VPROC      = 2
 
 USRSIMFLAGS    =
+USERCFLAGS     =
 
 # Location of VProc directory. Assumes in same directory as pcieVHost.
 # Update if relocated.
@@ -115,21 +116,21 @@ $(PCIE_MAP_V) : $(SRCDIR)/$(PCIE_MAP_C)
 # PLI shared object
 #
 $(PLI_SO): $(PCIE_CLIB_DIR)/$(PCIELIB) $(VPROCLIB) $(wildcard $(USRCDIR)/*.[ch]*)
-	@$(C++) $(CFLAGS_SO) $(CFLAGS)           \
-           -Wl,-whole-archive                    \
-           -lpthread                             \
-           -ldl                                  \
-           -lvpi -lveriuser                      \
-           -L$(PCIE_CLIB_DIR) -lpcievhost        \
-           -L./ -lvproc                          \
-           -Wl,-no-whole-archive                 \
-           -o $@
+	@$(C++) $(CFLAGS_SO) $(CFLAGS)               \
+	       -Wl,-whole-archive                    \
+	       -lpthread                             \
+	       -ldl                                  \
+	       -lvpi -lveriuser                      \
+	       -L$(PCIE_CLIB_DIR) -lpcievhost        \
+	       -L./ -lvproc                          \
+	       -Wl,-no-whole-archive                 \
+	       -o $@
 
 #
 # PCIe model library
 #
 $(PCIE_CLIB_DIR)/$(PCIELIB):
-	@$(MAKE) --no-print-directory -C $(PCIE_CLIB_DIR) -f makefile.ica ICADIR=$(ICADIR)
+	@$(MAKE) --no-print-directory -C $(PCIE_CLIB_DIR) -f makefile.ica ICADIR=$(ICADIR) USRFLAGS=$(USERCFLAGS)
 
 #
 # VProc library.

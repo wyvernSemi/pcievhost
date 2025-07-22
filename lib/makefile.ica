@@ -20,38 +20,40 @@
 #
 ###################################################################
 
+USRFLAGS  =
+
 SRCDIR    = ../src
 OBJDIR    = obj
 VPROC_TOP = ../../vproc
 ICADIR    = /usr/include/iverilog
 
-C_FILES   = codec.c mem.c pcie.c pcie_utils.c pcicrc32.c ltssm.c veriuser.c
-CFLAGS    = -c -fPIC -Wno-incompatible-pointer-types -Wno-format -I ${ICADIR} -I${VPROC_TOP}/code -DICARUS -DLTSSM_ABBREVIATED 
+C_FILES   = codec.c mem.c pcie.c pcie_utils.c pcicrc32.c ltssm.c displink.c veriuser.c
+CFLAGS    = -c -fPIC -Wno-incompatible-pointer-types -Wno-format -I $(ICADIR) -I$(VPROC_TOP)/code -DICARUS -DLTSSM_ABBREVIATED $(USRFLAGS)
 CC        = gcc
 
-OBJS      = ${addprefix ${OBJDIR}/, ${C_FILES:%.c=%.o}}
+OBJS      = $(addprefix $(OBJDIR)/, $(C_FILES:%.c=%.o))
 LIB       = libpcievhost.a
 
-${OBJDIR}/%.o: ${SRCDIR}/%.c
-	@${CC} ${CFLAGS} $< -o $@
+${OBJDIR}/%.o: $(SRCDIR)/%.c
+	@$(CC) $(CFLAGS) $< -o $@
 
 #------------------------------------------------------
 # BUILD RULES
 #------------------------------------------------------
 
-all: ${LIB}
+all: $(LIB)
 
-${LIB} : ${OBJS}
-	@ar cr ${LIB} ${OBJS}
+${LIB} : $(OBJS)
+	@ar cr $(LIB) $(OBJS)
 
-${OBJS}: | ${OBJDIR}
+${OBJS}: | $(OBJDIR)
 
 ${OBJDIR}:
-	@mkdir ${OBJDIR}
+	@mkdir $(OBJDIR)
 
 #------------------------------------------------------
 # CLEANING RULES
 #------------------------------------------------------
 
 clean:
-	@rm -rf ${LIB} ${OBJS}
+	@rm -rf $(LIB) $(OBJS)

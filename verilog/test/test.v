@@ -178,6 +178,7 @@ wire [9:0] IntLinkUp15    = LinkUp15;
 `endif
 
 
+`ifndef DISABLE_PCIEDISPLINK
  PcieDispLink #(`PCIE_NUM_PHY_LANES) dispd (.ExtClk(Clk),
                                             .Link             (DownLink[`PCIE_NUM_PHY_LANES*10-1:0]),
                                             .notReset         (notReset),
@@ -208,6 +209,7 @@ wire [9:0] IntLinkUp15    = LinkUp15;
                                             .NodeNum          (NodeNumUp[7:0])
                                             );
 
+`endif
 
  // Host
  PcieVhost #(`PCIE_NUM_PHY_LANES, `VPCIE_HOST_NODE_NUM, 0)

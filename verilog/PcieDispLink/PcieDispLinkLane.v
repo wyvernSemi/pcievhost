@@ -172,17 +172,17 @@ begin
         end
 
         if (ElecIdleOrderedSet)
-            $display("PCIE%c%0d %0d: Electrical idle ordered set", FwdName, NodeNum, LaneNum);
+            $display("PCIE%c%0d %0d: PL Electrical idle ordered set", FwdName, NodeNum, LaneNum);
 
         if (FtsOrderedSet)
         begin
-            $display("PCIE%c%0d %0d: Fast training sequence ordered set", FwdName, NodeNum, LaneNum);
+            $display("PCIE%c%0d %0d: PL Fast training sequence ordered set", FwdName, NodeNum, LaneNum);
             SeenOS = 1;
         end
 
         if (SkpOrderedSet)
         begin
-            $display("PCIE%c%0d %0d: Skip ordered set", FwdName, NodeNum, LaneNum);
+            $display("PCIE%c%0d %0d: PL Skip ordered set", FwdName, NodeNum, LaneNum);
             SeenOS = 1;
         end
     end

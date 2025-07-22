@@ -645,7 +645,7 @@ begin
                 `TL_CFGRD1   : if (TlpDispEn) $display("Config read type 1 RID=%h TAG=%h FBE=%b LBE=%b Bus=%h Dev=%h Func=%h EReg=%h Reg=%h", TlID, TlTAG, TlFirstBE, TlLastBE, TlBusNum, TlDevNum, TlFuncNum, TlExtRegNum, TlRegNum);
                 `TL_CFGWR1   : if (TlpDispEn) $display("Config write type 1 RID=%h TAG=%h FBE=%b LBE=%b Bus=%h Dev=%h Func=%h EReg=%h Reg=%h", TlID, TlTAG, TlFirstBE, TlLastBE, TlBusNum, TlDevNum, TlFuncNum, TlExtRegNum, TlRegNum);
                 `TL_CPL      : begin if (TlpDispEn) $write("Completion "); DispComp(TlCStatus, TlpDispEn); end
-                `TL_CPLD     : begin if (TlpDispEn) $write("Completion with Data "); DispComp(TlCStatus, TlpDispEn); end
+                `TL_CPLD     : begin if (TlpDispEn) $write("Completion with data "); DispComp(TlCStatus, TlpDispEn); end
                 `TL_CPLLK    : begin if (TlpDispEn) $write("Completion LOCKED "); DispComp(TlCStatus, TlpDispEn); end
                 `TL_CPLDLK   : begin if (TlpDispEn) $write("Completion with data LOCKED "); DispComp(TlCStatus, TlpDispEn); end
                 `TL_MSG      : begin if (TlpDispEn) $write("Message req "); DispMsg(TlWord1, TlWord2, TlWord3, TlpDispEn); DispRoute(TlType[2:0], TlpDispEn, TlWord2[31:16]); end
@@ -666,9 +666,13 @@ begin
                 if (TlED)
                     if (TlpDispEn) $write (", Poisoned");
                 if (TlAttr[1])
+                begin
                     if (TlpDispEn) $write (", Relaxed ordering (PCI-X)");
+                end
                 else
+                begin
                     if (TlpDispEn) $write (", Strong ordering (PCI)");
+                end
 
                 if (TlAttr[0])
                     if (TlpDispEn) $write (", No Snoop");

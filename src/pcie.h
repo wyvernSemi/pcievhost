@@ -61,8 +61,8 @@
 // -------------------------------------------------------------------------
 
 #define PCIE_MAJOR_VER               1
-#define PCIE_MINOR_VER               3
-#define PCIE_PATCH_VER               13
+#define PCIE_MINOR_VER               4
+#define PCIE_PATCH_VER               0
 
 // Used in macros
 #define BYTE_MASK                    0xff

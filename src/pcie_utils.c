@@ -1,6 +1,6 @@
 //=============================================================
 //
-// Copyright (c) 2016-2024 Simon Southwell. All rights reserved.
+// Copyright (c) 2016-2025 Simon Southwell. All rights reserved.
 //
 // Date: 20th Sep 2016
 //
@@ -31,6 +31,7 @@
 
 #include "pcie.h"
 #include "pcie_utils.h"
+#include "displink.h"
 #include "codec.h"
 
 // -------------------------------------------------------------------------
@@ -56,12 +57,12 @@ static uint32_t CalcNewRxCredits(const uint32_t rxfc, const uint32_t currfc, con
 
     if (hdrcheck && newfc >= currfc + 127) /* Checks for 2.6.1 PCIE 1.1 pg 110 */
     {
-        VPrint("CalcNewRxCredits(): ***Error --- Received Hdr FC advertising more than 127 credits NewFC %d OldFC %d\n", newfc, currfc);
+        VPrint("CalcNewRxCredits(): %s***Error --- Received Hdr FC advertising more than 127 credits NewFC %d OldFC %d\%sn", FMT_RED, newfc, currfc, FMT_NORMAL);
         VWrite(PVH_FATAL, 0, 0, node);
     }
     else if (newfc >= currfc + 2047)
     {
-        VPrint("CalcNewRxCredits(): ***Error --- Received Data FC advertising more than 2047 credits NewFC %d OldFC %d\n", newfc, currfc);
+        VPrint("CalcNewRxCredits(): %s***Error --- Received Data FC advertising more than 2047 credits NewFC %d OldFC %d%s\n", FMT_RED, newfc, currfc, FMT_NORMAL);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -95,7 +96,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
             flw->RxHdrCredits[0][FC_POST] += 1;
             if (flw->RxHdrCredits[0][FC_POST] > flw->ConsumedHdrCredits[0][FC_POST])
             {
-                VPrint("ProcessRxFlowControl(): ***Error --- Overflow on Posted header Credits");
+                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Posted header Credits%s", FMT_RED, FMT_NORMAL);
                 VWrite(PVH_FATAL, 0, 0, node);
             }
         }
@@ -104,7 +105,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
             flw->RxDataCredits[0][FC_POST] += payload_length/4 + ((payload_length%4) ? 1 : 0);
             if (flw->RxDataCredits[0][FC_POST] > flw->ConsumedDataCredits[0][FC_POST])
             {
-                VPrint("ProcessRxFlowControl(): ***Error --- Overflow on Posted Data Credits");
+                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Posted Data Credits%s", FMT_RED, FMT_NORMAL);
                 VWrite(PVH_FATAL, 0, 0, node);
             }
         }
@@ -117,7 +118,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
 
             if (flw->RxHdrCredits[0][FC_POST] > flw->ConsumedHdrCredits[0][FC_POST])
             {
-                VPrint("ProcessRxFlowControl(): ***Error --- Overflow on Posted header Credits");
+                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Posted header Credits%s", FMT_RED, FMT_NORMAL);
                 VWrite(PVH_FATAL, 0, 0, node);
             }
         }
@@ -129,7 +130,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
             flw->RxHdrCredits[0][FC_CMPL]  += 1;
             if (flw->RxHdrCredits[0][FC_CMPL] > flw->ConsumedHdrCredits[0][FC_CMPL])
             {
-                VPrint("ProcessRxFlowControl(): ***Error --- Overflow on Completion header Credits");
+                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Completion header Credits%s", FMT_RED, FMT_NORMAL);
                 VWrite(PVH_FATAL, 0, 0, node);
             }
         }
@@ -141,7 +142,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
             flw->RxHdrCredits[0][FC_CMPL]  += 1;
             if (flw->RxHdrCredits[0][FC_CMPL] > flw->ConsumedHdrCredits[0][FC_CMPL])
             {
-                VPrint("ProcessRxFlowControl(): ***Error --- Overflow on Completion header Credits");
+                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Completion header Credits%s", FMT_RED, FMT_NORMAL);
                 VWrite(PVH_FATAL, 0, 0, node);
             }
         }
@@ -150,7 +151,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
             flw->RxDataCredits[0][FC_CMPL] += payload_length/4 + ((payload_length%4) ? 1 : 0);
             if (flw->RxDataCredits[0][FC_CMPL] > flw->ConsumedDataCredits[0][FC_CMPL])
             {
-                VPrint("ProcessRxFlowControl(): ***Error --- Overflow on Completion data Credits");
+                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Completion data Credits%s", FMT_RED, FMT_NORMAL);
                 VWrite(PVH_FATAL, 0, 0, node);
             }
         }
@@ -167,7 +168,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
             flw->RxHdrCredits[0][FC_NONPOST]  += 1;
             if (flw->RxHdrCredits[0][FC_NONPOST] > flw->ConsumedHdrCredits[0][FC_NONPOST])
             {
-                VPrint("ProcessRxFlowControl(): ***Error --- Overflow on Non-posted header Credits");
+                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Non-posted header Credits%s", FMT_RED, FMT_NORMAL);
                 VWrite(PVH_FATAL, 0, 0, node);
             }
         }
@@ -179,7 +180,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
             flw->RxHdrCredits[0][FC_NONPOST] += 1;
             if (flw->RxHdrCredits[0][FC_NONPOST] > flw->ConsumedHdrCredits[0][FC_NONPOST])
             {
-                VPrint("ProcessRxFlowControl(): ***Error --- Overflow on Non-posted header Credits");
+                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Non-posted header Credits%s", FMT_RED, FMT_NORMAL);
                 VWrite(PVH_FATAL, 0, 0, node);
             }
         }
@@ -188,7 +189,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
             flw->RxDataCredits[0][FC_NONPOST] += payload_length/4 + ((payload_length%4) ? 1 : 0);
             if (flw->RxDataCredits[0][FC_NONPOST] > flw->ConsumedDataCredits[0][FC_NONPOST])
             {
-                VPrint("ProcessRxFlowControl(): ***Error --- Overflow on Non-posted data Credits");
+                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Non-posted data Credits%s", FMT_RED, FMT_NORMAL);
                 VWrite(PVH_FATAL, 0, 0, node);
             }
         }
@@ -461,7 +462,7 @@ static bool checkBars(const uint64_t addr, const uint32_t bytelen, const unsigne
 
         // Calculate the length from the mask bits
         uint64_t length = (BARMASK + 1) & ((locatable == CFG_BAR_LOCATABLE_64_BIT) ? 0xffffffffffffffffULL : 0x00000000ffffffffULL);
-        
+
         // Calculate end address of burst
         uint64_t endaddr = addr + bytelen;
 
@@ -498,6 +499,8 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
     PktData_t buff[MAX_BYTE_BLOCK], *pdata;
     int status;
     pFlowControl_t flw = &(state->flwcntl);
+    uint32_t got_lcrc, exp_lcrc;
+    uint32_t got_ecrc, exp_ecrc;
 
     // Set an optimistic packet status
     status = PKT_STATUS_GOOD;
@@ -510,8 +513,16 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
         crc[1] = pkt->data[6];
         CalcDllpCrc(pkt->data);
 
+        PktData_t gotcrc = (crc[0] << 8)| crc[1];
+        PktData_t expcrc = (pkt->data[5] << 8) | pkt->data[6];
+
+        type = pkt->data[1];
+        type &= ((type & 0x30) == 0x20) ? 0xff : 0xf8; // Mask VC bits
+
+        DispDll(state, pkt, true);
+
         // If good CRC ...
-        if (crc[0] == pkt->data[5] && crc[1] == pkt->data[6])
+        if (expcrc == gotcrc)
         {
             type = pkt->data[1];
             type &= ((type & 0x30) == 0x20) ? 0xff : 0xf8; // Mask VC bits
@@ -650,13 +661,21 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
     }
     else
     {
+        type           = pkt->data[TLP_TYPE_BYTE_OFFSET];
+        payload_length = GET_TLP_LENGTH_ADJ(pkt->data);
+
+        bool has_data = type & TL_TYPE_WRITE;
+
         // Check LCRC
-        lcrc_offset = 15 + 4 * (GET_TLP_LENGTH(pkt->data) + TLP_HAS_DIGEST(pkt->data) + TLP_HDR_4DW(pkt->data));
+        lcrc_offset = 15 + 4 * ((has_data ? GET_TLP_LENGTH(pkt->data) : 0) + TLP_HAS_DIGEST(pkt->data) + TLP_HDR_4DW(pkt->data));
         crc[0] = pkt->data[lcrc_offset+0];
         crc[1] = pkt->data[lcrc_offset+1];
         crc[2] = pkt->data[lcrc_offset+2];
         crc[3] = pkt->data[lcrc_offset+3];
         CalcLcrc(pkt->data);
+
+        exp_lcrc = ((uint32_t)pkt->data[lcrc_offset+0] << 24) | ((uint32_t)pkt->data[lcrc_offset+1] << 16) | ((uint32_t)pkt->data[lcrc_offset+2] << 8) | ((uint32_t)pkt->data[lcrc_offset+3]);
+        got_lcrc = ((uint32_t)crc[0] << 24) | ((uint32_t)crc[1] << 16) | ((uint32_t)crc[2] << 8) | ((uint32_t)crc[3]);
 
         if (TLP_HAS_DIGEST(pkt->data))
         {
@@ -666,7 +685,11 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
             ecrc[2] = pkt->data[ecrc_offset+2];
             ecrc[3] = pkt->data[ecrc_offset+3];
             CalcEcrc(pkt->data);
+            exp_ecrc = ((uint32_t)pkt->data[ecrc_offset+0] << 24) | ((uint32_t)pkt->data[ecrc_offset+1] << 16) | ((uint32_t)pkt->data[ecrc_offset+2] << 8) | ((uint32_t)pkt->data[ecrc_offset+3]);
+            got_ecrc = ((uint32_t)ecrc[0] << 24) | ((uint32_t)ecrc[1] << 16) | ((uint32_t)ecrc[2] << 8) | ((uint32_t)ecrc[3]);
         }
+
+        DispTl(state, pkt, /*got_lcrc, exp_lcrc, got_ecrc, exp_ecrc,*/ true /*, state->thisnode*/);
 
         // Bad CRC
         if (crc[0] != pkt->data[lcrc_offset+0] || crc[1] != pkt->data[lcrc_offset+1] ||
@@ -683,7 +706,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
             }
             else
             {
-                VPrint("ProcessInput: Info --- Tlp LCRC failure. Sending NAK from node %d\n", state->thisnode);
+                VPrint("ProcessInput: Info --- %sTlp LCRC failure%s. Sending NAK from node %d\n", FMT_RED, FMT_NORMAL, state->thisnode);
                 if (!state->usrconf.DisableAck)
                 {
                     SendNak (pkt->seq, state->thisnode);
@@ -708,7 +731,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
         if (TLP_HAS_DIGEST(pkt->data) && (ecrc[0] != pkt->data[ecrc_offset+0] || ecrc[1] != pkt->data[ecrc_offset+1] ||
                                           ecrc[2] != pkt->data[ecrc_offset+2] || ecrc[3] != pkt->data[ecrc_offset+3] ))
         {
-            VPrint("ProcessInput: Info --- Tlp ECRC failure at node %d\n", state->thisnode);
+            VPrint("ProcessInput: Info --- %sTlp ECRC failure at node %d%s\n", FMT_RED, state->thisnode, FMT_NORMAL);
             status |= PKT_STATUS_BAD_ECRC;
             if (state->vuser_cb != NULL)
             {
@@ -728,9 +751,6 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
             SendAck (pkt->seq, state->thisnode);
         }
 
-        type = pkt->data[TLP_TYPE_BYTE_OFFSET];
-        payload_length = GET_TLP_LENGTH_ADJ(pkt->data);
-
         // If mem write ...
         if (!state->usrconf.DisableMem && (type == TL_MWR32 || type == TL_MWR64))
         {
@@ -747,7 +767,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
                          ((uint64_t)pkt->data[TLP_ADDR_OFFSET+4] << 24) | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+5] << 16) |
                          ((uint64_t)pkt->data[TLP_ADDR_OFFSET+6] << 8)  | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+7] << 0) ;
             }
-            
+
             length     = GET_TLP_LENGTH(pkt->data);
 
             // Check if address is ok to to use
@@ -779,7 +799,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
                          ((uint64_t)pkt->data[TLP_ADDR_OFFSET+4] << 24) | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+5] << 16) |
                          ((uint64_t)pkt->data[TLP_ADDR_OFFSET+6] << 8)  | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+7] << 0) ;
             }
-            
+
             length     = GET_TLP_LENGTH(pkt->data);
 
             // Check address is good for an access
@@ -794,7 +814,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
 
                 if (ReadRamByteBlock (addr, buff, length*4, state->thisnode))
                 {
-                    VPrint("ProcessInput: ***Error --- ReadRamByteBlock for address %llx returned bad status at node %d\n", (long long unsigned)addr, state->thisnode);
+                    VPrint("ProcessInput: %s***Error --- ReadRamByteBlock for address %llx returned bad status at node %d%s\n", FMT_RED, (long long unsigned)addr, state->thisnode, FMT_NORMAL);
                     VWrite(PVH_FATAL, 0, 0, state->thisnode);
                 }
 
@@ -946,67 +966,65 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
 //
 // -------------------------------------------------------------------------
 
-static void ProcessOS(const pLinkEventCount_t const linkevent, const int lane, const int type, const pTS_t const ts_data,
+static void ProcessOS(const pPcieModelState_t const state,
+                      const pLinkEventCount_t const linkevent, const int lane, const int type, const pTS_t const ts_data,
                       const os_callback_t cb, void* usrptr, const int node)
 {
     if (cb != NULL)
     {
         cb(type, lane, ts_data, usrptr);
     }
-    else if (type == 0)
-    {
-        DebugVPrint("ProcessOS: OS/TS sequence broken on lane %d at node %d\n", lane, node);
-        linkevent->FlaggedIdle[lane]++;
-    }
-    else if (type == IDL)
-    {
-        DebugVPrint("ProcessOS: Seen IDLE OS on lane %d at node %d\n", lane, node);
-        linkevent->IdleCount[lane]++;
-    }
-    else if (type == SKP)
-    {
-        DebugVPrint("ProcessOS: Seen SKIP OS on lane %d at node %d\n", lane, node);
-        linkevent->SkipCount[lane]++;
-    }
-    else if (type == FTS)
-    {
-        DebugVPrint("ProcessOS: Seen FTS OS on lane %d at node %d\n", lane, node);
-        linkevent->FtsCount[lane]++;
-    }
-    else if (type == TS1_ID)
-    {
-        DebugVPrint("ProcessOS: Seen TS1 on lane %d at node %d\n", lane, node);
-        DebugVPrint("           linknum=0x%02x lanenum=0x%02x n_fts=%d datarate=%d control=%d\n", ts_data->linknum, ts_data->lanenum, ts_data->n_fts, ts_data->datarate, ts_data->control);
-        DebugVPrint("# PCIED%d %02d: PL TS1 OS Link= %2d Lane= %2d N_FTS=%3d DataRate=%s %s %s %s %s\n",
-               node,  lane,  ts_data->linknum, ts_data->lanenum, ts_data->n_fts,
-               (ts_data->datarate == 6) ? "GEN2" : (ts_data->datarate == 2) ? "GEN1" : "GEN?",
-               (ts_data->control & 0x01) ? "AssertReset" : "",
-               (ts_data->control & 0x02) ? "DisableLink" : "",
-               (ts_data->control & 0x04) ? "Loopback"    : "",
-               (ts_data->control & 0x08) ? "NoScramble"  : "",
-               (ts_data->control & 0x10) ? "ComplianceRx"  : ""
-               );
-        linkevent->Ts1Count[lane]++;
-        linkevent->LastTS[lane] = *ts_data;
-    }
-    else if (type == TS2_ID)
-    {
-        DebugVPrint("ProcessOS: Seen TS2 on lane %d at node %d\n", lane, node);
-        DebugVPrint("           linknum=0x%02x lanenum=0x%02x n_fts=%d datarate=%d control=%d\n", ts_data->linknum, ts_data->lanenum, ts_data->n_fts, ts_data->datarate, ts_data->control);
-        DebugVPrint("# PCIED%d %02d: PL TS2 OS Link= %2d Lane= %2d N_FTS=%3d DataRate=%s %s %s %s %s\n",
-               node,  lane,  ts_data->linknum, ts_data->lanenum, ts_data->n_fts,
-               (ts_data->datarate == 6) ? "GEN2" : (ts_data->datarate == 2) ? "GEN1" : "GEN?",
-               (ts_data->control & 0x01) ? "AssertReset" : "",
-               (ts_data->control & 0x02) ? "DisableLink" : "",
-               (ts_data->control & 0x04) ? "Loopback"    : "",
-               (ts_data->control & 0x08) ? "NoScramble"  : ""
-               );
-        linkevent->Ts2Count[lane]++;
-        linkevent->LastTS[lane] = *ts_data;
-    }
     else
     {
-        DebugVPrint("ProcessOS: Warning --- Seen unrecognised OS event on lane %d at node %d\n", lane, node);
+        if (type == 0)
+        {
+            DebugVPrint("ProcessOS: OS/TS sequence broken on lane %d at node %d\n", lane, node);
+            linkevent->FlaggedIdle[lane]++;
+        }
+        else
+        {
+            if (type == IDL)
+            {
+                DebugVPrint("ProcessOS: Seen IDLE OS on lane %d at node %d\n", lane, node);
+                linkevent->IdleCount[lane]++;
+            }
+            else if (type == SKP)
+            {
+                DebugVPrint("ProcessOS: Seen SKIP OS on lane %d at node %d\n", lane, node);
+                linkevent->SkipCount[lane]++;
+            }
+            else if (type == FTS)
+            {
+                DebugVPrint("ProcessOS: Seen FTS OS on lane %d at node %d\n", lane, node);
+                linkevent->FtsCount[lane]++;
+            }
+            else if (type == TS1_ID)
+            {
+                DebugVPrint("ProcessOS: Seen TS1 on lane %d at node %d\n", lane, node);
+                DebugVPrint("           linknum=0x%02x lanenum=0x%02x n_fts=%d datarate=%d control=%d\n", ts_data->linknum, ts_data->lanenum, ts_data->n_fts, ts_data->datarate, ts_data->control);
+            
+                //DispOS(state, type, ts_data, lane, true, node);
+            
+                linkevent->Ts1Count[lane]++;
+                linkevent->LastTS[lane] = *ts_data;
+            }
+            else if (type == TS2_ID)
+            {
+                DebugVPrint("ProcessOS: Seen TS2 on lane %d at node %d\n", lane, node);
+                DebugVPrint("           linknum=0x%02x lanenum=0x%02x n_fts=%d datarate=%d control=%d\n", ts_data->linknum, ts_data->lanenum, ts_data->n_fts, ts_data->datarate, ts_data->control);
+            
+                //DispOS(state, type, ts_data, lane, true, node);
+            
+                linkevent->Ts2Count[lane]++;
+                linkevent->LastTS[lane] = *ts_data;
+            }
+            else
+            {
+                DebugVPrint("ProcessOS: Warning --- Seen unrecognised OS event on lane %d at node %d\n", lane, node);
+            }
+
+            DispOS(state, type, ts_data, lane, true, node);
+        }
     }
 }
 
@@ -1023,7 +1041,7 @@ void CheckFree (void*  ptr)
 {
     if (! ptr)
     {
-        VPrint ("CheckFree(): ***Error --- received null ptr to free\n");
+        VPrint ("CheckFree(): %s***Error --- received null ptr to free%s\n", FMT_RED, FMT_NORMAL);
         exit (EXIT_FAILURE);
     }
     else
@@ -1108,7 +1126,7 @@ static pPkt_t PcieSortQueue (const pPkt_t const head_p, pPkt_t* end, const int n
     // Check we haven't overflowed
     if (idx == (MAX_HDR_CREDITS+1) && tmp_p != NULL)
     {
-        VPrint("PcieSortQueue(): ***Error --- completion queue overflow\n");
+        VPrint("PcieSortQueue(): %s***Error --- completion queue overflow%s\n", FMT_RED, FMT_NORMAL);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -1152,7 +1170,7 @@ int CalcByteCount (const int len, const int fbe, const int lbe)
 {
     if (len == 0 && fbe == 0xf && lbe == 0xf)
     {
-        VPrint( "CalcByteCount: ***Error --- Len = 0, with valid byte enables \n");
+        VPrint( "CalcByteCount: %s***Error --- Len = 0, with valid byte enables%s\n", FMT_RED, FMT_NORMAL);
         exit (EXIT_FAILURE);
     }
 
@@ -1326,7 +1344,7 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int by
 
     if (bytelen < 0 || bytelen > MAX_PAYLOAD_BYTES)
     {
-        VPrint( "CreatePktTemplate(): ***Error --- bytelen out of range (%d)\n", bytelen);
+        VPrint( "CreateTlpTemplate(): %s***Error --- bytelen out of range (%d)%s\n", FMT_RED, bytelen, FMT_NORMAL);
         return NULL;
     }
 
@@ -1378,7 +1396,7 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int by
 
         if (total_length % 4)
         {
-            VPrint( "CreatePktTemplate(): ***Error --- total_length not DWORD aligned\n");
+            VPrint( "CreateTlpTemplate(): %s***Error --- total_length not DWORD aligned%s\n", FMT_RED, FMT_NORMAL);
             VPrint( "total_length=%d header_length=%d tail_length=%d payload_length=%d actual_length=%d bytelen=%d endpos=%d (addr & 0x3)=%x\n",
                              total_length, header_length, tail_length, payload_length, actual_length, bytelen, endpos, ((uint32_t)addr & 0x3));
             return NULL;
@@ -1386,7 +1404,7 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int by
 
         if ((pmem = (PktData_t *)calloc ((total_length+1) * sizeof(PktData_t), 1)) == NULL)
         {
-            VPrint( "CreatePktTemplate(): ***Error --- malloc call failed\n");
+            VPrint( "CreateTlpTemplate(): %s***Error --- malloc call failed%s\n", FMT_RED, FMT_NORMAL);
             return NULL;
         }
 
@@ -1447,7 +1465,7 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int by
 
         if (total_length % 4)
         {
-            VPrint( "CreatePktTemplate(): ***Error --- total_length not DWORD aligned\n");
+            VPrint( "CreateTlpTemplate(): %s***Error --- total_length not DWORD aligned%s\n", FMT_RED, FMT_NORMAL);
             VPrint( "total_length=%d header_length=%d tail_length=%d payload_length=%d bytelen=%d endpos=%d (addr & 0x3)=%x\n",
                              total_length, header_length, tail_length, payload_length, bytelen, endpos, ((uint32_t)addr & 0x3));
             return NULL;
@@ -1455,7 +1473,7 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int by
 
         if ((pmem = (PktData_t *)calloc (total_length * sizeof(PktData_t) + sizeof(PktData_t), 1)) == NULL)
         {
-            VPrint( "CreatePktTemplate(): ***Error --- malloc call failed\n");
+            VPrint( "CreateTlpTemplate(): %s***Error --- malloc call failed%s\n", FMT_RED, FMT_NORMAL);
             return NULL;
         }
 
@@ -1508,7 +1526,7 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int by
 
         if (total_length % 4)
         {
-            VPrint( "CreatePktTemplate(): ***Error --- total_length not DWORD aligned\n");
+            VPrint( "CreateTlpTemplate(): %s***Error --- total_length not DWORD aligned%s\n", FMT_RED, FMT_NORMAL);
             VPrint( "total_length=%d header_length=%d tail_length=%d payload_length=%d bytelen=%d endpos=%d (addr & 0x3)=%x\n",
                              total_length, header_length, tail_length, payload_length, bytelen, endpos, ((uint32_t)addr & 0x3));
             return NULL;
@@ -1516,7 +1534,7 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int by
 
         if ((pmem = (PktData_t *)calloc (total_length * sizeof(PktData_t) + sizeof(PktData_t), 1)) == NULL)
         {
-            VPrint( "CreatePktTemplate(): ***Error --- malloc call failed\n");
+            VPrint( "CreateTlpTemplate(): %s***Error --- malloc call failed%s\n", FMT_RED, FMT_NORMAL);
             return NULL;
         }
 
@@ -1566,7 +1584,7 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int by
 
         if (total_length % 4)
         {
-            VPrint( "CreatePktTemplate(): ***Error --- total_length not DWORD aligned\n");
+            VPrint( "CreateTlpTemplate(): %s***Error --- total_length not DWORD aligned%s\n", FMT_RED, FMT_NORMAL);
             VPrint( "total_length=%d header_length=%d tail_length=%d payload_length=%d bytelen=%d endpos=%d (addr & 0x3)=%x\n",
                              total_length, header_length, tail_length, payload_length, bytelen, endpos, ((uint32_t)addr & 0x3));
             return NULL;
@@ -1574,7 +1592,7 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int by
 
         if ((pmem = (PktData_t *)calloc (total_length * sizeof(PktData_t) + sizeof(PktData_t), 1)) == NULL)
         {
-            VPrint( "CreatePktTemplate(): ***Error --- malloc call failed\n");
+            VPrint( "CreateTlpTemplate(): %s***Error --- malloc call failed%s\n", FMT_RED, FMT_NORMAL);
             return NULL;
         }
 
@@ -1624,7 +1642,7 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int by
         break;
 
     default:
-        VPrint( "CreatePktTemplate(): ***Error --- Unrecognised type\n");
+        VPrint( "CreateTlpTemplate(): %s***Error --- Unrecognised type%s\n", FMT_RED, FMT_NORMAL);
         return NULL;
         break;
     }
@@ -1649,7 +1667,7 @@ PktData_t * CreateDllpTemplate (const int Type, PktData_t **payload_start)
 
     if ((pmem = (PktData_t *)calloc (9, sizeof(PktData_t))) == NULL)
     {
-        VPrint( "CreateDllpTemplate(): ***Error --- malloc call failed\n");
+        VPrint( "CreateDllpTemplate(): %s***Error --- malloc call failed%s\n", FMT_RED, FMT_NORMAL);
         return NULL;
     }
 
@@ -1692,7 +1710,7 @@ PktData_t * CreateDllpTemplate (const int Type, PktData_t **payload_start)
         return pmem;
         break;
     default:
-        VPrint( "CreateDllpTemplate(): ***Error --- Unrecognised type\n");
+        VPrint( "CreateDllpTemplate(): %s***Error --- Unrecognised type%s\n", FMT_RED, FMT_NORMAL);
         return NULL;
         break;
    }
@@ -1787,6 +1805,11 @@ void InitPcieState(const pPcieModelState_t const state, const int node)
     usrconf->Disable8b10b         = 0;
     usrconf->SkipInterval         = DEFAULT_SKIP_INTERVAL;
     usrconf->AckRate              = DEFAULT_ACK_RATE;
+    usrconf->ContDispIdx          = 0;
+    usrconf->ActiveContDisp       = 0;
+    usrconf->BackNodeNum          = node ^ 1; // Assumes connected devices are one node apart
+
+    ConstDisp(usrconf);
 
     state->RandNum                = node;
 
@@ -1904,7 +1927,7 @@ void AddPktToQueueDelay (const pPcieModelState_t const state, const pPkt_t const
 
 void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* const rawlinkin)
 {
-    unsigned int linkin [MAX_LINK_WIDTH];
+    PktData_t linkin [MAX_LINK_WIDTH];
     pPkt_t pkt;
     int idx, i;
     pLinkEventCount_t linkevent = &(state->linkevent);
@@ -1948,7 +1971,7 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
                     // If we've seen 3 OS symbols (or just 1 for skip), then an OS event has triggered
                     if (linkevent->OsCount[idx] == 3 || (linkevent->OsState[idx] == SKP && linkevent->OsCount[idx] == 1))
                     {
-                        ProcessOS(linkevent, idx, linkevent->OsState[idx], NULL, state->vuser_os_cb, state->usrptr, state->thisnode);
+                        ProcessOS(state, linkevent, idx, linkevent->OsState[idx], NULL, state->vuser_os_cb, state->usrptr, state->thisnode);
                         if (linkevent->OsState[idx] != SKP)
                         {
                             linkevent->OsState[idx] = 0;
@@ -2002,7 +2025,7 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
                     else if (linkevent->OsCount [idx] == 15)
                     {
                         DebugVPrint("ExtractPhyInput: Calling ProcessOS() with TS\n");
-                        ProcessOS(linkevent, idx, linkin[idx], &linkevent->Tseq[idx], state->vuser_os_cb, state->usrptr, state->thisnode);
+                        ProcessOS(state, linkevent, idx, linkin[idx], &linkevent->Tseq[idx], state->vuser_os_cb, state->usrptr, state->thisnode);
                         linkevent->OsState [idx] = 0;
                         linkevent->OsCount [idx] = 0;
                     }
@@ -2014,7 +2037,7 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
         {
             // If not processing an OS/TS, flag to ProcessOS() an 'idle' status
             // in case it is checking for consecutive ordered sets
-            ProcessOS(linkevent, idx, 0, NULL, state->vuser_os_cb, state->usrptr, state->thisnode);
+            ProcessOS(state, linkevent, idx, 0, NULL, state->vuser_os_cb, state->usrptr, state->thisnode);
         }
 
         // ----- Extracting DLLP/TLPs across lanes -----
@@ -2023,7 +2046,7 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
         {
             if (state->RxActive)
             {
-                VPrint( "ExtractPhyInput: ***Error --- New STP/SDP (lane %d) whilst packet active at node %d\n", idx, state->thisnode);
+                VPrint( "ExtractPhyInput: %s***Error --- New STP/SDP (lane %d) whilst packet active at node %d%s\n", FMT_RED, idx, state->thisnode, FMT_NORMAL);
                 VWrite(PVH_FATAL, 0, 0, state->thisnode);
             }
             state->RxActive = true;
@@ -2031,7 +2054,7 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
             // Allocate some space for a new packet data
             if ((state->pRxPktData = (PktData_t *)calloc((MAX_RAW_PKT_SIZE) * sizeof(PktData_t), 1)) == NULL)
             {
-                VPrint( "ExtractPhyInput: ***Error --- memory allocation failure at node %d\n", state->thisnode);
+                VPrint( "ExtractPhyInput: %s***Error --- memory allocation failure at node %d%s\n", FMT_RED, state->thisnode, FMT_NORMAL);
                 VWrite(PVH_FATAL, 0, 0, state->thisnode);
             }
         }
@@ -2046,7 +2069,7 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
             }
             else
             {
-                VPrint( "ExtractPhyInput: ***Error --- packet overflow at node %d\n", state->thisnode);
+                VPrint( "ExtractPhyInput: %s***Error --- packet overflow at node %d%s\n", FMT_RED, state->thisnode, FMT_NORMAL);
                 VWrite(PVH_FATAL, 0, 0, state->thisnode);
             }
 
@@ -2059,13 +2082,13 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
                 // reallocate memory for the new packet data's actual size
                 if ((state->pRxPktData = (PktData_t *)realloc(state->pRxPktData, state->RxDataIdx * sizeof(PktData_t))) == NULL)
                 {
-                    VPrint( "ExtractPhyInput: ***Error --- memory reallocation failure at node %d\n", state->thisnode);
+                    VPrint( "ExtractPhyInput: %s***Error --- memory reallocation failure at node %d%s\n", FMT_RED, state->thisnode, FMT_NORMAL);
                     VWrite(PVH_FATAL, 0, 0, state->thisnode);
                 }
 
                 if ((pkt = calloc(sizeof(sPkt_t), 1)) == NULL)
                 {
-                    VPrint( "ExtractPhyInput: ***Error --- memory allocation failure\n");
+                    VPrint( "ExtractPhyInput: %s***Error --- memory allocation failure%s\n", FMT_RED, FMT_NORMAL);
                     VWrite(PVH_FATAL, 0, 0, state->thisnode);
                 }
 
@@ -2082,8 +2105,14 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
             }
         }
     }
+
+    DispRaw(state, linkin, true);
+
     // Keep track of time
     state->TicksSinceReset++;
+
+    // Check ContDisp
+    CheckContDisp(&state->usrconf, state->thisnode);
 
     // Check completion delay queue
     CheckDelayQueue(state);

@@ -1,6 +1,6 @@
 //=============================================================
-// 
-// Copyright (c) 2016-2024 Simon Southwell. All rights reserved.
+//
+// Copyright (c) 2016-2025 Simon Southwell. All rights reserved.
 //
 // Date: 20th Sep 2016
 //
@@ -65,6 +65,9 @@
 
 #define PENT_BASEADDR                0x0ULL
 
+#define STRBUFSIZE                   256
+
+#define MAXCONSTDISP                 256
 
 // -------------------------------------------------------------------------
 // MACROS
@@ -118,42 +121,53 @@
 ////////////////////////
 // Ordered set and Training sequence reception state
 typedef struct {
-    uint32_t     IdleCount    [MAX_LINK_WIDTH];
-    uint32_t     SkipCount    [MAX_LINK_WIDTH];
-    uint32_t     FtsCount     [MAX_LINK_WIDTH];
-    uint32_t     Ts1Count     [MAX_LINK_WIDTH];
-    uint32_t     Ts2Count     [MAX_LINK_WIDTH];
+    uint32_t     IdleCount              [MAX_LINK_WIDTH];
+    uint32_t     SkipCount              [MAX_LINK_WIDTH];
+    uint32_t     FtsCount               [MAX_LINK_WIDTH];
+    uint32_t     Ts1Count               [MAX_LINK_WIDTH];
+    uint32_t     Ts2Count               [MAX_LINK_WIDTH];
 
     // Received training sequence data
-    TS_t       LastTS       [MAX_LINK_WIDTH];
+    TS_t       LastTS                   [MAX_LINK_WIDTH];
 
     // Input ordered Set state
-    int        OsState      [MAX_LINK_WIDTH];
-    int        OsCount      [MAX_LINK_WIDTH];
-    int        FlaggedIdle  [MAX_LINK_WIDTH];
-    TS_t       Tseq         [MAX_LINK_WIDTH];
+    int        OsState                  [MAX_LINK_WIDTH];
+    int        OsCount                  [MAX_LINK_WIDTH];
+    int        FlaggedIdle              [MAX_LINK_WIDTH];
+    TS_t       Tseq                     [MAX_LINK_WIDTH];
 } LinkEventCount_t, *pLinkEventCount_t;
 
 ////////////////////////
-// User configurable state. 
+// User configurable state.
+
 typedef struct {
-    uint32_t   HdrConsumptionRate;
-    uint32_t   DataConsumptionRate;
-    int        AckRate;
-    int        CompletionRate;
-    int        CompletionSpread;
-    int        SkipInterval;
-    int        DisableMem;
-    int        DisableAck;
-    int        DisableFc;
-    int        DisableSkips;
-    int        DisableUrCpl;
-    int        DisableScrambling;
-    int        Disable8b10b;
+    uint32_t control;
+    uint64_t time;
+} ContDisp_type;
+
+typedef struct {
+    uint32_t       HdrConsumptionRate;
+    uint32_t       DataConsumptionRate;
+    int            AckRate;
+    int            CompletionRate;
+    int            CompletionSpread;
+    int            SkipInterval;
+    int            DisableMem;
+    int            DisableAck;
+    int            DisableFc;
+    int            DisableSkips;
+    int            DisableUrCpl;
+    int            DisableScrambling;
+    int            Disable8b10b;
+    int            BackNodeNum;
+
+    ContDisp_type  contdisp[MAXCONSTDISP];
+    uint32_t       ActiveContDisp;
+    int            ContDispIdx;
 
     // Rx buffer sizes
-    uint32_t     InitFcDataCr        [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
-    uint32_t     InitFcHdrCr         [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
+    uint32_t       InitFcDataCr        [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
+    uint32_t       InitFcHdrCr         [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
 
 } UserConfig_t, *pUserConfig_t;
 
@@ -161,10 +175,10 @@ typedef struct {
 // Flow control state
 typedef struct {
     // Received Flow control state
-    uint32_t     FlowCntlHdrCredits  [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
-    uint32_t     FlowCntlDataCredits [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
-    uint32_t     TxHdrCredits        [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
-    uint32_t     TxDataCredits       [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
+    uint32_t     FlowCntlHdrCredits    [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
+    uint32_t     FlowCntlDataCredits   [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
+    uint32_t     TxHdrCredits          [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
+    uint32_t     TxDataCredits         [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
 
     // Transmit flow control
     uint32_t     ConsumedDataCredits   [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
@@ -186,62 +200,62 @@ typedef struct {
 // PCIe model node state
 typedef struct {
     // Node identifier for this structure
-    int        thisnode;
+    int              thisnode;
 
     // Configuration state set by verilog parameters
-    int        LinkWidth;
-    int        Endpoint;
-    uint32_t   RandNum;
+    int              LinkWidth;
+    int              Endpoint;
+    uint32_t         RandNum;
 
     // 'real' time (cycle count)
-    uint32_t   TicksSinceReset;
+    uint32_t         TicksSinceReset;
 
     // Send queue pointers
-    pPkt_t     head_p;
-    pPkt_t     send_p;
-    pPkt_t     end_p;
+    pPkt_t           head_p;
+    pPkt_t           send_p;
+    pPkt_t           end_p;
 
     // Completion delay queue pointers
-    pPkt_t     cpl_head_p;
-    pPkt_t     cpl_end_p;
+    pPkt_t           cpl_head_p;
+    pPkt_t           cpl_end_p;
 
     // AckNak state
-    pPkt_t     ack_to_send_p;
-    pPkt_t     nak_to_send_p;
-    int        curr_ack;
-    int        curr_nak;
-    uint32_t     seq;
+    pPkt_t           ack_to_send_p;
+    pPkt_t           nak_to_send_p;
+    int              curr_ack;
+    int              curr_nak;
+    uint32_t         seq;
 
     // Skip Timing
-    int        LastTxSkipTime;
-    int        SkipScheduled;
+    int              LastTxSkipTime;
+    int              SkipScheduled;
 
     // Input packet state
-    int        CompletionEvent;
-    int        OutstandingCompletions;
-    int        CplId;
-    callback_t vuser_cb;
-    void       *usrptr;
+    int              CompletionEvent;
+    int              OutstandingCompletions;
+    int              CplId;
+    callback_t       vuser_cb;
+    void             *usrptr;
 
     // Input TLP/DLLP state
-    bool       RxActive;
-    int        RxDataIdx;
-    PktData_t  *pRxPktData;
+    bool             RxActive;
+    int              RxDataIdx;
+    PktData_t        *pRxPktData;
 
     // Input OS State
-    os_callback_t vuser_os_cb;
+    os_callback_t    vuser_os_cb;
 
     // Ordered set and Training sequence reception state
     LinkEventCount_t linkevent;
 
     // User configurable state
-    UserConfig_t  usrconf;
+    UserConfig_t     usrconf;
 
     // Flow control state
-    FlowControl_t flwcntl;
+    FlowControl_t    flwcntl;
 
-    bool draining_queue;
-    bool tx_disabled;
+    bool             draining_queue;
+    bool             tx_disabled;
 
 } PcieModelState_t, *pPcieModelState_t;
 
@@ -249,7 +263,7 @@ typedef struct {
 // EXTERNAL REFERENCES
 // -------------------------------------------------------------------------
 
-extern const unsigned int Bitrev8[];
+extern const unsigned int       Bitrev8[];
 
 // -------------------------------------------------------------------------
 // PCIe model support function prototypes
@@ -264,7 +278,7 @@ void        CalcDllpCrc          (PktData_t *dllp);
 int         CalcBe               (const int inaddr, const int byte_len);
 int         CalcLoAddr           (const int fbe);
 int         CalcByteCount        (const int len, int fbe, int lbe);
-int         CheckCredits         (const int disable_fc, const uint32_t fc_state, const uint32_t hdr_credits, const uint32_t data_credits, 
+int         CheckCredits         (const int disable_fc, const uint32_t fc_state, const uint32_t hdr_credits, const uint32_t data_credits,
                                   const uint32_t tx_hdr, const uint32_t tx_data, const int payload_len);
 void        AddPktToQueue        (const pPcieModelState_t const state, const pPkt_t const packet);
 void        AddPktToQueueDelay   (const pPcieModelState_t const state, const pPkt_t const packet);

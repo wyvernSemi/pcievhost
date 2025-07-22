@@ -27,7 +27,7 @@ VPROC_TOP = ../../VProc
 
 ARCHFLAG  = -m64
 
-C_FILES   = codec.c mem.c pcie.c pcie_utils.c pcicrc32.c ltssm.c
+C_FILES   = codec.c mem.c pcie.c pcie_utils.c pcicrc32.c ltssm.c displink.c
 CFLAGS    = -c -fPIC $(ARCHFLAG) -I $(VPROC_TOP)/code -DVPROC_SV -DLTSSM_ABBREVIATED 
 
 CC        = gcc

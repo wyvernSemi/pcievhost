@@ -88,6 +88,11 @@
 #define TL_CPLLK                   0x0b // 0001011
 #define TL_CPLDLK                  0x4b // 1001011
 
+// TLP type masks
+#define TL_TYPE_ADDR64             0x20
+#define TL_TYPE_WRITE              0x40
+#define TL_TYPE_MEMLOCK            0x01
+
 // DLLP types
 #define DL_ACK                     0x00
 #define DL_NAK                     0x10
