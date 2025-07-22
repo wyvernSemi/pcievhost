@@ -373,7 +373,11 @@ assign LinkClk = {NumOfLanes{ExtClk}};
 wire Clk = LinkClk[0];
 wire [NumOfLanes-1:0] Control, Synced;
 wire [(8*NumOfLanes)-1:0] Byte, ByteRaw;
-wire [`DispBits] DispVal = DispValIn | {`NoDispBits{DispValIn[`DispAll]}};
+
+// Internal Disp control bits all forced high id DispAll bit set, bit if any software bits set then
+// everything is didabled. (Note that Stop and Finish simulation control uses DispValIn and is not
+// masked.
+wire [`DispBits] DispVal = (DispValIn | {`NoDispBits{DispValIn[`DispAll]}}) & {`NoDispBits{~|DispValIn[`DispSwBits]}};
 
 
 wire [159:0] LaneNums = {5'h1f, 5'h1e, 5'h1d, 5'h1c, 5'h1b, 5'h1a, 5'h19, 5'h18,
@@ -413,12 +417,12 @@ begin
     // Termination
     //////////////////////
 
-    if (DispValIn[`DispFinish])
+    if (DispValIn[`DispFinish] & ~|DispValIn[`DispSwBits])
     begin
       $finish;
     end
 
-    if (DispValIn[`DispStop])
+    if (DispValIn[`DispStop] & ~|DispValIn[`DispSwBits])
     begin
       $stop;
     end

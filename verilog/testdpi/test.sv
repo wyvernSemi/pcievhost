@@ -77,6 +77,10 @@ task PcieGetReset(output int nRstVal);
   nRstVal = notReset;
 endtask
 
+`ifdef ENABLE_PCIEDISPLINK
+
+ // Control display module
+ ContDisps cd (Clk, DispVal);
 
  PcieDispLink #(`PCIE_NUM_PHY_LANES)
    dispd (.ExtClk(Clk),
@@ -110,6 +114,7 @@ endtask
           .NodeNum          (NodeNumUp[7:0])
           );
 
+`endif
 
  // Host
 
@@ -129,9 +134,6 @@ endtask
          .LinkIn      (LinkDown),
          .LinkOut     (LinkUp)
        );
-
- // Control display module
- ContDisps cd (Clk, DispVal);
 
 initial
 begin

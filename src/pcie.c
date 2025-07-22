@@ -303,7 +303,7 @@ pPktData_t MemWriteDigest (const uint64_t addr, const PktData_t *data, const int
 
     if (pms == NULL || this == NULL)
     {
-        VPrint("MemWriteDigest: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", MemWriteDigest);
+        VPrint("MemWriteDigest: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", FMT_RED, node, FMT_NORMAL);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -314,14 +314,14 @@ pPktData_t MemWriteDigest (const uint64_t addr, const PktData_t *data, const int
     }
     else if (length && (((addr + (uint64_t)(length-1)) & ~(MASK_4K_BITS)) > (addr & ~(MASK_4K_BITS))))
     {
-        VPrint( "MemWriteDigest: %s***Error --- address + length crosses 4K boundary at node %d%s\n", MemWriteDigest);
+        VPrint( "MemWriteDigest: %s***Error --- address + length crosses 4K boundary at node %d%s\n", FMT_RED, node, FMT_NORMAL);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
     // Create a template for a mem write
     if ((pkt_p = CreateTlpTemplate (TL_MWR64, addr, length, digest, &data_p)) == NULL)
     {
-        VPrint( "MemWriteDigest: %s***Error --- CreateTlpTemplate failed at node %d%s\n", MemWriteDigest);
+        VPrint( "MemWriteDigest: %s***Error --- CreateTlpTemplate failed at node %d%s\n", FMT_RED, node, FMT_NORMAL);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -759,7 +759,7 @@ pPktData_t IoWriteDigest (const uint64_t addr, const PktData_t *data, const int 
 
     if ((packet = calloc(sizeof(sPkt_t), 1)) == NULL)
     {
-        VPrint( "IoWriteDigest: %s***Error --- memory allocation failed%s\n"FMT_RED, FMT_NORMAL);
+        VPrint( "IoWriteDigest: %s***Error --- memory allocation failed%s\n", FMT_RED, FMT_NORMAL);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -1740,7 +1740,6 @@ void SendOs (const int Type, const int node)
 
 void SendTs (const int identifier, const int lane_num, const int link_num, const int n_fts, const int control, const bool is_gen2, const int node)
 {
-    int lanes, sequence;
     int old_draining_state = this->draining_queue;
     uint32_t  LinkIn  [MAX_LINK_WIDTH];
     PktData_t LinkOut [TS_LENGTH][MAX_LINK_WIDTH];
@@ -1783,9 +1782,9 @@ void SendTs (const int identifier, const int lane_num, const int link_num, const
     // Make sure RX queues, rather than sends, any transmitted replies
     this->draining_queue = true;
 
-    for (sequence = 0; sequence < TS_LENGTH; sequence++)
+    for (unsigned sequence = 0; sequence < TS_LENGTH; sequence++)
     {
-        for (lanes = 0; lanes < this->LinkWidth; lanes++)
+        for (unsigned lanes = 0; lanes < (this->LinkWidth); lanes++)
         {
             if (sequence == TS_COMMA_SEQ)
             {
@@ -1825,9 +1824,12 @@ void SendTs (const int identifier, const int lane_num, const int link_num, const
                 for (int seq = 0; seq < TS_LENGTH; seq++)
                     DispRaw(this, LinkOut[seq], false);
             }
-            
-            if (sequence == TS_LENGTH - 1)
+
+            // In the last stripe, output the training sequence OS
+            if (sequence == (TS_LENGTH - 1))
             {
+                // Get the lane number from its slot in the sequence (either PAD or the current lane #)
+                ts_data.lanenum =  LinkOut[TS_LANE_NUM_SEQ][lanes];
                 DispOS(this, identifier, &ts_data, lanes, false, node);
             }
         }

@@ -178,7 +178,11 @@ wire [9:0] IntLinkUp15    = LinkUp15;
 `endif
 
 
-`ifndef DISABLE_PCIEDISPLINK
+`ifdef ENABLE_PCIEDISPLINK
+
+ // Control display module
+ ContDisps cd (Clk, DispVal);
+
  PcieDispLink #(`PCIE_NUM_PHY_LANES) dispd (.ExtClk(Clk),
                                             .Link             (DownLink[`PCIE_NUM_PHY_LANES*10-1:0]),
                                             .notReset         (notReset),
@@ -297,9 +301,6 @@ wire [9:0] IntLinkUp15    = LinkUp15;
                                             .LinkOut14        (LinkUp14),
                                             .LinkOut15        (LinkUp15)
                                             );
-
- // Control display module
- ContDisps cd (Clk, DispVal);
 
 initial
 begin

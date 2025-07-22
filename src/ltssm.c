@@ -35,6 +35,7 @@
 #include "ltssm.h"
 #include "pcie.h"
 #include "pci_express.h"
+#include "displink.h"
 
 // -------------------------------------------------------------------------
 // DEFINES
@@ -720,7 +721,7 @@ static int LinkState (const int ltssm_state, const int target_state, const int l
 
     case LTSSM_L0s:
     default:
-        VPrint ("***Error: InitLink() reached unsupported or invalid LTSSM state (%d)\n", ltssm_state);
+        VPrint ("LinkState(): %s***Error: InitLink() reached unsupported or invalid LTSSM state (%d)%s\n", FMT_RED, ltssm_state, FMT_NORMAL);
         VWrite(PVH_FATAL, 0, 0, node);
         break;
     }

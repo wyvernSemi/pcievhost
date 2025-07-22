@@ -41,8 +41,8 @@
 #define DISPPL                       0x040
 #define DISPRAWSYM                   0x080
 #define DISPSWTX                     0x100
-#define DISPSWDISRC                  0x200
-#define DISPSWDISEP                  0x400
+#define DISPSWENRC                   0x200
+#define DISPSWENEP                   0x400
 
 // Definitions for use in formatted packet information display
 

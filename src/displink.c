@@ -43,7 +43,7 @@
 static bool IsDispEnabled(const pPcieModelState_t const state, const int rx, int flags)
 {
     return (rx || (!rx && (state->usrconf.ActiveContDisp & DISPSWTX))) &&
-                  ((state->Endpoint && !(state->usrconf.ActiveContDisp & DISPSWDISEP)) || (!state->Endpoint && !(state->usrconf.ActiveContDisp & DISPSWDISRC))) &&
+                  ((state->Endpoint && (state->usrconf.ActiveContDisp & DISPSWENEP)) || (!state->Endpoint && (state->usrconf.ActiveContDisp & DISPSWENRC))) &&
                   (state->usrconf.ActiveContDisp & flags);
 }
 
@@ -105,7 +105,7 @@ inline void CheckContDisp (pUserConfig_t usrconf, const int node)
         // Update active control with next value
         usrconf->ActiveContDisp = usrconf->contdisp[usrconf->ContDispIdx].control;
 
-        // If simulatoincontrol bits set, action the control
+        // If simulation control bits set, action the control
         if (usrconf->ActiveContDisp & (DISPFINISH | DISPSTOP))
         {
             // Halt the simulation

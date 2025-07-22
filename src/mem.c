@@ -250,7 +250,7 @@ int ReadRamByteBlock(const uint64_t addr, PktData_t *data, const int length, con
 
     if ((addr & ~TABLEMASK) != ((addr + length) & ~TABLEMASK))
     {
-        VPrint("ReadRamByteBlock: %s***Error --- block read crosses 4K boundary%s\n, FMT_RED, FMT_NORMAL");
+        VPrint("ReadRamByteBlock: %s***Error --- block read crosses 4K boundary%s\n", FMT_RED, FMT_NORMAL);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -752,7 +752,7 @@ bool ReadConfigSpaceMaskBufChk(const uint32_t addr, PktData_t * const data, cons
     {
         if (check)
         {
-            VPrint("ReadConfigSpaceMaskBufChk: %s***Error --- reading from uninitialised config space$s\n", FMT_RED, FMT_NORMAL);
+            VPrint("ReadConfigSpaceMaskBufChk: %s***Error --- reading from uninitialised config space%s\n", FMT_RED, FMT_NORMAL);
             VWrite(PVH_FATAL, 0, 0, node);
         }
     }

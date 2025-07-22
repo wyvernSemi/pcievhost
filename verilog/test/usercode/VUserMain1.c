@@ -31,7 +31,6 @@
 
 #define RST_DEASSERT_INT 4
 
-static int          node      = 1;
 static unsigned int Interrupt = 0;
 
 //-------------------------------------------------------------
@@ -83,7 +82,7 @@ static void VUserInput_1(pPkt_t pkt, int status, void* usrptr)
 //
 //-------------------------------------------------------------
 
-void ConfigureType0PcieCfg (void)
+static void ConfigureType0PcieCfg (const int node)
 {
     unsigned        next_cap_ptr = 0;
     
@@ -224,7 +223,7 @@ void ConfigureType0PcieCfg (void)
 //
 //-------------------------------------------------------------
 
-void VUserMain1()
+void VUserMain1(int node)
 {
 
     // Initialise PCIe VHost, with input callback function and no user pointer.
@@ -241,7 +240,7 @@ void VUserMain1()
     PcieSeed(node, node);
 
     // Construct an endpoint PCIe configuration space
-    ConfigureType0PcieCfg();
+    ConfigureType0PcieCfg(node);
 
     // Send out idles until we recieve an interrupt
     do

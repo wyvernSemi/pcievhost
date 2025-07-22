@@ -33,7 +33,8 @@
 `define DispDL              5
 `define DispPL              6
 `define DispRawSym          7
-`define NoDispBits          8
+`define NoDispBits          12
+`define DispSwBits          (`NoDispBits-1):(`DispRawSym+1)
 `define DispBits            (`NoDispBits-1):0
 
 `define NoDecTimeDigs       12
