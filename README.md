@@ -10,7 +10,7 @@ The _pcievhost_ model generates PCIe Physical, Data Link and Transaction Layer t
 _pcievhost_ is bundled with verilog pcie link traffic display modules and an example test harness. The model has been tested with ModelSim/Questa, Vivado xsim and Verilator at the present time, though easily adpated for other simulators. The _pcievhost_ model can also be configured to act as an _**endpoint**_ via a parameter and with simple running user code&mdash;the model itself automatically generating responses to transactions. The diagram below shows the example test bench structure.
 
 <p align="center">
-<img src="https://github.com/user-attachments/assets/cc504204-4308-4b87-9afd-5013b26aa468" width=640>
+<img src="https://github.com/user-attachments/assets/7701ffa3-f556-4006-a16e-46ec2942c87a" width=800>
 </p>
 
 More information can be found in the documentation <code>doc/pcieVHost.pdf</code>
