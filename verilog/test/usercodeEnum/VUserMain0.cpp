@@ -245,7 +245,7 @@ extern "C" void VUserMain0(int node)
             baraddr[bidx] = ((uint32_t*)ipbuf)[0];
             
             bar64 = (uint64_t)baraddr[bidx-1] | ((uint64_t)baraddr[bidx] << 32);
-            VPrint("===> BAR%d read back 0x%016llx = %llu Mbytes\n", bidx-1, bar64, (~(bar64 & ~0xfULL) + 1) >> 20);
+            VPrint("===> BAR%d read back 0x%016lx = %llu Mbytes\n", bidx-1, bar64, (~(bar64 & ~0xfULL) + 1) >> 20);
         }
         else
         {

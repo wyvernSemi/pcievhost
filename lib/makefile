@@ -20,6 +20,8 @@
 #
 ###################################################################
 
+EXTFLAGS  = -DMODELSIM
+
 SRCDIR    = ../src
 OBJDIR    = obj
 VPROC_TOP = ../../VProc
@@ -27,27 +29,27 @@ VPROC_TOP = ../../VProc
 ARCHFLAG  = -m32
 
 C_FILES   = codec.c mem.c pcie.c pcie_utils.c pcicrc32.c ltssm.c displink.c veriuser.c
-CFLAGS    = -c -fPIC ${ARCHFLAG} -I${MODEL_TECH}/../include -I ${VPROC_TOP}/code -DMODELSIM -DLTSSM_ABBREVIATED 
+CFLAGS    = -c -fPIC $(ARCHFLAG) -I$(MODEL_TECH)/../include -I $(VPROC_TOP)/code -DLTSSM_ABBREVIATED $(EXTFLAGS)
 
 CC        = gcc
 
 LIB       = libpcievhost.a
 
-OBJS      = ${addprefix ${OBJDIR}/, ${C_FILES:%.c=%.o}}
+OBJS      = $(addprefix $(OBJDIR)/, $(C_FILES:%.c=%.o))
 
 ${OBJDIR}/%.o: ${SRCDIR}/%.c
-	@${CC} ${CFLAGS} $< -o $@
+	@$(CC) $(CFLAGS) $< -o $@
 
-all: ${LIB}
+all: $(LIB)
 
-${LIB} : ${OBJS}
-	@ar cr ${LIB} ${OBJS}
+${LIB} : $(OBJS)
+	@ar cr $(LIB) $(OBJS)
 
-${OBJS}: | ${OBJDIR}
+${OBJS}: | $(OBJDIR)
 
 ${OBJDIR}:
-	@mkdir ${OBJDIR}
+	@mkdir $(OBJDIR)
 
 
 clean:
-	@rm -rf ${LIB} ${OBJS}
+	@rm -rf $(LIB) $(OBJS)

@@ -30,7 +30,9 @@
 
 #include <stdio.h>
 
-#ifndef VPROC_SV
+#ifndef VPROC_VHDL
+
+# ifndef VPROC_SV
 #include <vpi_user.h>
 
 #include "VSched_pli.h"
@@ -38,12 +40,12 @@
 #define CRC32ARGS char* userdata
 #define CRC16ARGS char* userdata
 
-#else
+# else
 
 #define CRC32ARGS const unsigned Data, unsigned *Crc32, const int Bits
 #define CRC16ARGS const unsigned Data, unsigned *Crc16
 
-#endif
+# endif
 
 // -------------------------------------------------------------------------
 // PciCrc32()
@@ -147,3 +149,5 @@ int PciCrc16(CRC16ARGS)
 
     return 0;
 }
+
+#endif

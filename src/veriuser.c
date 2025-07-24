@@ -25,6 +25,8 @@
 //
 //=====================================================================
 
+#ifndef VPROC_VHDL 
+
 #include "VSched_pli.h"
 
 extern int PciCrc32(char* userdata);
@@ -63,4 +65,6 @@ void (*vlog_startup_routines[])() =
     register_vpi_tasks,
     0
 };
+
+#endif
 

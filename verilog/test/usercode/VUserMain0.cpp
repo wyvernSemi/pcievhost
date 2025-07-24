@@ -168,7 +168,7 @@ extern "C" void VUserMain0(int node)
     pcie->cfgWrite (CFG_BAR_HDR_OFFSET + 4, buff, 4, tag++, rid, SEND);
 
     // Send out various example transactions for a bit
-    for (i = 0; i < 1; i++)
+    for (i = 0; i < 10; i++)
     {
         // These are *expected* to generate warnings by node 1 pcieVHost, but
         // will be displayed by PcieDispLink
