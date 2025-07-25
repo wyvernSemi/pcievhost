@@ -1,0 +1,209 @@
+###################################################################
+# Makefile for Virtual PCIe Host test code in Modelsim
+#
+# Copyright (c) 2005-2022 Simon Southwell.
+#
+# This file is part of pcieVHost.
+#
+# pcieVHost is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# pcieVHost is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
+#
+###################################################################
+
+NUM_VPROC      = 2
+
+USRSIMFLAGS    =
+USERCFLAGS     =
+
+# Location of VProc directory. Assumes in same directory as pcieVHost.
+# Update if relocated.
+VPROC_TOP      = ../../../vproc
+
+# Define the github repository URL for the VProc virtual processor
+VPROC_REPO     = https://github.com/wyvernSemi/vproc.git
+
+#
+# PCIE VHost test defintions
+#
+PCIE_CLIB_DIR  = ../../lib
+SRCDIR         = ../../src
+USRCDIR        = usercode
+PLI_SO         = VProc.so
+VPROCLIB       = libvproc.a
+PCIELIB        = libpcievhost.a
+SIMEXE         = sim
+
+#
+# Source code
+#
+USER_C         = VUserMain0.cpp VUserMain1.c
+PCIE_MAP_C     = pcie_vhost_map.h
+
+#
+# Flags for Icarus
+#
+PCIE_TOP       = test
+TOP_VC         = test_ica.vc
+HDRDIR         = ../headers
+VLOGFLAGS      = $(USRSIMFLAGS) -DDISP_LINK_WIDE -I$(VPROC_TOP) -c $(TOP_VC) -Ptest.VCD_DUMP=1
+VLOGDEBUGFLAGS = $(VLOGFLAGS) -Ptest.DEBUG_STOP=1
+
+#
+# Auto-generated verilog
+#
+PCIE_MAP_V     = $(PCIE_MAP_C:%.h=$(HDRDIR)/%.v)
+
+#
+# Get OS type
+#
+OSTYPE:=$(shell uname)
+
+#
+# Set OS specific variables between Linux and Windows (MSYS2/mingw64)
+#
+ifeq ($(OSTYPE), Linux)
+  CFLAGS_SO    = -shared -pthread -lrt -rdynamic
+  ICADIR       = /usr/include/iverilog
+else
+  CFLAGS_SO    = -shared -Wl,-export-all-symbols
+  ICADIR       = /mingw64/include/iverilog
+endif
+
+#
+# Flags for C compiler
+#
+CC             = gcc
+C++            = g++
+CFLAGS         = -g -fPIC                        \
+                 -Wno-write-strings              \
+                 -I$(CURDIR)/$(SRCDIR)           \
+                 -I$(CURDIR)/$(USRCDIR)          \
+                 -I$(CURDIR)/$(VPROC_TOP)/code   \
+                 -I$(ICADIR)                     \
+                 -DICARUS                        \
+                 -DVPROC_PLI_VPI                 \
+                 -DEXTERN_VPI_TABLE              \
+                 -D_REENTRANT
+
+#------------------------------------------------------
+# BUILD RULES
+#------------------------------------------------------
+
+#
+# Build the verilog and the PLI shared object by default
+#
+all: verilog
+
+.PHONY: verilog, pcie_c_lib, vproc_lib, clean, all
+
+#
+# Create Verilog pcieVHost VProc register mappings from C header
+#
+$(PCIE_MAP_V) : $(SRCDIR)/$(PCIE_MAP_C)
+	@sed "s/0x/32\'h/;s/#/\`/;s/DEFINES/AUTO GENERATED\. DO NOT EDIT\!/;" < $< > $@
+
+#
+# PLI shared object
+#
+$(PLI_SO): $(PCIE_CLIB_DIR)/$(PCIELIB) $(VPROCLIB) $(wildcard $(USRCDIR)/*.[ch]*)
+	@$(C++) $(CFLAGS_SO) $(CFLAGS)               \
+	       -Wl,-whole-archive                    \
+	       -lpthread                             \
+	       -ldl                                  \
+	       -lvpi -lveriuser                      \
+	       -L$(PCIE_CLIB_DIR) -lpcievhost        \
+	       -L./ -lvproc                          \
+	       -Wl,-no-whole-archive                 \
+	       -o $@
+
+#
+# PCIe model library
+#
+$(PCIE_CLIB_DIR)/$(PCIELIB):
+	@$(MAKE) --no-print-directory -C $(PCIE_CLIB_DIR) -f makefile.ica ICADIR=$(ICADIR) USRFLAGS=$(USERCFLAGS)
+
+#
+# VProc library.
+#
+$(VPROCLIB): $(VPROC_TOP)
+	@$(MAKE) --no-print-directory -C $(VPROC_TOP)/test  \
+             -f makefile.ica                                \
+             CFLAGS="-c $(CFLAGS) -Wno-int-to-pointer-cast" \
+             MAX_NUM_VPROC=$(NUM_VPROC)                     \
+             TESTDIR=$(CURDIR)                              \
+             USRCDIR=$(CURDIR)/$(USRCDIR)                   \
+             USER_C="$(USER_C)"                             \
+             $(CURDIR)/$(VPROCLIB)             
+
+#
+# Checkout VProc from github if it doesn't exist at the specified location
+#
+$(VPROC_TOP):
+	git clone $(VPROC_REPO) $(VPROC_TOP) --recursive
+
+
+#
+# Build the verilog
+#
+verilog: $(PLI_SO) $(VLOGFILES) $(PCIE_MAP_V)
+	@iverilog -o $(SIMEXE) $(VLOGFLAGS) -s test
+
+verilog_debug: $(VLOGFILES) $(PCIE_MAP_V)
+	@iverilog -o $(SIMEXE)  $(VLOGDEBUGFLAGS) -s test
+
+#------------------------------------------------------
+# EXECUTION RULES
+#------------------------------------------------------
+
+run: all
+	@vvp -n -m ./$(PLI_SO) $(SIMEXE)
+
+sim: all
+	@vvp -s -m ./$(PLI_SO) $(SIMEXE)
+
+rungui: all
+	@vvp -n -m ./$(PLI_SO) $(SIMEXE)
+	@if [ -e waves.gtkw ]; then                            \
+	    gtkwave -A waves.vcd;                              \
+	else                                                   \
+	    gtkwave waves.vcd;                                 \
+	fi
+
+debug: clean $(PLI_SO) verilog_debug
+	@vvp -m ./$(PLI_SO) $(SIMEXE)
+
+waves:
+	@gtkwave -A waves.vcd
+
+gui: rungui
+
+help:
+	@echo "make help          Display this message"
+	@echo "make               Build C/C++ code without running simulation"
+	@echo "make run           Build and run batch simulation"
+	@echo "make sim           Build and run interactive session (sim not started)"
+	@echo "make debug         Build and run batch simulation, stopping for debugger attachment"
+	@echo "make rungui/gui    Build and run GUI simulation"
+	@echo "make waves         Run wave view in gtkwave"
+	@echo "make clean         clean previous build artefacts"
+
+#------------------------------------------------------
+# CLEANING RULES
+#------------------------------------------------------
+
+clean: $(VPROC_TOP)
+	@$(MAKE) --no-print-directory -C $(PCIE_CLIB_DIR)  clean
+	@$(MAKE) --no-print-directory -f makefile.ica -C $(VPROC_TOP)/test TESTDIR=$(CURDIR) clean
+	@rm -rf $(PLI_SO) $(PCIE_MAP_V) $(SIMEXE) obj
+
+
