@@ -143,7 +143,7 @@ begin
     InvertOut      = 1'b0;
     ReverseIn      = 1'b0;
     ReverseOut     = 1'b0;
-    ElecIdleOut    = 16'h0000;
+    ElecIdleOut    = 16'hffff;
     notResetLast   = 1'b0;
     UpdateResponse = 1'b1;
     ClkCount       = 0;
@@ -183,7 +183,9 @@ begin
         `LINK_STATE:
         begin
             if (WE === 1'b1)
-                ElecIdleOut = DataOut[15:0] ;
+            begin
+                ElecIdleOut[LinkWidth-1:0] = DataOut[LinkWidth-1:0] ;
+            end
             DataIn = {RxDetect, ElecIdleIn};
         end
 
