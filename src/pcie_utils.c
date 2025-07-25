@@ -2096,7 +2096,7 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
                 pkt->data = state->pRxPktData;
                 pkt->seq  = (pkt->data[0] == SDP) ? DLLP_SEQ_ID : ((((pkt->data[1] & 0xff) << 8) | (pkt->data[2] & 0xff)) & 0xfff);
                 pkt->Retry = 0;
-                pkt->ByteCount = 4 * ((pkt->data[5] & 0x3) | (pkt->data[6] & 0xff));
+                pkt->ByteCount = (pkt->data[0] == SDP) ? 8 : (4 * ((pkt->data[5] & 0x3) | (pkt->data[6] & 0xff)));
                 pkt->TimeStamp = GetCycleCount(state->thisnode);
 
                 state->RxActive = false;

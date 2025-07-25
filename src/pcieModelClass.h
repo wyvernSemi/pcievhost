@@ -147,6 +147,8 @@ public:
     uint32_t   getCycleCount        (void)                 {return GetCycleCount(node);};
     void       configurePcie        (const int type, const int value)
                                         {ConfigurePcie(type, value, node);};
+    void       configurePcie        (const int type)
+                                        {ConfigurePcie(type, 0, node);};
 
     // Physical layer event routines
     int        resetEventCount      (const int type)       {return ResetEventCount(type, node);};
