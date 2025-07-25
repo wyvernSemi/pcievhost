@@ -32,7 +32,8 @@
 module test
 #(parameter VCD_DUMP       = 0,
   parameter DEBUG_STOP     = 0,
-  parameter PIPE           = 0
+  parameter PIPE           = 0,
+  parameter NUMLANES       = 16
 );
 
 reg     Clk;
@@ -56,7 +57,7 @@ wire [`DispDataInBits]  DispDataIn;
 wire [`DispDataOutBits] DispDataOut;
 wire [`DispBits]        DispVal;
 
-wire [31:0] LinkWidth            = `PCIE_NUM_PHY_LANES;
+wire [31:0] LinkWidth            = NUMLANES;
 wire [31:0] NodeNumDown          = `VPCIE_HOST_NODE_NUM;
 wire [31:0] NodeNumUp            = `VPCIE_EP_NODE_NUM;
 
@@ -183,8 +184,8 @@ wire [9:0] IntLinkUp15    = LinkUp15;
  // Control display module
  ContDisps cd (Clk, DispVal);
 
- PcieDispLink #(`PCIE_NUM_PHY_LANES) dispd (.ExtClk(Clk),
-                                            .Link             (DownLink[`PCIE_NUM_PHY_LANES*10-1:0]),
+ PcieDispLink #(NUMLANES) dispd (.ExtClk(Clk),
+                                            .Link             (DownLink[NUMLANES*10-1:0]),
                                             .notReset         (notReset),
                                             .FwdName          ("D"),
                                             .BckName          ("U"),
@@ -198,8 +199,8 @@ wire [9:0] IntLinkUp15    = LinkUp15;
                                             .NodeNum          (NodeNumDown[7:0])
                                             );
 
- PcieDispLink #(`PCIE_NUM_PHY_LANES) dispu (.ExtClk(Clk),
-                                            .Link             (UpLink[`PCIE_NUM_PHY_LANES*10-1:0]),
+ PcieDispLink #(NUMLANES) dispu (.ExtClk(Clk),
+                                            .Link             (UpLink[NUMLANES*10-1:0]),
                                             .notReset         (notReset),
                                             .FwdName          ("U"),
                                             .BckName          ("D"),
@@ -216,7 +217,7 @@ wire [9:0] IntLinkUp15    = LinkUp15;
 `endif
 
  // Host
- PcieVhost #(`PCIE_NUM_PHY_LANES, `VPCIE_HOST_NODE_NUM, 0)
+ PcieVhost #(NUMLANES, `VPCIE_HOST_NODE_NUM, 0)
                                       host (.Clk              (Clk),
                                             .notReset         (notReset),
 `ifdef VERILATOR
@@ -260,7 +261,7 @@ wire [9:0] IntLinkUp15    = LinkUp15;
                                             );
 
  // Endpoint
- PcieVhost #(`PCIE_NUM_PHY_LANES, `VPCIE_EP_NODE_NUM, 1)
+ PcieVhost #(NUMLANES, `VPCIE_EP_NODE_NUM, 1)
                                       ep   (.Clk              (Clk),
                                             .notReset         (notReset),
 `ifdef VERILATOR
