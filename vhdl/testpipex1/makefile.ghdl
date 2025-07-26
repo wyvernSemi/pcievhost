@@ -1,0 +1,114 @@
+###################################################################
+# Makefile for UDP/IPv4 packet generator (pcieVHost) test bench
+# for GHDL
+#
+# Copyright (c) 2025 Simon Southwell.
+#
+# This file is part of udpcieVHostpIpPg.
+#
+# This file is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# The file is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this file. If not, see <http://www.gnu.org/licenses/>.
+#
+###################################################################
+
+#------------------------------------------------------
+# User overridable definitions
+#------------------------------------------------------
+
+NUM_VPROC     = 2
+ARCHFLAG      = -m64
+USRSIMFLAGS   =
+SERIALISER    =
+
+ifneq ("$(SERIALISER)", "")
+ SIMELABOPT   = -gSERIALISER=1
+endif
+
+EXTFLAGS      = -DVPROC_VHDL -DGHDL
+VPROCMAKEOPT  = -f makefile.ghdl
+
+include makefile.common
+
+#------------------------------------------------------
+# Internal variables
+#------------------------------------------------------
+
+# Set up Variables for tools
+MAKE_EXE           = make
+
+#------------------------------------------------------
+# Variables specific to target simulator
+#------------------------------------------------------
+
+WAVEFILE          = waves.ghw
+WAVESAVEFILE      = $(WAVEFILE:%.ghw=%.gtkw)
+WORKDIR           = work
+
+SIMEXE            = ghdl
+SIMTOP            = test
+
+# Flags for GHDL
+SIMFLAGS          = --std=08 --workdir=$(WORKDIR) $(USRSIMFLAGS)
+
+VHDLFILELIST      = files_ghdl.tcl
+VHDLFILES         = $(foreach vhdlfile, $(file < $(VHDLFILELIST)), $(vhdlfile))
+
+#------------------------------------------------------
+# BUILD RULES
+#------------------------------------------------------
+
+.PHONY : all, vproc, hdl, run, rungui, gui, help, clean
+
+# Build is dependant on processing makefile in vproc and riscV/iss
+all: hdl
+
+$(WORKDIR):
+	@mkdir $(WORKDIR)
+
+# Analyse the VHDL files
+
+hdl: $(PLI_SO) $(WORKDIR)
+	@$(SIMEXE) -a --std=08 --workdir=$(WORKDIR) $(VHDLFILES)
+
+#------------------------------------------------------
+# EXECUTION RULES
+#------------------------------------------------------
+
+run: all
+	@$(SIMEXE) --elab-run $(SIMFLAGS) $(SIMTOP) $(SIMELABOPT) --ieee-asserts=disable
+
+rungui: all
+	@$(SIMEXE) --elab-run $(SIMFLAGS) $(SIMTOP) $(SIMELABOPT) --ieee-asserts=disable --wave=$(WAVEFILE)
+	@if [ -e $(WAVESAVEFILE) ]; then                       \
+	    gtkwave -A $(WAVEFILE);                            \
+	else                                                   \
+	    gtkwave $(WAVEFILE);                               \
+	fi
+
+gui: rungui
+
+help:
+	@$(info make help          Display this message)
+	@$(info make               Build C/C++ and HDL code without running simulation)
+	@$(info make run           Build and run batch simulation)
+	@$(info make rungui/gui    Build and run GUI simulation (sim not started))
+	@$(info make clean         clean previous build artefacts)
+
+#------------------------------------------------------
+# CLEANING RULES
+#------------------------------------------------------
+
+clean: $(VPROC_TOP)
+	@$(MAKE) --no-print-directory -C $(PCIE_CLIB_DIR)  clean
+	@$(MAKE_EXE) --no-print-directory -f makefile.ghdl -C $(VPROC_TOP)/test USER_C="$(USERCODE)" TESTDIR="$(CURDIR)" clean
+	@rm -rf $(VLIB) $(VOBJDIR) *.o *.exe $(SIMTOP) $(WAVEFILE) $(WORKDIR)

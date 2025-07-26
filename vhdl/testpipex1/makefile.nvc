@@ -1,0 +1,106 @@
+###################################################################
+# Makefile for UDP/IPv4 packet generator (pcieVHost) test bench
+# for NVC
+#
+# Copyright (c) 2025 Simon Southwell.
+#
+# This file is part of pcieVHost.
+#
+# This file is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# The file is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this file. If not, see <http://www.gnu.org/licenses/>.
+#
+###################################################################
+
+#------------------------------------------------------
+# User overridable definitions
+#------------------------------------------------------
+
+NUM_VPROC     = 2
+ARCHFLAG      = -m64
+USRSIMFLAGS   =
+
+SERIALISER    =
+
+ifneq ("$(SERIALISER)", "")
+ SIMELABOPT   = -g SERIALISER=1
+endif
+
+include makefile.common
+
+#------------------------------------------------------
+# Variables specific to target simulator
+#
+
+
+EXTFLAGS      = -DVPROC_VHDL -DNVC
+VPROCMAKEOPT  = -f makefile.nvc
+
+MAKE_EXE           = make
+
+WAVEFILE           = waves.fst
+WAVESAVEFILE       = $(WAVEFILE:%.fst=%.gtkw)
+
+SIMEXE             = nvc
+SIMTOP             = test
+
+# Flags for nvc
+SIMFLAGS           = --ieee-warnings=off                    \
+                     --format=fst --wave=$(WAVEFILE)        \
+                     --load=$(PLI_SO)                       \
+                     $(USRSIMFLAGS)                         \
+                     $(SIMTOP)
+
+#------------------------------------------------------
+# BUILD RULES
+#------------------------------------------------------
+
+.PHONY : all, vproc, hdl, run, rungui, gui, help, clean
+
+all: hdl
+
+# Analyse HDL files
+hdl: $(PLI_SO)
+	@$(SIMEXE) --std=08 -a -f files_nvc.tcl -e $(SIMELABOPT) $(SIMTOP)
+
+#------------------------------------------------------
+# EXECUTION RULES
+#------------------------------------------------------
+
+run: all
+	@$(SIMEXE) -r $(SIMFLAGS) 
+ 
+rungui: all
+	@$(SIMEXE) -r  $(SIMFLAGS)
+	@if [ -e $(WAVESAVEFILE) ]; then        \
+	    gtkwave -A $(WAVEFILE);             \
+	else                                    \
+	    gtkwave $(WAVEFILE);                \
+	fi
+
+gui: rungui
+
+help:
+	@$(info make help          Display this message)
+	@$(info make               Build C/C++ and HDL code without running simulation)
+	@$(info make run           Build and run batch simulation)
+	@$(info make rungui/gui    Build and run GUI simulation (sim not started))
+	@$(info make clean         clean previous build artefacts)
+
+#------------------------------------------------------
+# CLEANING RULES
+#------------------------------------------------------
+
+clean: $(VPROC_TOP)
+	@$(MAKE_EXE) --no-print-directory -C $(PCIE_CLIB_DIR)  clean
+	@$(MAKE_EXE) --no-print-directory -f makefile.nvc -C $(VPROC_TOP)/test USER_C="$(USERCODE)" TESTDIR="$(CURDIR)" clean
+	@rm -rf $(PLI_SO) $(VLIB) obj waves.fst work

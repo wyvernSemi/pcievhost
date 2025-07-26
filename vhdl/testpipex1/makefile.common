@@ -33,7 +33,7 @@ VPROC_REPO    = https://github.com/wyvernSemi/vproc.git
 PCIE_CLIB_DIR = ../../lib
 SRCDIR        = ../../src
 USRCDIR       = usercode
-USRCDIRABS    = $(CURDIR)/../../verilog/test/$(USRCDIR)
+USRCDIRABS    = $(CURDIR)/../../verilog/testpipex1/$(USRCDIR)
 WORKDIR       = work
 
 PLI_SO        = VProc.so

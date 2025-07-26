@@ -60,7 +60,7 @@ assign ElecIdleOut            = ElecIdleOutInt[0];
 `endif
 
   // pcievhost configured with x1 link
-  PcieVhost #(LINKWIDTH, NodeNum, EndPoint) ep
+  PcieVhost #(LINKWIDTH, NodeNum, EndPoint) pcievh_i
   (
     .Clk                   (pclk),
     .notReset              (nreset),

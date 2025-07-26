@@ -64,6 +64,9 @@ package pcieVHost_pkg is
   -- 10 bit COMMA codes
   constant PCOMMA          : std_logic_vector (LANEWIDTH-1 downto 0) := 10b"1010000011";   -- 0x283
   constant NCOMMA          : std_logic_vector (LANEWIDTH-1 downto 0) := 10b"0101111100";   -- 0x17c
+  
+  constant PIPEDATAWIDTH   : integer := 8;
+  constant PIPEKBIT        : integer := 8;
 
   function has_an_x (vec   : std_logic_vector) return boolean;
   function BitRev10 (InVal : in std_logic_vector(9 downto 0)) return std_logic_vector;
