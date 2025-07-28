@@ -30,7 +30,7 @@
 
 #include <stdio.h>
 
-#ifndef VPROC_VHDL
+#if !defined(VPROC_VHDL) && !defined(OSVVM)
 
 # ifndef VPROC_SV
 #include <vpi_user.h>
