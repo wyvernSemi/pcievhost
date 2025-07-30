@@ -116,6 +116,7 @@ extern "C" void VUserMain0(int node)
     int       rid = node+1, tag = 0;
     int       i;
     uint64_t  addr;
+    bool gen_ecrc = DIGEST;
 
     // Create an API object for this node
     pcieModelClass* pcie = new pcieModelClass(node);
@@ -158,14 +159,14 @@ extern "C" void VUserMain0(int node)
     buff[1] = 0x56;
     buff[2] = 0x34;
     buff[3] = 0x12;
-    pcie->cfgWrite (CFG_BAR_HDR_OFFSET, buff, 4, tag++, rid, SEND);
+    pcie->cfgWrite (CFG_BAR_HDR_OFFSET, buff, 4, tag++, rid, SEND, gen_ecrc);
 
     // Initialise BAR1
     buff[0] = 0x00;
     buff[1] = 0x00;
     buff[2] = 0x00;
     buff[3] = 0xa0;
-    pcie->cfgWrite (CFG_BAR_HDR_OFFSET + 4, buff, 4, tag++, rid, SEND);
+    pcie->cfgWrite (CFG_BAR_HDR_OFFSET + 4, buff, 4, tag++, rid, SEND, gen_ecrc);
 
     // Send out various example transactions for a bit
     for (i = 0; i < 10; i++)
@@ -184,11 +185,11 @@ extern "C" void VUserMain0(int node)
         buff[0] = 0x76;
         buff[1] = 0xa5;
         buff[2] = 0x70;
-        pcie->memWrite (0x12345679, buff, 3, 0, rid, SEND);
+        pcie->memWrite (0x12345679, buff, 3, 0, rid, SEND, gen_ecrc);
 
         DebugVPrint("VUserMain0: sent mem write from node %d\n", node);
 
-        pcie->memRead (0x12345679, 1, tag++, rid, SEND);
+        pcie->memRead (0x12345679, 1, tag++, rid, SEND, gen_ecrc);
 
         DebugVPrint("VUserMain0: sent mem read from node %d\n", node);
 
@@ -198,9 +199,9 @@ extern "C" void VUserMain0(int node)
         {
             buff[idx] = rand() & 0xff;
         }
-        pcie->memWrite (0xa0000001ULL, buff, 256, 0, rid, SEND);
+        pcie->memWrite (0xa0000001ULL, buff, 256, 0, rid, SEND, gen_ecrc);
 
-        pcie->memRead  (0xa0000083ULL, 128, tag++, rid, SEND);
+        pcie->memRead  (0xa0000083ULL, 128, tag++, rid, SEND, gen_ecrc);
 
         //---------------------------------------------
 
@@ -208,40 +209,40 @@ extern "C" void VUserMain0(int node)
         buff[1] = 0xf0;
         buff[2] = 0xaa;
         buff[3] = 0x55;
-        pcie->cfgWrite (0x30, buff, 4, tag++, rid, SEND);
+        pcie->cfgWrite (0x30, buff, 4, tag++, rid, SEND, gen_ecrc);
 
-        pcie->cfgRead (0x31, 1, tag++, rid, SEND);
+        pcie->cfgRead (0x31, 1, tag++, rid, SEND, gen_ecrc);
 
         //---------------------------------------------
 
         buff[0] = 0x69;
-        pcie->ioWrite (0x92658659, buff, 1, tag++, rid, SEND);
-        pcie->ioRead  (0x92658659, 2, tag++, rid, SEND);
+        pcie->ioWrite (0x92658659, buff, 1, tag++, rid, SEND, gen_ecrc);
+        pcie->ioRead  (0x92658659, 2, tag++, rid, SEND, gen_ecrc);
 
         //---------------------------------------------
 
-        pcie->message (MSG_ASSERT_INTA,   NULL, 0, 0, rid, SEND);
-        pcie->message (MSG_ASSERT_INTB,   NULL, 0, 0, rid, SEND);
-        pcie->message (MSG_ASSERT_INTC,   NULL, 0, 0, rid, SEND);
-        pcie->message (MSG_ASSERT_INTD,   NULL, 0, 0, rid, SEND);
-        pcie->message (MSG_DEASSERT_INTA, NULL, 0, 0, rid, SEND);
-        pcie->message (MSG_DEASSERT_INTB, NULL, 0, 0, rid, SEND);
-        pcie->message (MSG_DEASSERT_INTC, NULL, 0, 0, rid, SEND);
-        pcie->message (MSG_DEASSERT_INTD, NULL, 0, 0, rid, SEND);
-        pcie->message (MSG_PM_ACTIVE_NAK, NULL, 0, 0, rid, SEND);
-        pcie->message (MSG_PM_PME,        NULL, 0, 0, rid, SEND);
-        pcie->message (MSG_PME_OFF,       NULL, 0, 0, rid, SEND);
-        pcie->message (MSG_PME_TO_ACK,    NULL, 0, 0, rid, SEND);
-        pcie->message (MSG_ERR_COR,       NULL, 0, 0, rid, SEND);
-        pcie->message (MSG_ERR_NONFATAL,  NULL, 0, 0, rid, SEND);
-        pcie->message (MSG_ERR_FATAL,     NULL, 0, 0, rid, SEND);
-        pcie->message (MSG_UNLOCK,        NULL, 0, 0, rid, SEND);
+        pcie->message (MSG_ASSERT_INTA,   NULL, 0, 0, rid, SEND, gen_ecrc);
+        pcie->message (MSG_ASSERT_INTB,   NULL, 0, 0, rid, SEND, gen_ecrc);
+        pcie->message (MSG_ASSERT_INTC,   NULL, 0, 0, rid, SEND, gen_ecrc);
+        pcie->message (MSG_ASSERT_INTD,   NULL, 0, 0, rid, SEND, gen_ecrc);
+        pcie->message (MSG_DEASSERT_INTA, NULL, 0, 0, rid, SEND, gen_ecrc);
+        pcie->message (MSG_DEASSERT_INTB, NULL, 0, 0, rid, SEND, gen_ecrc);
+        pcie->message (MSG_DEASSERT_INTC, NULL, 0, 0, rid, SEND, gen_ecrc);
+        pcie->message (MSG_DEASSERT_INTD, NULL, 0, 0, rid, SEND, gen_ecrc);
+        pcie->message (MSG_PM_ACTIVE_NAK, NULL, 0, 0, rid, SEND, gen_ecrc);
+        pcie->message (MSG_PM_PME,        NULL, 0, 0, rid, SEND, gen_ecrc);
+        pcie->message (MSG_PME_OFF,       NULL, 0, 0, rid, SEND, gen_ecrc);
+        pcie->message (MSG_PME_TO_ACK,    NULL, 0, 0, rid, SEND, gen_ecrc);
+        pcie->message (MSG_ERR_COR,       NULL, 0, 0, rid, SEND, gen_ecrc);
+        pcie->message (MSG_ERR_NONFATAL,  NULL, 0, 0, rid, SEND, gen_ecrc);
+        pcie->message (MSG_ERR_FATAL,     NULL, 0, 0, rid, SEND, gen_ecrc);
+        pcie->message (MSG_UNLOCK,        NULL, 0, 0, rid, SEND, gen_ecrc);
 
         buff[0] = 0x71;
         buff[1] = 0x07;
         buff[2] = 0x73;
         buff[3] = 0x45;
-        pcie->message (MSG_SET_PWR_LIMIT, buff, 4, tag++, rid, SEND);
+        pcie->message (MSG_SET_PWR_LIMIT, buff, 4, tag++, rid, SEND, gen_ecrc);
     }
 
     // Go quiet for a while, before finishing
