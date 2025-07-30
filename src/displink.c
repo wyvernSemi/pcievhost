@@ -204,7 +204,7 @@ inline static void DispTlpCrc(const char const *prefixstr, const char const *tlo
         if (got_ecrc == exp_ecrc)
             VPrint("%s: %sTL Good ECRC (%08x)\n", prefixstr, tloffstr, got_ecrc);
         else
-            VPrint("%s: %sTL **Bad ECRC**(%08x v %08x)\n", prefixstr, tloffstr, got_ecrc, exp_ecrc);
+            VPrint("%s: %sTL %s**Bad ECRC**%s (%08x v %08x)\n", prefixstr, tloffstr, FMT_RED, FMT_NORMAL, got_ecrc, exp_ecrc);
     }
     else
     {
@@ -213,7 +213,7 @@ inline static void DispTlpCrc(const char const *prefixstr, const char const *tlo
     if (got_lcrc == exp_lcrc)
         VPrint("%s: %sDL Good LCRC (%08x)\n", prefixstr, dlloffstr, got_lcrc);
     else
-        VPrint("%s: %sDL **Bad LCRC (%08x v %08x)\n", prefixstr, dlloffstr, got_lcrc, exp_lcrc);
+        VPrint("%s: %sDL%s **Bad LCRC%s** (%08x v %08x)\n", prefixstr, dlloffstr, FMT_RED, FMT_NORMAL, got_lcrc, exp_lcrc);
 }
 
 // -------------------------------------------------------------------------
