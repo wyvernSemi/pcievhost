@@ -661,13 +661,15 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
     }
     else
     {
-        type           = pkt->data[TLP_TYPE_BYTE_OFFSET];
-        payload_length = GET_TLP_LENGTH_ADJ(pkt->data);
+        type               = pkt->data[TLP_TYPE_BYTE_OFFSET];
+        payload_length     = GET_TLP_LENGTH_ADJ(pkt->data);
 
-        bool has_data = type & TL_TYPE_WRITE;
+        bool has_data      = type & TL_TYPE_WRITE;
+        bool ecrc_present  = TLP_HAS_DIGEST(pkt->data);
+        bool gen_cmpl_ecrc = ecrc_present && !state->usrconf.DisableEcrcCmpl;
 
         // Check LCRC
-        lcrc_offset = 15 + 4 * ((has_data ? GET_TLP_LENGTH(pkt->data) : 0) + TLP_HAS_DIGEST(pkt->data) + TLP_HDR_4DW(pkt->data));
+        lcrc_offset = 15 + 4 * ((has_data ? GET_TLP_LENGTH(pkt->data) : 0) + (ecrc_present ? 1 : 0) + TLP_HDR_4DW(pkt->data));
         crc[0] = pkt->data[lcrc_offset+0];
         crc[1] = pkt->data[lcrc_offset+1];
         crc[2] = pkt->data[lcrc_offset+2];
@@ -677,7 +679,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
         exp_lcrc = ((uint32_t)pkt->data[lcrc_offset+0] << 24) | ((uint32_t)pkt->data[lcrc_offset+1] << 16) | ((uint32_t)pkt->data[lcrc_offset+2] << 8) | ((uint32_t)pkt->data[lcrc_offset+3]);
         got_lcrc = ((uint32_t)crc[0] << 24) | ((uint32_t)crc[1] << 16) | ((uint32_t)crc[2] << 8) | ((uint32_t)crc[3]);
 
-        if (TLP_HAS_DIGEST(pkt->data))
+        if (ecrc_present)
         {
             ecrc_offset = lcrc_offset - 4;
             ecrc[0] = pkt->data[ecrc_offset+0];
@@ -689,7 +691,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
             got_ecrc = ((uint32_t)ecrc[0] << 24) | ((uint32_t)ecrc[1] << 16) | ((uint32_t)ecrc[2] << 8) | ((uint32_t)ecrc[3]);
         }
 
-        DispTl(state, pkt, /*got_lcrc, exp_lcrc, got_ecrc, exp_ecrc,*/ true /*, state->thisnode*/);
+        DispTl(state, pkt, true);
 
         // Bad CRC
         if (crc[0] != pkt->data[lcrc_offset+0] || crc[1] != pkt->data[lcrc_offset+1] ||
@@ -728,8 +730,8 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
         }
 
         // Check ECRC, if present
-        if (TLP_HAS_DIGEST(pkt->data) && (ecrc[0] != pkt->data[ecrc_offset+0] || ecrc[1] != pkt->data[ecrc_offset+1] ||
-                                          ecrc[2] != pkt->data[ecrc_offset+2] || ecrc[3] != pkt->data[ecrc_offset+3] ))
+        if (ecrc_present && (ecrc[0] != pkt->data[ecrc_offset+0] || ecrc[1] != pkt->data[ecrc_offset+1] ||
+                             ecrc[2] != pkt->data[ecrc_offset+2] || ecrc[3] != pkt->data[ecrc_offset+3] ))
         {
             VPrint("ProcessInput: Info --- %sTlp ECRC failure at node %d%s\n", FMT_RED, state->thisnode, FMT_NORMAL);
             status |= PKT_STATUS_BAD_ECRC;
@@ -818,26 +820,12 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
                     VWrite(PVH_FATAL, 0, 0, state->thisnode);
                 }
 
-                if (!state->usrconf.CompletionRate)
-                {
-                    Completion (addr, buff, CPL_SUCCESS, fbe, lbe, (length ? length : MAX_PAYLOAD_BYTES/4), tag, cid, rid, true, state->thisnode);
-                }
-                else
-                {
-                    CompletionDelay (addr, buff, CPL_SUCCESS, fbe, lbe, (length ? length : MAX_PAYLOAD_BYTES/4), tag, cid, rid, state->thisnode);
-                }
+                int rlen = (length ? length : MAX_PAYLOAD_BYTES/4);
+                PartCompletionDelay(addr, buff, CPL_SUCCESS, fbe, lbe, rlen, rlen, tag, cid, rid, gen_cmpl_ecrc, state->usrconf.CompletionRate, true, state->thisnode);
             }
             else
             {
-                // If memory read invalid, send back an unsupported packet completion
-                if (!state->usrconf.CompletionRate)
-                {
-                    Completion (0, NULL, CPL_UNSUPPORTED, 0x0, 0x0, 0, tag, cid, rid, true, state->thisnode);
-                }
-                else
-                {
-                    CompletionDelay (0, NULL, CPL_UNSUPPORTED, 0x0, 0x0, 0, tag, cid, rid, state->thisnode);
-                }
+                PartCompletionDelay(0, NULL, CPL_UNSUPPORTED, 0x0, 0x0, 0, 0, tag, cid, rid, gen_cmpl_ecrc, state->usrconf.CompletionRate, true, state->thisnode);
             }
 
             CheckFree(pkt->data);
@@ -873,25 +861,18 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
             addr   = (uint64_t)(pkt->data[TLP_ADDR_OFFSET]   << 24) | (uint64_t)(pkt->data[TLP_ADDR_OFFSET+1] << 16) |
                      (uint64_t)(pkt->data[TLP_ADDR_OFFSET+2] << 8)  | (uint64_t)(pkt->data[TLP_ADDR_OFFSET+3] << 0) ;
 
-            pdata  = &(pkt->data[TLP_DATA_OFFSET32]);
-            fbe    = GET_TLP_FBE(pkt->data);
-            rid    = GET_TLP_RID(pkt->data);
-            cid    = state->CplId;
-            tag    = GET_TLP_TAG(pkt->data);
+            pdata             = &(pkt->data[TLP_DATA_OFFSET32]);
+            fbe               = GET_TLP_FBE(pkt->data);
+            rid               = GET_TLP_RID(pkt->data);
+            cid               = state->CplId;
+            tag               = GET_TLP_TAG(pkt->data);
 
             if (type == TL_CFGRD0)
             {
                 // Read a word (4 bytes) from the config space and put in buffer
                 ReadConfigSpaceBuf((uint32_t)(addr & 0xfff), buff, 4, state->thisnode);
 
-                if (!state->usrconf.CompletionRate)
-                {
-                    Completion (0, buff, CPL_SUCCESS, 0xf, 0x0, 1, tag, cid, rid, true, state->thisnode);
-                }
-                else
-                {
-                    CompletionDelay (0, buff, CPL_SUCCESS, 0xf, 0x0, 1, tag, cid, rid, state->thisnode);
-                }
+                PartCompletionDelay(0, buff, CPL_SUCCESS, 0xf, 0x0, 1, 1, tag, cid, rid, gen_cmpl_ecrc, state->usrconf.CompletionRate, true, state->thisnode);
             }
             else
             {
@@ -899,14 +880,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
                 state->CplId = GET_CFG_CID(pkt->data);
                 WriteConfigSpaceBuf((uint32_t)(addr & 0xfff), pdata, fbe, 0, 4, true, state->thisnode);
 
-                if (!state->usrconf.CompletionRate)
-                {
-                    Completion (0, buff, CPL_SUCCESS, 0xf, 0x0, 0, tag, cid, rid, true, state->thisnode);
-                }
-                else
-                {
-                    CompletionDelay (0, buff, CPL_SUCCESS, 0xf, 0x0, 0, tag, cid, rid, state->thisnode);
-                }
+                PartCompletionDelay(0, buff, CPL_SUCCESS, 0xf, 0x0, 0, 0, tag, cid, rid, gen_cmpl_ecrc, state->usrconf.CompletionRate, true, state->thisnode);
             }
 
             CheckFree(pkt->data);
@@ -928,14 +902,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
                (type & DL_ROUTE_MASK) != TL_MSG && (type & DL_ROUTE_MASK) != TL_MSGD &&
                 type != TL_MWR32 && type != TL_MWR64 && type != TL_MRD32 && type != TL_MRD64)
             {
-                if (!state->usrconf.CompletionRate)
-                {
-                    Completion (0, NULL, CPL_UNSUPPORTED, 0x0, 0x0, 0, tag, cid, rid, true, state->thisnode);
-                }
-                else
-                {
-                    CompletionDelay (0, NULL, CPL_UNSUPPORTED, 0x0, 0x0, 0, tag, cid, rid, state->thisnode);
-                }
+                PartCompletionDelay(0, NULL, CPL_UNSUPPORTED, 0x0, 0x0, 0, 0, tag, cid, rid, gen_cmpl_ecrc, state->usrconf.CompletionRate, true, state->thisnode);
             }
 
             // Return unsupported packet to user process, if one registered. Otherwise discard.
@@ -1803,6 +1770,7 @@ void InitPcieState(const pPcieModelState_t const state, const int node)
     usrconf->DisableUrCpl         = 0;
     usrconf->DisableScrambling    = 0;
     usrconf->Disable8b10b         = 0;
+    usrconf->DisableEcrcCmpl      = 0;
     usrconf->SkipInterval         = DEFAULT_SKIP_INTERVAL;
     usrconf->AckRate              = DEFAULT_ACK_RATE;
     usrconf->ContDispIdx          = 0;

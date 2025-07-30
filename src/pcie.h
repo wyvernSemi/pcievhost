@@ -62,7 +62,7 @@
 
 #define PCIE_MAJOR_VER               1
 #define PCIE_MINOR_VER               5
-#define PCIE_PATCH_VER               4
+#define PCIE_PATCH_VER               5
 
 // Used in macros
 #define BYTE_MASK                    0xff
@@ -79,8 +79,10 @@
 
 #define MAX_LINK_WIDTH               16
 
-#define QUEUE                        1
-#define SEND                         0
+#define QUEUE                        true
+#define SEND                         false
+#define DIGEST                       true
+#define NODIGEST                     false
 
 #define LCRC_TERMINATION_LOOKAHEAD   5
 #define ECRC_TERMINATION_LOOKAHEAD   9
@@ -260,6 +262,8 @@
 #define CONFIG_ENABLE_SCRAMBLING     28
 #define CONFIG_DISABLE_8B10B         29
 #define CONFIG_ENABLE_8B10B          30
+#define CONFIG_DISABLE_ECRC_CMPL     31
+#define CONFIG_ENABLE_ECRC_CMPL      32
 
 // Valid force/enable test masks
 #define ENABLE_DISABLE               0x1
@@ -505,11 +509,11 @@ EXTERN void       InitLink             (const int linkwidth, const int node);
 EXTERN void       SendPacket           (const int node);
 
 // Dllps
-EXTERN void       SendAck              (const int seq,   const int node);
-EXTERN void       SendNak              (const int seq,   const int node);
-EXTERN void       SendFC               (const int type,  const int vc,    const int hdrfc, const int datafc, const bool queue, const int node);
-EXTERN void       SendPM               (const int type,  const bool queue, const int node);
-EXTERN void       SendVendor           (const bool queue, const int node);
+EXTERN void       SendAck              (const int seq,    const int node);
+EXTERN void       SendNak              (const int seq,    const int node);
+EXTERN void       SendFC               (const int type,   const int vc,     const int hdrfc, const int datafc, const bool queue, const int node);
+EXTERN void       SendPM               (const int type,   const bool queue, const int node);
+EXTERN void       SendVendor           (const bool queue, const int data,   const int node);
 
 // Physical layer Ordered sets etc.
 EXTERN void       SendIdle             (const int Ticks, const int node);

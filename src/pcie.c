@@ -1255,8 +1255,8 @@ pPktData_t MessageDigest (const int code, const PktData_t *data, const int lengt
     if (digest)
     {
         CalcEcrc(pkt_p);
-    CalcLcrc(pkt_p);
     }
+    CalcLcrc(pkt_p);
 
     if ((packet = calloc(sizeof(sPkt_t), 1)) == NULL)
     {
@@ -1612,7 +1612,7 @@ void SendPM (const int type, const bool queue, const int node)
 //
 // -------------------------------------------------------------------------
 
-void SendVendor (const bool queue, const int node)
+void SendVendor (const bool queue, const int data, const int node)
 {
     PktData_t *pkt_p, *data_p;
     pPkt_t packet;
@@ -1631,9 +1631,9 @@ void SendVendor (const bool queue, const int node)
 
     pkt_p = CreateDllpTemplate (DL_VENDOR, &data_p);
 
-    data_p[0] = 0;
-    data_p[1] = 0;
-    data_p[2] = 0;
+    data_p[0] = (data >> 16) & 0xff;
+    data_p[1] = (data >>  8) & 0xff;
+    data_p[2] = (data >>  0) & 0xff;
 
     // Calc CRC
     CalcDllpCrc(pkt_p);
@@ -2255,6 +2255,11 @@ void ConfigurePcie (const int type, const int value, const int node)
     case CONFIG_ENABLE_8B10B:
     case CONFIG_DISABLE_8B10B:
         usrconf->Disable8b10b = type & 0x1;
+        break;
+
+    case CONFIG_ENABLE_ECRC_CMPL:
+    case CONFIG_DISABLE_ECRC_CMPL:
+        usrconf->DisableEcrcCmpl = type & 0x1;
         break;
 
     case CONFIG_POST_HDR_CR:

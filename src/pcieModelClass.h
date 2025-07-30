@@ -41,19 +41,19 @@ public:
 
     // TLP generation
     pPktData_t memWrite             (const uint64_t addr, const PktData_t *data, const int length, const int tag,
-                                     const uint32_t rid, const bool queue)
-                                        {return MemWrite(addr, data, length, tag, rid, queue, node);};
+                                     const uint32_t rid, const bool queue = false, const bool digest = false)
+                                        {return MemWriteDigest(addr, data, length, tag, rid, digest, queue, node);};
 
-    pPktData_t memRead              (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool queue)
-                                        {return MemRead(addr, length, tag, rid, queue, node);};
+    pPktData_t memRead              (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool queue = false, const bool digest = false)
+                                        {return MemReadDigest(addr, length, tag, rid, digest, queue, node);};
 
     pPktData_t completion           (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int length,
-                                     const int tag, const uint32_t cid, const uint32_t rid, const bool queue)
-                                        {return Completion(addr, data, status, fbe, lbe, length, tag, cid, rid, queue, node);};
+                                     const int tag, const uint32_t cid, const uint32_t rid, const bool queue = false, const bool digest = false)
+                                        {return CompletionDigest(addr, data, status, fbe, lbe, length, tag, cid, rid, digest, queue, node);};
 
     pPktData_t partCompletion       (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int rlength,
-                                     const int length, const int tag, const uint32_t cid, const uint32_t rid, const bool queue)
-                                        {return PartCompletion(addr, data, status, fbe, lbe, rlength, length, tag, cid, rid, queue, node);};
+                                     const int length, const int tag, const uint32_t cid, const uint32_t rid, const bool queue = false, const bool digest = false)
+                                        {return PartCompletionDigest(addr, data, status, fbe, lbe, rlength, length, tag, cid, rid, digest, queue, node);};
 
     pPktData_t completionDelay      (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int length,
                                      const int tag, const uint32_t cid, const uint32_t rid)
@@ -64,54 +64,54 @@ public:
                                      const bool queue)
                                         {return PartCompletionDelay(addr, data, status, fbe, lbe, rlength, length, tag, cid, rid, digest, delay, queue, node);};
 
-    pPktData_t cfgWrite             (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool queue)
-                                        {return CfgWrite(addr, data, length, tag, rid, queue, node);};
+    pPktData_t cfgWrite             (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool queue = false, const bool digest = false)
+                                        {return CfgWriteDigest(addr, data, length, tag, rid, digest, queue, node);};
 
-    pPktData_t cfgRead              (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool queue)
-                                        {return CfgRead(addr, length, tag, rid, queue, node);};
+    pPktData_t cfgRead              (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool queue = false, const bool digest = false)
+                                        {return CfgReadDigest(addr, length, tag, rid, digest, queue, node);};
 
     pPktData_t ioWrite              (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid,
-                                     const bool queue)
-                                        {return IoWrite(addr, data, length, tag, rid, queue, node);};
+                                     const bool queue = false, const bool digest = false)
+                                        {return IoWriteDigest(addr, data, length, tag, rid, digest, queue, node);};
 
-    pPktData_t ioRead               (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool queue)
-                                        {return IoRead(addr, length, tag, rid, queue, node);};
+    pPktData_t ioRead               (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool queue = false, const bool digest = false)
+                                        {return IoReadDigest(addr, length, tag, rid, digest, queue, node);};
 
-    pPktData_t message              (const int code, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool queue)
-                                        {return Message(code, data, length, tag, rid, queue, node);};
+    pPktData_t message              (const int code, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool queue = false, const bool digest = false)
+                                        {return MessageDigest(code, data, length, tag, rid, digest, queue, node);};
 
     // TLP variant with digest (ECRC) generation argument
-    pPktData_t memWriteDigest       (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool digest,
-                                     const bool queue)
+    pPktData_t memWriteDigest       (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool digest = true,
+                                     const bool queue = false)
                                         {return MemWriteDigest(addr, data, length, tag, rid, digest, queue, node);};
 
-    pPktData_t memReadDigest        (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool digest, const bool queue)
+    pPktData_t memReadDigest        (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool digest = true, const bool queue = false)
                                         {return MemReadDigest(addr, length, tag, rid, digest, queue, node);};
 
     pPktData_t completionDigest     (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int length,
-                                     const int tag, const uint32_t cid, const uint32_t rid, const bool digest, const bool queue)
+                                     const int tag, const uint32_t cid, const uint32_t rid, const bool digest = true, const bool queue = false)
                                         {return CompletionDigest(addr, data, status, fbe, lbe, length, tag, cid, rid, digest, queue, node);};
 
     pPktData_t partCompletionDigest (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int rlength,
-                                     const int length, const int tag , const uint32_t cid, const uint32_t rid, const bool digest, const bool queue)
+                                     const int length, const int tag , const uint32_t cid, const uint32_t rid, const bool digest = true, const bool queue = false)
                                         {return PartCompletionDigest(addr, data, status, fbe, lbe, rlength, length, tag, cid, rid, digest, queue, node);};
 
-    pPktData_t cfgWriteDigest       (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool digest,
-                                     const bool queue)
+    pPktData_t cfgWriteDigest       (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool digest = true,
+                                     const bool queue = false)
                                         {return CfgWriteDigest(addr, data, length, tag, rid, digest, queue, node);};
 
-    pPktData_t cfgReadDigest        (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool digest, const bool queue)
+    pPktData_t cfgReadDigest        (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool digest = true, const bool queue = false)
                                         {return CfgReadDigest(addr, length, tag, rid, digest, queue, node);};
 
-    pPktData_t ioWriteDigest        (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool digest,
-                                     const bool queue)
+    pPktData_t ioWriteDigest        (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool digest = true,
+                                     const bool queue = false)
                                         {return IoWriteDigest(addr, data, length, tag, rid, digest, queue, node);};
 
-    pPktData_t ioReadDigest         (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool digest, const bool queue)
+    pPktData_t ioReadDigest         (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool digest = true, const bool queue = false)
                                         {return IoReadDigest(addr, length, tag, rid, digest, queue, node);};
 
-    pPktData_t messageDigest        (const int code, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool digest,
-                                     const bool queue)
+    pPktData_t messageDigest        (const int code, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool digest = true,
+                                     const bool queue = false)
                                         {return MessageDigest(code, data, length, tag, rid, digest, queue, node);};
 
     // Link initialisation
@@ -128,8 +128,10 @@ public:
                                                            {SendFC(type, vc, hdrfc, datafc, queue, node);};
     void       sendPM               (const int type,  const bool queue)
                                                            {SendPM(type, queue, node);};
-    void       sendVendor           (const bool queue)
-                                                           {SendVendor(queue, node);};
+    
+    void       sendVendor           (const bool queue)     {SendVendor(queue, 0, node);};    
+    void       sendVendor           (const int data,  const bool queue)
+                                                           {SendVendor(queue, data, node);};
 
     // Physical layer Ordered sets etc.
     void       sendIdle             (const int ticks)      {SendIdle(ticks, node);};
@@ -138,17 +140,16 @@ public:
                                      const bool is_gen2)
                                                            {SendTs(identifier, lane_num, link_num, n_fts, control, is_gen2, node);};
 
-    void       waitForCompletion    (void)                 {WaitForCompletion(node);};
+    void       waitForCompletion    (const uint32_t count = 1)
+                                                           {WaitForCompletionN(count, node);};
     void       waitForCompletionN   (const uint32_t count) {WaitForCompletionN(count, node);};
     void       initialisePcie       (const callback_t    cb_func, void *usrptr)
                                                            {InitialisePcie(cb_func, usrptr, node);};
     void       registerOsCallback   (const os_callback_t cb_func)
                                                            {RegisterOsCallback(cb_func, node);};
     uint32_t   getCycleCount        (void)                 {return GetCycleCount(node);};
-    void       configurePcie        (const int type, const int value)
+    void       configurePcie        (const int type, const int value = 0)
                                         {ConfigurePcie(type, value, node);};
-    void       configurePcie        (const int type)
-                                        {ConfigurePcie(type, 0, node);};
 
     // Physical layer event routines
     int        resetEventCount      (const int type)       {return ResetEventCount(type, node);};
@@ -170,17 +171,19 @@ public:
     int        readRamByteBlock     (const uint64_t addr, PktData_t* const data, const int length)
                                         {return ReadRamByteBlock(addr, data, length, node);};
 
-    void       writeRamByte         (const uint64_t addr, const uint32_t data)                          {WriteRamByte(addr, data, node);};
-    void       writeRamWord         (const uint64_t addr, const uint32_t data, const int little_endian) {WriteRamWord(addr, data, little_endian, node);};
-    void       writeRamDWord        (const uint64_t addr, const uint64_t data, const int little_endian) {WriteRamDWord(addr, data, little_endian, node);};
-    uint32_t   readRamByte          (const uint64_t addr)                                               {return ReadRamByte(addr, node);};
-    uint32_t   readRamWord          (const uint64_t addr, const int little_endian)                      {return ReadRamWord(addr, little_endian, node);};
-    uint64_t   readRamDWord         (const uint64_t addr, const int little_endian)                      {return ReadRamDWord(addr, little_endian, node);};
+    void       writeRamByte         (const uint64_t addr, const uint32_t data)                              {WriteRamByte(addr, data, node);};
+    void       writeRamHWord        (const uint64_t addr, const uint32_t data, const int little_endian = 0) {WriteRamHWord(addr, data, little_endian, node);};
+    void       writeRamWord         (const uint64_t addr, const uint32_t data, const int little_endian = 0) {WriteRamWord(addr, data, little_endian, node);};
+    void       writeRamDWord        (const uint64_t addr, const uint64_t data, const int little_endian = 0) {WriteRamDWord(addr, data, little_endian, node);};
+    uint32_t   readRamByte          (const uint64_t addr)                                                   {return ReadRamByte(addr, node);};
+    uint32_t   readRamHWord         (const uint64_t addr, const int little_endian = 0)                      {return ReadRamHWord(addr, little_endian, node);};
+    uint32_t   readRamWord          (const uint64_t addr, const int little_endian = 0)                      {return ReadRamWord(addr, little_endian, node);};
+    uint64_t   readRamDWord         (const uint64_t addr, const int little_endian = 0)                      {return ReadRamDWord(addr, little_endian, node);};
 
-    void       writeConfigSpace     (const uint32_t addr, const uint32_t data)                          {WriteConfigSpace(addr, data, node);};
-    uint32_t   readConfigSpace      (const uint32_t addr)                                               {return ReadConfigSpace(addr, node);};
-    void       writeConfigSpaceMask (const uint32_t addr, const uint32_t data)                          {WriteConfigSpaceMask(addr, data, node);};
-    uint32_t   readConfigSpaceMask  (const uint32_t addr)                                               {return ReadConfigSpaceMask(addr, node);};
+    void       writeConfigSpace     (const uint32_t addr, const uint32_t data)                              {WriteConfigSpace(addr, data, node);};
+    uint32_t   readConfigSpace      (const uint32_t addr)                                                   {return ReadConfigSpace(addr, node);};
+    void       writeConfigSpaceMask (const uint32_t addr, const uint32_t data)                              {WriteConfigSpaceMask(addr, data, node);};
+    uint32_t   readConfigSpaceMask  (const uint32_t addr)                                                  {return ReadConfigSpaceMask(addr, node);};
 
 private:
 
