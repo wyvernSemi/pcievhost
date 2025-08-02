@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "pcie.h"
+#include "ltssm.h"
 
 #define RST_DEASSERT_INT 4
 

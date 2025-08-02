@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "pcie.h"
+#include "ltssm.h"
 #include "pcie_dpi.h"
 #include "svdpi.h"
 
