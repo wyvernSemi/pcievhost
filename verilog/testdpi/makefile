@@ -33,6 +33,7 @@ USRCDIR       = usercode
 USER_C        = VUserMain0.cpp VUserMain1.c
 PCIE_MAP_C    = pcie_vhost_map.h
 PCIE_C        = codec.c                       \
+                displink.c                    \
                 ltssm.c                       \
                 mem.c                         \
                 pcicrc32.c                    \
