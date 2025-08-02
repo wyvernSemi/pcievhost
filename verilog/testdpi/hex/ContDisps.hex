@@ -7,5 +7,5 @@
 // |,->  3 - 0:    unused             DispStop       DispFinish      DispAll
 // || ,-> Time (clock cycles, decimal)
 // || |                          
-   70 000000000000
-   02 009999999999
+  370 000000000000
+  002 009999999999
