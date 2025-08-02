@@ -30,7 +30,6 @@
 #define EXTERN extern
 #endif
 
-
 // -------------------------------------------------------------------------
 // INCLUDES
 // -------------------------------------------------------------------------
@@ -60,216 +59,172 @@
 // Generic definitions
 // -------------------------------------------------------------------------
 
-#define PCIE_MAJOR_VER               1
-#define PCIE_MINOR_VER               5
-#define PCIE_PATCH_VER               5
+#define PCIE_MAJOR_VER                    1
+#define PCIE_MINOR_VER                    5
+#define PCIE_PATCH_VER                    6
 
 // Used in macros
-#define BYTE_MASK                    0xff
+#define BYTE_MASK                         0xff
 
-#define DONT_CARE                    0
+#define DONT_CARE                         0
 
 #ifndef VP_MAX_NODES
-#define VP_MAX_NODES                 64
+#define VP_MAX_NODES                      64
 #endif
 
 // -------------------------------------------------------------------------
 // PCIe virtual host definitions
 // -------------------------------------------------------------------------
 
-#define MAX_LINK_WIDTH               16
+#define MAX_LINK_WIDTH                    16
 
-#define QUEUE                        true
-#define SEND                         false
-#define DIGEST                       true
-#define NODIGEST                     false
+#define QUEUE                             true
+#define SEND                              false
+#define DIGEST                            true
+#define NODIGEST                          false
 
-#define LCRC_TERMINATION_LOOKAHEAD   5
-#define ECRC_TERMINATION_LOOKAHEAD   9
-#define PKT_TERMINATION              0xffff
+#define LCRC_TERMINATION_LOOKAHEAD        5
+#define ECRC_TERMINATION_LOOKAHEAD        9
+#define PKT_TERMINATION                   0xffff
 
-#define DLLP_SEQ_ID                  -1
+#define DLLP_SEQ_ID                       -1
 
-#define TS_COMMA_SEQ                 0
-#define TS_LINK_NUM_SEQ              1
-#define TS_LANE_NUM_SEQ              2
-#define TS_N_FTS_SEQ                 3
-#define TS_DATA_RATE_SEQ             4
-#define TS_CONTROL_SEQ               5
-#define TS_IDENT_SEQ                 6
+#define TS_COMMA_SEQ                      0
+#define TS_LINK_NUM_SEQ                   1
+#define TS_LANE_NUM_SEQ                   2
+#define TS_N_FTS_SEQ                      3
+#define TS_DATA_RATE_SEQ                  4
+#define TS_CONTROL_SEQ                    5
+#define TS_IDENT_SEQ                      6
 
 // Byte counts
-#define HDR3DW                       12
-#define HDR4DW                       16
-#define TAILDWNODIGEST               4
-#define TAILDWDIGEST                 8
+#define HDR3DW                            12
+#define HDR4DW                            16
+#define TAILDWNODIGEST                    4
+#define TAILDWDIGEST                      8
 
-#define FIXED_OVERHEAD_START         3
-#define FIXED_OVERHEAD_END           1
-#define FIXED_OVERHEAD_LENGTH        (FIXED_OVERHEAD_START+FIXED_OVERHEAD_END)
+#define FIXED_OVERHEAD_START              3
+#define FIXED_OVERHEAD_END                1
+#define FIXED_OVERHEAD_LENGTH             (FIXED_OVERHEAD_START+FIXED_OVERHEAD_END)
 
 // Masks
-#define TLP_DIGEST_MASK              0x80
-#define KCODEMASK                    0x100
+#define TLP_DIGEST_MASK                   0x80
+#define KCODEMASK                         0x100
 
-#define ADDR_LO_BYTE_MASK            0xfc
-#define ADDR_DW_OFFSET_MASK          0x03
-#define ADDR_HI_BIT_MASK             0xffffffff00000000ULL
-#define ADDR_LO_BIT_MASK             0xffffffffULL
+#define ADDR_LO_BYTE_MASK                 0xfc
+#define ADDR_DW_OFFSET_MASK               0x03
+#define ADDR_HI_BIT_MASK                  0xffffffff00000000ULL
+#define ADDR_LO_BIT_MASK                  0xffffffffULL
 
-#define MSG_IDENTIFIER_BITS          0x18
-#define MSG_IDENTIFIER_VALUE         0x10
-#define MSG_ROUTE_BIT_MASK           0x78
+#define MSG_IDENTIFIER_BITS               0x18
+#define MSG_IDENTIFIER_VALUE              0x10
+#define MSG_ROUTE_BIT_MASK                0x78
 
-#define TL_ADDR64_MASK               0x5f
-#define TLP_TYPE_MASK                0x7f
-#define TLP_CFG_LO_ADDR_MASK         0xfffULL
-#define TLP_CPL_LO_ADDR_MASK         0x3fULL
-#define TLP_TYPE_VARIANT_BIT         0x01
-#define TLP_EP_VARIANT_BIT           0x40
+#define TL_ADDR64_MASK                    0x5f
+#define TLP_TYPE_MASK                     0x7f
+#define TLP_CFG_LO_ADDR_MASK              0xfffULL
+#define TLP_CPL_LO_ADDR_MASK              0x3fULL
+#define TLP_TYPE_VARIANT_BIT              0x01
+#define TLP_EP_VARIANT_BIT                0x40
 
-#define TLP_TD_BYTE_MASK             BIT7MASK
-#define TLP_EP_BYTE_MASK             BIT6MASK
-#define TLP_ATTR_BYTE_MASK           (BIT5MASK | BIT4MASK)
+#define TLP_TD_BYTE_MASK                  BIT7MASK
+#define TLP_EP_BYTE_MASK                  BIT6MASK
+#define TLP_ATTR_BYTE_MASK                (BIT5MASK | BIT4MASK)
 
-#define DL_VC_MASK                   0xf8
-#define DL_ROUTE_MASK                0xf8
+#define DL_VC_MASK                        0xf8
+#define DL_ROUTE_MASK                     0xf8
 
 // Header field byte offsets
-#define DLLP_SEQ_OFFSET              1
-#define TLP_TYPE_BYTE_OFFSET         3
-#define TLP_TC_BYTE_OFFSET           4
-#define TLP_TD_BYTE_OFFSET           5
-#define TLP_EP_BYTE_OFFSET           5
-#define TLP_LENGTH_OFFSET            5
-#define TLP_ATTR_BYTE_OFFSET         5
-#define TLP_RID_OFFSET               7
-#define TLP_TAG_OFFSET               9
-#define TLP_BE_OFFSET                10
-#define TLP_ADDR_OFFSET              11
-#define TLP_DATA_OFFSET32            15
-#define TLP_DATA_OFFSETCPL           15
-#define TLP_DATA_OFFSET64            19
+#define DLLP_SEQ_OFFSET                   1
+#define TLP_TYPE_BYTE_OFFSET              3
+#define TLP_TC_BYTE_OFFSET                4
+#define TLP_TD_BYTE_OFFSET                5
+#define TLP_EP_BYTE_OFFSET                5
+#define TLP_LENGTH_OFFSET                 5
+#define TLP_ATTR_BYTE_OFFSET              5
+#define TLP_RID_OFFSET                    7
+#define TLP_TAG_OFFSET                    9
+#define TLP_BE_OFFSET                     10
+#define TLP_ADDR_OFFSET                   11
+#define TLP_DATA_OFFSET32                 15
+#define TLP_DATA_OFFSETCPL                15
+#define TLP_DATA_OFFSET64                 19
 
-#define CPL_CID_OFFSET               7
-#define CPL_STATUS_OFFSET            9
-#define CPL_BYTE_COUNT_OFFSET        9
-#define CPL_RID_OFFSET               11
-#define CPL_TAG_OFFSET               13
-#define CPL_LOW_ADDR_OFFSET          14
+#define CPL_CID_OFFSET                    7
+#define CPL_STATUS_OFFSET                 9
+#define CPL_BYTE_COUNT_OFFSET             9
+#define CPL_RID_OFFSET                    11
+#define CPL_TAG_OFFSET                    13
+#define CPL_LOW_ADDR_OFFSET               14
 
-#define CFG_RID_OFFSET               7
-#define CFG_TAG_OFFSET               9
-#define CFG_BUS_OFFSET               11
-#define CFG_DEV_OFFSET               12
-#define CFG_FUN_OFFSET               12
-#define CFG_EXT_REG_OFFSET           13
-#define CFG_REG_OFFSET               14
+#define CFG_RID_OFFSET                    7
+#define CFG_TAG_OFFSET                    9
+#define CFG_BUS_OFFSET                    11
+#define CFG_DEV_OFFSET                    12
+#define CFG_FUN_OFFSET                    12
+#define CFG_EXT_REG_OFFSET                13
+#define CFG_REG_OFFSET                    14
 
-#define MSG_CODE_OFFSET              10
+#define MSG_CODE_OFFSET                   10
 
-#define DLLP_HDR_FC_OFFSET           2
-#define DLLP_DATA_FC_OFFSET          3
-#define DLLP_CRC_OFFSET              5
+#define DLLP_HDR_FC_OFFSET                2
+#define DLLP_DATA_FC_OFFSET               3
+#define DLLP_CRC_OFFSET                   5
 
-#define MAX_RAW_PKT_SIZE             4125
-#define NULLACK                      9999
+#define MAX_RAW_PKT_SIZE                  4125
+#define NULLACK                           9999
 
-#define FC_POST                      0
-#define FC_NONPOST                   1
-#define FC_CMPL                      2
-#define FC_NUMTYPES                  3
+#define FC_POST                           0
+#define FC_NONPOST                        1
+#define FC_CMPL                           2
+#define FC_NUMTYPES                       3
 
-#define FC_DEFAULT_PDATA_CREDITS     (16*1008/FC_DATA_CREDIT_BYTES)
-#define FC_DEFAULT_PHDR_CREDITS      32
+#define FC_DEFAULT_PDATA_CREDITS          (16*1008/FC_DATA_CREDIT_BYTES)
+#define FC_DEFAULT_PHDR_CREDITS           32
 
-#define FC_DEFAULT_NPDATA_CREDITS    1
-#define FC_DEFAULT_NPHDR_CREDITS     32
+#define FC_DEFAULT_NPDATA_CREDITS         1
+#define FC_DEFAULT_NPHDR_CREDITS          32
 
-#define FC_DEFAULT_CPLDATA_CREDITS   FC_INFINITE_CREDITS
-#define FC_DEFAULT_CPLHDR_CREDITS    FC_INFINITE_CREDITS
+#define FC_DEFAULT_CPLDATA_CREDITS        FC_INFINITE_CREDITS
+#define FC_DEFAULT_CPLHDR_CREDITS         FC_INFINITE_CREDITS
 
-#define RCVD_P                       1
-#define RCVD_NP                      2
-#define RCVD_CPL                     4
-#define RCVD_ALL                     7
+#define RCVD_P                            1
+#define RCVD_NP                           2
+#define RCVD_CPL                          4
+#define RCVD_ALL                          7
 
-#define INITFC_IDLE                  0
-#define INITFC_FI1                   1
-#define INITFC_FI2                   3
+#define INITFC_IDLE                       0
+#define INITFC_FI1                        1
+#define INITFC_FI2                        3
 
-#define INITFC_DELAY                 20
+#define INITFC_DELAY                      20
 
-#define DEFAULT_MAX_PAYLOAD_SIZE     (4096/FC_DATA_CREDIT_BYTES)
+#define DEFAULT_MAX_PAYLOAD_SIZE          (4096/FC_DATA_CREDIT_BYTES)
 
-#define DEFAULT_HFC_CONSUMPTION_RATE 4
-#define DEFAULT_DFC_CONSUMPTION_RATE 4
+#define DEFAULT_HFC_CONSUMPTION_RATE      4
+#define DEFAULT_DFC_CONSUMPTION_RATE      4
 
-#define DEFAULT_COMPLETION_RATE      0
-#define DEFAULT_COMPLETION_SPREAD    0
+#define DEFAULT_COMPLETION_RATE           0
+#define DEFAULT_COMPLETION_SPREAD         0
 
-#define DEFAULT_SKIP_INTERVAL        1180
-#define MINIMUM_SKIP_INTERVAL        10
-#define DEFAULT_ACK_RATE             1
+#define DEFAULT_SKIP_INTERVAL             1180
+#define MINIMUM_SKIP_INTERVAL             10
+#define DEFAULT_ACK_RATE                  1
 
-#define LAST_ACK_NULL                -1
+#define LAST_ACK_NULL                     -1
 
 // --------------- user macros ---------------
-#define PKT_STATUS_GOOD              0
-#define PKT_STATUS_BAD_LCRC          1
-#define PKT_STATUS_BAD_DLLP_CRC      1
-#define PKT_STATUS_BAD_ECRC          2
-#define PKT_STATUS_UNSUPPORTED       4
-#define PKT_STATUS_NULLIFIED         8
-
-#define CONFIG_FC_HDR_RATE           0
-#define CONFIG_FC_DATA_RATE          1
-
-// Enables even, disables odd
-#define CONFIG_ENABLE_FC             2
-#define CONFIG_DISABLE_FC            3
-#define CONFIG_ENABLE_ACK            4
-#define CONFIG_DISABLE_ACK           5
-#define CONFIG_ENABLE_MEM            6
-#define CONFIG_DISABLE_MEM           7
-
-#define CONFIG_ENABLE_SKIPS          8
-#define CONFIG_DISABLE_SKIPS         9
-
-#define CONFIG_ENABLE_UR_CPL         10
-#define CONFIG_DISABLE_UR_CPL        11
-
-#define CONFIG_POST_HDR_CR           12
-#define CONFIG_POST_DATA_CR          13
-
-#define CONFIG_NONPOST_HDR_CR        14
-#define CONFIG_NONPOST_DATA_CR       15
-
-#define CONFIG_CPL_HDR_CR            16
-#define CONFIG_CPL_DATA_CR           17
-
-#define CONFIG_CPL_DELAY_RATE        18
-#define CONFIG_CPL_DELAY_SPREAD      19
-
-#define CONFIG_LTSSM_LINKNUM         21
-#define CONFIG_LTSSM_N_FTS           22
-#define CONFIG_LTSSM_TS_CTL          23
-#define CONFIG_LTSSM_DETECT_QUIET_TO 24
-#define CONFIG_LTSSM_ENABLE_TESTS    25
-#define CONFIG_LTSSM_FORCE_TESTS     26
-
-#define CONFIG_DISABLE_SCRAMBLING    27
-#define CONFIG_ENABLE_SCRAMBLING     28
-#define CONFIG_DISABLE_8B10B         29
-#define CONFIG_ENABLE_8B10B          30
-#define CONFIG_DISABLE_ECRC_CMPL     31
-#define CONFIG_ENABLE_ECRC_CMPL      32
+#define PKT_STATUS_GOOD                   0
+#define PKT_STATUS_BAD_LCRC               1
+#define PKT_STATUS_BAD_DLLP_CRC           1
+#define PKT_STATUS_BAD_ECRC               2
+#define PKT_STATUS_UNSUPPORTED            4
+#define PKT_STATUS_NULLIFIED              8
 
 // Valid force/enable test masks
-#define ENABLE_DISABLE               0x1
-#define ENABLE_COMPLIANCE            0x2
-#define ENABLE_LOOPBACK              0x4
-
+#define ENABLE_DISABLE                    0x1
+#define ENABLE_COMPLIANCE                 0x2
+#define ENABLE_LOOPBACK                   0x4
 
 // -------------------------------------------------------------------------
 // Header field access macros
@@ -436,6 +391,60 @@ typedef struct {
 typedef void (*callback_t)(pPkt_t, int, void *);
 typedef void (*os_callback_t)(int, int, pTS_t, void *);
 
+enum config_e {
+    CONFIG_FC_HDR_RATE                         = 0,
+    CONFIG_FC_DATA_RATE,
+
+    // Enables even, disables odd
+    CONFIG_ENABLE_FC,
+    CONFIG_DISABLE_FC,
+
+    CONFIG_ENABLE_ACK,
+    CONFIG_DISABLE_ACK,
+
+    CONFIG_ENABLE_MEM,
+    CONFIG_DISABLE_MEM,
+
+    CONFIG_ENABLE_SKIPS,
+    CONFIG_DISABLE_SKIPS,
+
+    CONFIG_ENABLE_UR_CPL,
+    CONFIG_DISABLE_UR_CPL,
+
+    CONFIG_POST_HDR_CR,
+    CONFIG_POST_DATA_CR,
+
+    CONFIG_NONPOST_HDR_CR,
+    CONFIG_NONPOST_DATA_CR,
+
+    CONFIG_CPL_HDR_CR,
+    CONFIG_CPL_DATA_CR,
+
+    CONFIG_CPL_DELAY_RATE,
+    CONFIG_CPL_DELAY_SPREAD,
+
+    // Used if LTSSM present
+    CONFIG_LTSSM_LINKNUM,
+    CONFIG_LTSSM_N_FTS,
+    CONFIG_LTSSM_TS_CTL,
+    CONFIG_LTSSM_DETECT_QUIET_TO,
+    CONFIG_LTSSM_ENABLE_TESTS,
+    CONFIG_LTSSM_FORCE_TESTS,
+    CONFIG_LTSSM_POLL_ACTIVE_TX_COUNT,
+
+    // Enables even, disables odd
+    CONFIG_DISABLE_SCRAMBLING,
+    CONFIG_ENABLE_SCRAMBLING,
+
+    CONFIG_DISABLE_8B10B,
+    CONFIG_ENABLE_8B10B,
+
+    CONFIG_DISABLE_ECRC_CMPL,
+    CONFIG_ENABLE_ECRC_CMPL
+};
+
+typedef enum config_e config_t;
+
 // -------------------------------------------------------------------------
 // PCIe model API prototypes (excluding those define in mem.h)
 // -------------------------------------------------------------------------
@@ -501,9 +510,8 @@ EXTERN pPktData_t MessageDigest        (const int code, const PktData_t *data, c
                                         const bool queue, const int node);
 
 
-// Link initialisation
+// Flow control initialisation
 EXTERN void       InitFc               (const int node);
-EXTERN void       InitLink             (const int linkwidth, const int node);
 
 // Queue flushing
 EXTERN void       SendPacket           (const int node);
@@ -526,7 +534,7 @@ EXTERN void       WaitForCompletionN   (const uint32_t count,          const int
 EXTERN void       InitialisePcie       (const callback_t    cb_func, void *usrptr, const int node);
 EXTERN void       RegisterOsCallback   (const os_callback_t cb_func, const int node);
 EXTERN uint32_t   GetCycleCount        (const int node);
-EXTERN void       ConfigurePcie        (const int type, const int value, const int node);
+EXTERN void       ConfigurePcie        (const config_t type, const int value, const int node);
 
 // Physical layer event routines
 EXTERN int        ResetEventCount      (const int type, const int node);

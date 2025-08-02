@@ -105,6 +105,7 @@ static int  ltssm_max_link_mask   [VP_MAX_NODES] = { [0 ... VP_MAX_NODES-1] = DE
 static int  ltssm_detect_quiet_to [VP_MAX_NODES] = { [0 ... VP_MAX_NODES-1] = DEFAULT_DETECT_QUIET_TIMEOUT};
 static int  ltssm_enable_tests    [VP_MAX_NODES] = { [0 ... VP_MAX_NODES-1] = DEFAULT_ENABLED_TESTS};
 static int  ltssm_force_tests     [VP_MAX_NODES] = { [0 ... VP_MAX_NODES-1] = DEFAULT_FORCE_TESTS};
+static int  ltssm_poll_tx_count   [VP_MAX_NODES] = { [0 ... VP_MAX_NODES-1] = PCIE_POLLING_ACTIVE_TX_COUNT};
 
 static int  ltssm_tx_n_fts        [VP_MAX_NODES] = { [0 ... VP_MAX_NODES-1] = 0};
 
@@ -194,7 +195,7 @@ static int Polling(int *active_lanes, const int node)
             ts1_count[0] = ts2_count[0] = 0;
         }
        
-    } while(((ts1_count[0] < 8) && (ts2_count[0] < 8)) || (i < PCIE_POLLING_ACTIVE_TX_COUNT));
+    } while(((ts1_count[0] < 8) && (ts2_count[0] < 8)) || (i < ltssm_poll_tx_count[node]));
 
     // --- Config ---
     VPrint("---> Polling Config (node %d)\n", node);
@@ -751,16 +752,17 @@ void InitLink(const int link_width, const int node)
 // ConfigLinkInit
 //
 // Unless specified as a 'no change', update the configurations for this
-// mode with limiting masks to avoid bad values.
+// node with limiting masks to avoid bad values.
 //
 // -------------------------------------------------------------------------
 
 void ConfigLinkInit (const ConfigLinkInit_t cfg, const int node)
 {
-    ltssm_linknum[node]          = (cfg.ltssm_linknum         == LINK_INIT_NO_CHANGE) ? ltssm_linknum[node]         : cfg.ltssm_linknum         & 0xff;
-    ltssm_n_fts[node]            = (cfg.ltssm_n_fts           == LINK_INIT_NO_CHANGE) ? ltssm_n_fts[node]           : cfg.ltssm_n_fts           & 0xff;
-    ltssm_ts_ctl[node]           = (cfg.ltssm_ts_ctl          == LINK_INIT_NO_CHANGE) ? ltssm_ts_ctl[node]          : cfg.ltssm_ts_ctl          & 0x1f;
-    ltssm_detect_quiet_to[node]  = (cfg.ltssm_detect_quiet_to == LINK_INIT_NO_CHANGE) ? ltssm_detect_quiet_to[node] : cfg.ltssm_detect_quiet_to;
-    ltssm_enable_tests[node]     = (cfg.ltssm_enable_tests    == LINK_INIT_NO_CHANGE) ? ltssm_enable_tests[node]    : cfg.ltssm_enable_tests;
-    ltssm_force_tests[node]      = (cfg.ltssm_force_tests     == LINK_INIT_NO_CHANGE) ? ltssm_force_tests[node]     : cfg.ltssm_force_tests;
+    ltssm_linknum[node]          = (cfg.ltssm_linknum              == LINK_INIT_NO_CHANGE) ? ltssm_linknum[node]         : cfg.ltssm_linknum         & 0xff;
+    ltssm_n_fts[node]            = (cfg.ltssm_n_fts                == LINK_INIT_NO_CHANGE) ? ltssm_n_fts[node]           : cfg.ltssm_n_fts           & 0xff;
+    ltssm_ts_ctl[node]           = (cfg.ltssm_ts_ctl               == LINK_INIT_NO_CHANGE) ? ltssm_ts_ctl[node]          : cfg.ltssm_ts_ctl          & 0x1f;
+    ltssm_detect_quiet_to[node]  = (cfg.ltssm_detect_quiet_to      == LINK_INIT_NO_CHANGE) ? ltssm_detect_quiet_to[node] : cfg.ltssm_detect_quiet_to;
+    ltssm_enable_tests[node]     = (cfg.ltssm_enable_tests         == LINK_INIT_NO_CHANGE) ? ltssm_enable_tests[node]    : cfg.ltssm_enable_tests;
+    ltssm_force_tests[node]      = (cfg.ltssm_force_tests          == LINK_INIT_NO_CHANGE) ? ltssm_force_tests[node]     : cfg.ltssm_force_tests;
+    ltssm_poll_tx_count[node]    = (cfg.ltssm_poll_active_tx_count == LINK_INIT_NO_CHANGE) ? ltssm_poll_tx_count[node]   : cfg.ltssm_poll_active_tx_count;
 }

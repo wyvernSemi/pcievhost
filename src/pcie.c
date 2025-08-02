@@ -2169,7 +2169,7 @@ void InitFc (const int node)
 //
 // -------------------------------------------------------------------------
 
-void ConfigurePcie (const int type, const int value, const int node)
+void ConfigurePcie (const config_t type, const int value, const int node)
 {
     pUserConfig_t usrconf = &(this->usrconf);
     pFlowControl_t flw = &(this->flwcntl);
@@ -2421,6 +2421,11 @@ void ConfigurePcie (const int type, const int value, const int node)
 
     case CONFIG_LTSSM_FORCE_TESTS:
         ltssm_cfg.ltssm_force_tests = value;
+        ltssm_cfg_updated = true;
+        break;
+
+    case CONFIG_LTSSM_POLL_ACTIVE_TX_COUNT:
+        ltssm_cfg.ltssm_poll_active_tx_count = value;
         ltssm_cfg_updated = true;
         break;
 
