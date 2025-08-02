@@ -536,7 +536,7 @@ void DispTl(const pPcieModelState_t const state, const pPkt_t const pkt, const b
         case TL_CPLD:
         case TL_CPLLK:
         case TL_CPLDLK:
-
+        {
             uint32_t tl_cstatus   = (tl_word1 >> 13) & 0x3;
             uint32_t tl_bcm       = (tl_word1 >> 12) & 0x1;
             uint32_t tl_byte_cnt  = (tl_word1 >>  0) & 0xfff;
@@ -568,13 +568,14 @@ void DispTl(const pPcieModelState_t const state, const pPkt_t const pkt, const b
             DispTlpCrc(prefixstr, tloffstr, dlloffstr, tl_td, pkt);
             
             break;
+        }
 
         // Configuration space accesses
         case TL_CFGRD0:
         case TL_CFGRD1:
         case TL_CFGWR0:
         case TL_CFGWR1:
-
+        {
             uint32_t tl_bus  = (tl_word2 >> 24) & 0xff;
             uint32_t tl_dev  = (tl_word2 >> 20) & 0xf;
             uint32_t tl_func = (tl_word2 >> 16) & 0xf;
@@ -600,6 +601,7 @@ void DispTl(const pPcieModelState_t const state, const pPkt_t const pkt, const b
             // Display LCRC and (if present) ECRC associated with the TLP
             DispTlpCrc(prefixstr, tloffstr, dlloffstr, tl_td, pkt);
             break;
+        }
 
         // Messages
         case TL_MSG:

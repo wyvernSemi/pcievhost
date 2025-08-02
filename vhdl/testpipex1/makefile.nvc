@@ -42,8 +42,8 @@ include makefile.common
 #
 
 
-EXTFLAGS      = -DVPROC_VHDL -DNVC
-VPROCMAKEOPT  = -f makefile.nvc
+EXTFLAGS           = -DVPROC_VHDL -DNVC
+VPROCMAKEOPT       = -f makefile.nvc
 
 MAKE_EXE           = make
 

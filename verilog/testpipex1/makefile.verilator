@@ -159,12 +159,12 @@ vproc_lib: $(VPROC_TOP) pcie_c_lib
 # Checkout VProc from github if it doesn't exist at the specified location
 #
 $(VPROC_TOP):
-	git clone $(VPROC_REPO) $(VPROC_TOP) --recursive
+	@git clone $(VPROC_REPO) $(VPROC_TOP) --recursive
 
 
 # Analyse SystemVerilog files
 sysverilog: $(PCIE_MAP_V) vproc_lib
-	verilator -F $(FILELIST) $(SIMFLAGS)
+	@verilator -F $(FILELIST) $(SIMFLAGS)
 
 #------------------------------------------------------
 # EXECUTION RULES
