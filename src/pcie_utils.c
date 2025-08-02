@@ -2107,10 +2107,10 @@ void TxFcInitInt (const pFlowControl_t const flw, const pUserConfig_t const usrc
         SendFC(DL_INITFC1_P,   0, usrcfg->InitFcHdrCr[0][FC_POST],    usrcfg->InitFcDataCr[0][FC_POST],    QUEUE, node);
         SendFC(DL_INITFC1_NP,  0, usrcfg->InitFcHdrCr[0][FC_NONPOST], usrcfg->InitFcDataCr[0][FC_NONPOST], QUEUE, node);
         SendFC(DL_INITFC1_CPL, 0, usrcfg->InitFcHdrCr[0][FC_CMPL],    usrcfg->InitFcDataCr[0][FC_CMPL],    SEND,  node);
-	if (INITFC_DELAY != 0)
-	{
+        if (INITFC_DELAY != 0)
+        {
             SendIdle(INITFC_DELAY, node);
-	}
+        }
     }
 
     while (flw->fc_state[0] == INITFC_FI1 || flw->fc_state[0] == INITFC_FI2)
@@ -2118,15 +2118,15 @@ void TxFcInitInt (const pFlowControl_t const flw, const pUserConfig_t const usrc
         SendFC(DL_INITFC2_P,   0, usrcfg->InitFcHdrCr[0][FC_POST],    usrcfg->InitFcDataCr[0][FC_POST],    QUEUE, node);
         SendFC(DL_INITFC2_NP,  0, usrcfg->InitFcHdrCr[0][FC_NONPOST], usrcfg->InitFcDataCr[0][FC_NONPOST], QUEUE, node);
         SendFC(DL_INITFC2_CPL, 0, usrcfg->InitFcHdrCr[0][FC_CMPL],    usrcfg->InitFcDataCr[0][FC_CMPL],    SEND,  node);
-	if (INITFC_DELAY != 0)
-	{
+        if (INITFC_DELAY != 0)
+        {
             SendIdle(INITFC_DELAY, node);
         }
 
-	// Ensure that at least one InitFC2 set is transmitted, even if at INITFC_FI2 already
-	if (flw->fc_state[0] == INITFC_FI2)
-	{
-	    break;
+        // Ensure that at least one InitFC2 set is transmitted, even if at INITFC_FI2 already
+        if (flw->fc_state[0] == INITFC_FI2)
+        {
+            break;
         }
     }
 }
