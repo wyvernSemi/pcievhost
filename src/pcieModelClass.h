@@ -29,6 +29,9 @@
 
 extern "C" {
 #include "pcie.h"
+#ifndef EXCLUDE_LTSSM
+#include "ltssm.h"
+#endif
 }
 
 #ifndef _PCIEMODELCLASS_H_
@@ -114,10 +117,13 @@ public:
                                      const bool queue = false)
                                         {return MessageDigest(code, data, length, tag, rid, digest, queue, node);};
 
-    // Link initialisation
+    // Flow control initialisation
     void       initFc               (void)                 {InitFc(node);};
-    void       initLink             (const int linkwidth)  {InitLink(linkwidth, node);};
 
+#ifndef EXCLUDE_LTSSM
+    // Link initialisation
+    void       initLink             (const int linkwidth)  {InitLink(linkwidth, node);};
+#endif
     // Queue flushing
     void       sendPacket           (void)                 {SendPacket(node);};
 
@@ -148,7 +154,7 @@ public:
     void       registerOsCallback   (const os_callback_t cb_func)
                                                            {RegisterOsCallback(cb_func, node);};
     uint32_t   getCycleCount        (void)                 {return GetCycleCount(node);};
-    void       configurePcie        (const int type, const int value = 0)
+    void       configurePcie        (const config_t type, const int value = 0)
                                         {ConfigurePcie(type, value, node);};
 
     // Physical layer event routines
