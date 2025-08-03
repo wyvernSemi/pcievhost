@@ -34,7 +34,7 @@ ifneq ("$(SERIALISER)", "")
  SIMELABOPT   = -gSERIALISER=1
 endif
 
-EXTFLAGS      = -DVPROC_VHDL -DGHDL
+EXTFLAGS      = -DVPROC_VHDL -DEXCLUDE_LTSSM
 VPROCMAKEOPT  = -f makefile.ghdl
 
 include makefile.common

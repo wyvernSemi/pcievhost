@@ -42,7 +42,7 @@ include makefile.common
 #
 
 
-EXTFLAGS           = -DVPROC_VHDL -DNVC
+EXTFLAGS           = -DVPROC_VHDL -DEXCLUDE_LTSSM
 VPROCMAKEOPT       = -f makefile.nvc
 
 MAKE_EXE           = make

@@ -20,7 +20,7 @@
 #
 ###################################################################
 
-EXTFLAGS  = -DMODELSIM
+EXTFLAGS  = 
 
 SRCDIR    = ../src
 OBJDIR    = obj
