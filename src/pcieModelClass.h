@@ -1,6 +1,6 @@
 //=============================================================
 //
-// Copyright (c) 2024 Simon Southwell. All rights reserved.
+// Copyright (c) 2024, 2025 Simon Southwell. All rights reserved.
 //
 // Date: 17th Dec 2024
 //
@@ -29,7 +29,7 @@
 
 extern "C" {
 #include "pcie.h"
-#ifndef EXCLUDE_LTSSM
+#if !defined(EXCLUDE_LTSSM) and !defined(OSVVM)
 #include "ltssm.h"
 #endif
 }
@@ -120,7 +120,7 @@ public:
     // Flow control initialisation
     void       initFc               (void)                 {InitFc(node);};
 
-#ifndef EXCLUDE_LTSSM
+#if !defined(EXCLUDE_LTSSM) and !defined(OSVVM)
     // Link initialisation
     void       initLink             (const int linkwidth)  {InitLink(linkwidth, node);};
 #endif
