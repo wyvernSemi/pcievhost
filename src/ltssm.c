@@ -1,6 +1,6 @@
 //=============================================================
 // 
-// Copyright (c) 2016 Simon Southwell. All rights reserved.
+// Copyright (c) 2016 - 2025 Simon Southwell. All rights reserved.
 //
 // Date: 20th Sep 2016
 //
@@ -34,8 +34,6 @@
 
 #include "ltssm.h"
 #include "pcie.h"
-#include "pci_express.h"
-#include "displink.h"
 
 // -------------------------------------------------------------------------
 // DEFINES

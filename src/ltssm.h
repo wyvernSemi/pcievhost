@@ -1,6 +1,6 @@
 //=============================================================
 // 
-// Copyright (c) 2016 Simon Southwell. All rights reserved.
+// Copyright (c) 2016 - 2025 Simon Southwell. All rights reserved.
 //
 // Date: 20th Sep 2016
 //
@@ -33,6 +33,18 @@
 #define _LTSSM_H_
 
 #define LINK_INIT_NO_CHANGE  (-1)
+
+# ifndef PCIENOFORMAT
+
+#define FMT_NORMAL              "\033[0m"
+#define FMT_RED                 "\033[31m"
+
+#else
+
+#define FMT_NORMAL              ""
+#define FMT_RED                 ""
+
+#endif
 
 typedef struct
 {
