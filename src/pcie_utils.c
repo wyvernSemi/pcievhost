@@ -897,8 +897,10 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
             cid = state->CplId;
             tag = GET_TLP_TAG(pkt->data);
 
-            // Accesses, other than messages and memory accesses, require a completion of some sort
-            if (!state->usrconf.DisableUrCpl &&
+            // Accesses, other than messages and memory write accesses, require a completion of some sort,
+            // unless specifically disabled or internal memory disabled where all packets get sent to
+            // any registered user callback function
+            if (!state->usrconf.DisableUrCpl && !state->usrconf.DisableMem &&
                (type & DL_ROUTE_MASK) != TL_MSG && (type & DL_ROUTE_MASK) != TL_MSGD &&
                 type != TL_MWR32 && type != TL_MWR64 && type != TL_MRD32 && type != TL_MRD64)
             {

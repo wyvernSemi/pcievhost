@@ -61,7 +61,7 @@
 
 #define PCIE_MAJOR_VER                    1
 #define PCIE_MINOR_VER                    5
-#define PCIE_PATCH_VER                    7
+#define PCIE_PATCH_VER                    8
 
 // Used in macros
 #define BYTE_MASK                         0xff
@@ -440,7 +440,10 @@ enum config_e {
     CONFIG_ENABLE_8B10B,
 
     CONFIG_DISABLE_ECRC_CMPL,
-    CONFIG_ENABLE_ECRC_CMPL
+    CONFIG_ENABLE_ECRC_CMPL,
+
+    CONFIG_DISABLE_INTERNAL_MEM,
+    CONFIG_ENABLE_INTERNAL_MEM
 };
 
 typedef enum config_e config_t;

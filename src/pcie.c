@@ -2265,6 +2265,11 @@ void ConfigurePcie (const config_t type, const int value, const int node)
         usrconf->DisableEcrcCmpl = type & 0x1;
         break;
 
+    case CONFIG_ENABLE_INTERNAL_MEM:
+    case CONFIG_DISABLE_INTERNAL_MEM:
+        usrconf->DisableMem = type & 0x1;
+        break;
+
     case CONFIG_POST_HDR_CR:
         if (value > MAX_HDR_CREDITS)
         {
