@@ -24,7 +24,7 @@
 // Implements a PCIe LTSSM function. NB. IT IS NOT COMPLETE,
 // and is meant only to be able to power up a link to L0. With 
 // LTSSM_ABBREVIATED defined, sequence is shortened in various
-// places, and timeouts reduced.
+// places and timeouts reduced.
 //
 //=============================================================
 
@@ -33,7 +33,6 @@
 // -------------------------------------------------------------------------
 
 #include "ltssm.h"
-#include "pcie.h"
 
 // -------------------------------------------------------------------------
 // DEFINES
@@ -747,7 +746,7 @@ void InitLink(const int link_width, const int node)
 }
 
 // -------------------------------------------------------------------------
-// ConfigLinkInit
+// ConfigLinkInit()
 //
 // Unless specified as a 'no change', update the configurations for this
 // node with limiting masks to avoid bad values.
@@ -763,4 +762,67 @@ void ConfigLinkInit (const ConfigLinkInit_t cfg, const int node)
     ltssm_enable_tests[node]     = (cfg.ltssm_enable_tests         == LINK_INIT_NO_CHANGE) ? ltssm_enable_tests[node]    : cfg.ltssm_enable_tests;
     ltssm_force_tests[node]      = (cfg.ltssm_force_tests          == LINK_INIT_NO_CHANGE) ? ltssm_force_tests[node]     : cfg.ltssm_force_tests;
     ltssm_poll_tx_count[node]    = (cfg.ltssm_poll_active_tx_count == LINK_INIT_NO_CHANGE) ? ltssm_poll_tx_count[node]   : cfg.ltssm_poll_active_tx_count;
+}
+
+// -------------------------------------------------------------------------
+// ConfigurePcieLtssm()
+//
+// API function to configre the LTSSM. Uses config_t defined in pcie.h
+//
+// -------------------------------------------------------------------------
+
+void ConfigurePcieLtssm(const config_t type, const int value, const int node)
+{
+    ConfigLinkInit_t ltssm_cfg;
+    bool ltssm_cfg_updated = false;
+
+    INIT_CFG_LINK_STRUCT(ltssm_cfg);
+
+    switch (type)
+    {
+    case CONFIG_LTSSM_LINKNUM:
+        ltssm_cfg.ltssm_linknum = value;
+        ltssm_cfg_updated = true;
+        break;
+
+    case CONFIG_LTSSM_N_FTS:
+        ltssm_cfg.ltssm_n_fts = value;
+        ltssm_cfg_updated = true;
+        break;
+
+    case CONFIG_LTSSM_TS_CTL:
+        ltssm_cfg.ltssm_ts_ctl = value;
+        ltssm_cfg_updated = true;
+        break;
+
+    case CONFIG_LTSSM_DETECT_QUIET_TO:
+        ltssm_cfg.ltssm_detect_quiet_to = value;
+        ltssm_cfg_updated = true;
+        break;
+
+    case CONFIG_LTSSM_ENABLE_TESTS:
+        ltssm_cfg.ltssm_enable_tests = value;
+        ltssm_cfg_updated = true;
+        break;
+
+    case CONFIG_LTSSM_FORCE_TESTS:
+        ltssm_cfg.ltssm_force_tests = value;
+        ltssm_cfg_updated = true;
+        break;
+
+    case CONFIG_LTSSM_POLL_ACTIVE_TX_COUNT:
+        ltssm_cfg.ltssm_poll_active_tx_count = value;
+        ltssm_cfg_updated = true;
+        break;
+
+    default:
+        VPrint("ConfigurePcieLtssm: %s***Error --- bad config type at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VWrite(PVH_FATAL, 0, 0, node);
+        break;
+    }
+
+    if (ltssm_cfg_updated)
+    {
+        ConfigLinkInit(ltssm_cfg, node);
+    }
 }
