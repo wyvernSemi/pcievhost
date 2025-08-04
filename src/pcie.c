@@ -2173,10 +2173,13 @@ void ConfigurePcie (const config_t type, const int value, const int node)
 {
     pUserConfig_t usrconf = &(this->usrconf);
     pFlowControl_t flw = &(this->flwcntl);
+
+#if !defined(EXCLUDE_LTSSM) && !defined(OSVVM)
     ConfigLinkInit_t ltssm_cfg;
     bool ltssm_cfg_updated = false;
 
     INIT_CFG_LINK_STRUCT(ltssm_cfg);
+#endif
 
     switch (type)
     {
@@ -2394,50 +2397,23 @@ void ConfigurePcie (const config_t type, const int value, const int node)
         }
         break;
 
+#if !defined(EXCLUDE_LTSSM) && !defined(OSVVM)
+    // For LTSSM configurations, pass to the ltssm.c API functon 
     case CONFIG_LTSSM_LINKNUM:
-        ltssm_cfg.ltssm_linknum = value;
-        ltssm_cfg_updated = true;
-        break;
-
     case CONFIG_LTSSM_N_FTS:
-        ltssm_cfg.ltssm_n_fts = value;
-        ltssm_cfg_updated = true;
-        break;
-
     case CONFIG_LTSSM_TS_CTL:
-        ltssm_cfg.ltssm_ts_ctl = value;
-        ltssm_cfg_updated = true;
-        break;
-
     case CONFIG_LTSSM_DETECT_QUIET_TO:
-        ltssm_cfg.ltssm_detect_quiet_to = value;
-        ltssm_cfg_updated = true;
-        break;
-
     case CONFIG_LTSSM_ENABLE_TESTS:
-        ltssm_cfg.ltssm_enable_tests = value;
-        ltssm_cfg_updated = true;
-        break;
-
     case CONFIG_LTSSM_FORCE_TESTS:
-        ltssm_cfg.ltssm_force_tests = value;
-        ltssm_cfg_updated = true;
-        break;
-
     case CONFIG_LTSSM_POLL_ACTIVE_TX_COUNT:
-        ltssm_cfg.ltssm_poll_active_tx_count = value;
-        ltssm_cfg_updated = true;
+        ConfigurePcieLtssm(type, value, node);
         break;
+#endif
 
     default:
         VPrint("ConfigurePcie: %s***Error --- bad config type at node %d%s\n", FMT_RED, node, FMT_NORMAL);
         VWrite(PVH_FATAL, 0, 0, node);
         break;
-    }
-
-    if (ltssm_cfg_updated)
-    {
-        ConfigLinkInit(ltssm_cfg, node);
     }
 }
 
