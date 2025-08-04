@@ -29,7 +29,7 @@
 
 extern "C" {
 #include "pcie.h"
-#if !defined(EXCLUDE_LTSSM) and !defined(OSVVM)
+#if !defined(EXCLUDE_LTSSM) && !defined(OSVVM)
 #include "ltssm.h"
 #endif
 }
@@ -120,7 +120,7 @@ public:
     // Flow control initialisation
     void       initFc               (void)                 {InitFc(node);};
 
-#if !defined(EXCLUDE_LTSSM) and !defined(OSVVM)
+#if !defined(EXCLUDE_LTSSM) && !defined(OSVVM)
     // Link initialisation
     void       initLink             (const int linkwidth)  {InitLink(linkwidth, node);};
 #endif
