@@ -181,7 +181,7 @@ extern "C" void VUserMain0(int node)
     Interrupt &= ~RST_DEASSERT_INT;
 
     // Initialise the link for 16 lanes
-    pcie->initLink(16);
+    InitLink(16, node);
 
     // Initialise flow control
     pcie->initFc();
