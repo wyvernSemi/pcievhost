@@ -130,26 +130,27 @@ public:
     // Dllps
     void       sendAck              (const int seq)        {SendAck(seq, node);};
     void       sendNak              (const int seq)        {SendNak(seq, node);};
-    void       sendFC               (const int type,  const int vc,    const int hdrfc, const int datafc, const bool queue)
+    void       sendFC               (const int type,  const int vc,    const int hdrfc, const int datafc, const bool queue = false)
                                                            {SendFC(type, vc, hdrfc, datafc, queue, node);};
-    void       sendPM               (const int type,  const bool queue)
+    void       sendPM               (const int type,  const bool queue = false)
                                                            {SendPM(type, queue, node);};
     
-    void       sendVendor           (const bool queue)     {SendVendor(queue, 0, node);};    
-    void       sendVendor           (const int data,  const bool queue)
+    void       sendVendor           (const bool queue = false)
+                                                           {SendVendor(queue, 0, node);};    
+    void       sendVendor           (const int data,  const bool queue = false)
                                                            {SendVendor(queue, data, node);};
 
     // Physical layer Ordered sets etc.
-    void       sendIdle             (const int ticks)      {SendIdle(ticks, node);};
+    void       sendIdle             (const int ticks = 1)  {SendIdle(ticks, node);};
     void       sendOs               (const int type)       {SendOs(type, node);};
     void       sendTs               (const int identifier, const int lane_num, const int link_num, const int n_fts, const int control,
-                                     const bool is_gen2)
+                                     const bool is_gen2 = false)
                                                            {SendTs(identifier, lane_num, link_num, n_fts, control, is_gen2, node);};
 
     void       waitForCompletion    (const uint32_t count = 1)
                                                            {WaitForCompletionN(count, node);};
     void       waitForCompletionN   (const uint32_t count) {WaitForCompletionN(count, node);};
-    void       initialisePcie       (const callback_t    cb_func, void *usrptr)
+    void       initialisePcie       (const callback_t    cb_func, void *usrptr = NULL)
                                                            {InitialisePcie(cb_func, usrptr, node);};
     void       registerOsCallback   (const os_callback_t cb_func)
                                                            {RegisterOsCallback(cb_func, node);};
