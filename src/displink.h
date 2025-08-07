@@ -30,6 +30,8 @@
 #ifndef _DIPSLINK_H_
 #define _DIPSLINK_H_
 
+#define FMT_STR_SIZE                 80
+
 // ContDisp
 
 #define DISPALL                      0x001
@@ -73,15 +75,7 @@
 #define FMT_BRIGHT_CYAN         "\033[96m"
 #define FMT_BRIGHT_WHITE        "\033[97m"
 
-#define FMT_DATA_GREY           "\033[38;5;244m"
-
-#ifndef FMT_UP
-#define FMT_UP                   FMT_BRIGHT_BLUE
-#endif
-
-#ifndef FMT_DOWN
-#define FMT_DOWN                 FMT_BRIGHT_GREEN
-#endif
+#define FMT_GREY                "\033[38;5;244m"
 
 # else
 
@@ -108,23 +102,26 @@
 #define FMT_BRIGHT_CYAN         ""
 #define FMT_BRIGHT_WHITE        ""
 
-#define FMT_DATA_GREY           ""
-
-#ifndef FMT_UP
-#define FMT_UP                   ""
-#endif
-
-#ifndef FMT_DOWN
-#define FMT_DOWN                 ""
-#endif
+#define FMT_GREY                ""
 
 # endif
 
-void ConstDisp     (pUserConfig_t                 usrconf);
-void CheckContDisp (pUserConfig_t usrconf,                 const int      node);
-void DispRaw       (const pPcieModelState_t const state,   const PktData_t *linkin, const int rx);
-void DispOS        (const pPcieModelState_t const state,   const int          type, const pTS_t   const ts_data, const int lane, const bool rx, const int node);
-void DispDll       (const pPcieModelState_t const state,   const pPkt_t const pkt,  const bool rx);
-void DispTl        (const pPcieModelState_t const state,   const pPkt_t const pkt,  const bool rx);
+#define FMT_DATA_GREY            FMT_GREY
+
+#ifndef FMT_UP
+#define FMT_UP                   FMT_BRIGHT_BLUE
+#endif
+
+#ifndef FMT_DOWN
+#define FMT_DOWN                 FMT_BRIGHT_GREEN
+#endif
+
+void ConfigDispFormat (bool enable);
+void ConstDisp        (pUserConfig_t                 usrconf);
+void CheckContDisp    (pUserConfig_t usrconf,                 const int      node);
+void DispRaw          (const pPcieModelState_t const state,   const PktData_t *linkin, const int rx);
+void DispOS           (const pPcieModelState_t const state,   const int          type, const pTS_t   const ts_data, const int lane, const bool rx, const int node);
+void DispDll          (const pPcieModelState_t const state,   const pPkt_t const pkt,  const bool rx);
+void DispTl           (const pPcieModelState_t const state,   const pPkt_t const pkt,  const bool rx);
 
 #endif

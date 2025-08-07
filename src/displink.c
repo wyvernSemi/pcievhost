@@ -33,6 +33,12 @@
 #include "pcie_utils.h"
 #include "displink.h"
 
+static char fmtupstr[FMT_STR_SIZE]   = {0};
+static char fmtdnstr[FMT_STR_SIZE]   = {0};
+static char fmterrstr[FMT_STR_SIZE]  = {0};
+static char fmtnormstr[FMT_STR_SIZE] = {0};
+static char fmtdatastr[FMT_STR_SIZE] = {0};
+
 // -------------------------------------------------------------------------
 // IsDispEnabled()
 //
@@ -48,6 +54,32 @@ static bool IsDispEnabled(const pPcieModelState_t const state, const int rx, int
 }
 
 // -------------------------------------------------------------------------
+// ConfigDispFormat()
+// 
+// Enable or disable link display colour formatting
+// 
+// -------------------------------------------------------------------------
+
+void ConfigDispFormat(bool enable)
+{
+    if (enable)
+    {
+        strncpy(fmtupstr,   FMT_BRIGHT_BLUE,  FMT_STR_SIZE);
+        strncpy(fmtdnstr,   FMT_BRIGHT_GREEN, FMT_STR_SIZE);
+        strncpy(fmterrstr,  FMT_RED,          FMT_STR_SIZE);
+        strncpy(fmtnormstr, FMT_NORMAL,       FMT_STR_SIZE);
+        strncpy(fmtdatastr, FMT_DATA_GREY,    FMT_STR_SIZE);
+    }
+    else
+    {
+        strncpy(fmtupstr,   "", FMT_STR_SIZE);
+        strncpy(fmtdnstr,   "", FMT_STR_SIZE);
+        strncpy(fmterrstr,  "", FMT_STR_SIZE);
+        strncpy(fmtdatastr, "", FMT_STR_SIZE);
+    }
+}
+
+// -------------------------------------------------------------------------
 // ContDisps()
 //
 // Read ContDisps.hex file and load in to this node's state
@@ -56,32 +88,47 @@ static bool IsDispEnabled(const pPcieModelState_t const state, const int rx, int
 
 void ConstDisp (pUserConfig_t usrconf)
 {
+    int error = 0;
+
+    // Default the colour formatting strings
+    ConfigDispFormat(true);
+
     FILE* fp = fopen("hex/ContDisps.hex", "r");
+
+    if (fp == NULL)
+    {
+        error++;
+        VPrint("%s**ERROR**%s: ConstDisp() failed to read ContDisps.hex file, No display output.\n", fmterrstr, fmtnormstr);
+    }
+
     char buf [STRBUFSIZE];
 
     int dispidx = 0;
 
-    while (fgets(buf, STRBUFSIZE, fp))
+    if (!error)
     {
-        int control;
-        uint64_t time;
-
-        // Removing whitespace
-        int sidx = 0;
-        while (buf[sidx] == ' ' || buf[sidx] == '\t')
+        while (fgets(buf, STRBUFSIZE, fp))
         {
-            sidx++;
-        }
-
-        if ((buf[sidx] >= '0' && buf[sidx] <= '9') ||
-            (buf[sidx] >= 'a' && buf[sidx] <= 'f') ||
-            (buf[sidx] >= 'A' && buf[sidx] <= 'F'))
-        {
-            sscanf(&buf[sidx], "%x %llu", &usrconf->contdisp[dispidx].control, (long long unsigned *)&usrconf->contdisp[dispidx].time);
-
-            if (++dispidx == MAXCONSTDISP)
+            int control;
+            uint64_t time;
+        
+            // Removing whitespace
+            int sidx = 0;
+            while (buf[sidx] == ' ' || buf[sidx] == '\t')
             {
-                break;
+                sidx++;
+            }
+        
+            if ((buf[sidx] >= '0' && buf[sidx] <= '9') ||
+                (buf[sidx] >= 'a' && buf[sidx] <= 'f') ||
+                (buf[sidx] >= 'A' && buf[sidx] <= 'F'))
+            {
+                sscanf(&buf[sidx], "%x %llu", &usrconf->contdisp[dispidx].control, (long long unsigned *)&usrconf->contdisp[dispidx].time);
+        
+                if (++dispidx == MAXCONSTDISP)
+                {
+                    break;
+                }
             }
         }
     }
@@ -121,7 +168,11 @@ inline void CheckContDisp (pUserConfig_t usrconf, const int node)
 }
 
 // -------------------------------------------------------------------------
+// DispTc()
+//
+// Display traffic class and other attributes
 // -------------------------------------------------------------------------
+
 inline static void DispTc (const char const *prefixstr, const char const *offstr,
                            const uint32_t tl_type, const uint32_t tl_tc, const uint32_t tl_td,
                            const uint32_t tl_ep, const uint32_t tl_attr, const uint32_t tl_length)
@@ -150,18 +201,18 @@ static inline void DispPayload(const char const *prefixstr, const char const *tl
         uint32_t wdata = (pkt->data[data_offset+ idx] << 24) | (pkt->data[data_offset+ idx + 1] << 16)  | (pkt->data[data_offset+ idx + 2] << 8)  | (pkt->data[data_offset+ idx + 3]);
 
         if (!((idx / 4) % 8))
-            VPrint("%s: %s%s", prefixstr, tloffstr, FMT_DATA_GREY);
+            VPrint("%s: %s%s", prefixstr, tloffstr, fmtdatastr);
 
         VPrint("%08x",wdata);
 
         if (((idx / 4) % 8) == 7)
-            VPrint("%s\n", FMT_NORMAL);
+            VPrint("%s\n", fmtnormstr);
         else
             VPrint(" ");
     }
 
     if ((idx/4)%8)
-        VPrint("%s\n", FMT_NORMAL);
+        VPrint("%s\n", fmtnormstr);
 }
 
 // -------------------------------------------------------------------------
@@ -204,7 +255,7 @@ inline static void DispTlpCrc(const char const *prefixstr, const char const *tlo
         if (got_ecrc == exp_ecrc)
             VPrint("%s: %sTL Good ECRC (%08x)\n", prefixstr, tloffstr, got_ecrc);
         else
-            VPrint("%s: %sTL %s**Bad ECRC**%s (%08x v %08x)\n", prefixstr, tloffstr, FMT_RED, FMT_NORMAL, got_ecrc, exp_ecrc);
+            VPrint("%s: %sTL %s**Bad ECRC**%s (%08x v %08x)\n", prefixstr, tloffstr, fmterrstr, fmtnormstr, got_ecrc, exp_ecrc);
     }
     else
     {
@@ -213,7 +264,7 @@ inline static void DispTlpCrc(const char const *prefixstr, const char const *tlo
     if (got_lcrc == exp_lcrc)
         VPrint("%s: %sDL Good LCRC (%08x)\n", prefixstr, dlloffstr, got_lcrc);
     else
-        VPrint("%s: %sDL%s **Bad LCRC%s** (%08x v %08x)\n", prefixstr, dlloffstr, FMT_RED, FMT_NORMAL, got_lcrc, exp_lcrc);
+        VPrint("%s: %sDL%s **Bad LCRC%s** (%08x v %08x)\n", prefixstr, dlloffstr, fmterrstr, fmtnormstr, got_lcrc, exp_lcrc);
 }
 
 // -------------------------------------------------------------------------
@@ -231,7 +282,7 @@ void DispRaw(const pPcieModelState_t const state, const PktData_t *linkin, const
         //VPrint("==> ep=%d rx=%d conf=%03x\n", state->Endpoint, rx,state->usrconf.ActiveContDisp);
         int is_down = (rx && state->Endpoint) | (!rx && !state->Endpoint);
 
-        VPrint("%sPCIE%s%d: %s", is_down ? FMT_DOWN : FMT_UP, is_down ? "D" : "U", rx ? state->usrconf.BackNodeNum : state->thisnode, FMT_NORMAL);
+        VPrint("%sPCIE%s%d: %s", is_down ? fmtdnstr : fmtupstr, is_down ? "D" : "U", rx ? state->usrconf.BackNodeNum : state->thisnode, fmtnormstr);
 
         for (int idx = 0; idx < state->LinkWidth; idx++)
         {
@@ -288,8 +339,8 @@ void DispOS(const pPcieModelState_t const state, const int type, const pTS_t con
             snprintf(linkstr, STRBUFSIZE, "%3d", ts_data->linknum);
             
             VPrint("%sPCIE%s%d%s %02d: PL TS%d OS Link=%s Lane=%s N_FTS=%2d DataRate=%s %s %s %s %s %s\n",
-                   (is_down ? FMT_DOWN : FMT_UP),
-                   dirstr, nodenum, FMT_NORMAL,
+                   (is_down ? fmtdnstr : fmtupstr),
+                   dirstr, nodenum, fmtnormstr,
                    lane, (type == TS1_ID) ? 1 : 2,
                    (ts_data->linknum == PAD) ? "PAD" : linkstr,
                    (ts_data->lanenum == PAD) ? "PAD" : lanestr,
@@ -304,10 +355,10 @@ void DispOS(const pPcieModelState_t const state, const int type, const pTS_t con
                    (ts_data->control & 0x10) ? "ComplianceRx"  : ""
                    );
             break;
-        case IDL: VPrint("%sPCIE%s%d%s %02d: PL Electrical idle ordered set\n", is_down ? FMT_DOWN : FMT_UP, dirstr, nodenum, FMT_NORMAL, lane); break;
-        case FTS: VPrint("%sPCIE%s%d%s %02d: PL Fast training sequence ordered set\n", is_down ? FMT_DOWN : FMT_UP, dirstr, nodenum, FMT_NORMAL, lane); break;
-        case SKP: VPrint("%sPCIE%s%d%s %02d: PL Skip ordered set\n", is_down ? FMT_DOWN : FMT_UP, dirstr, nodenum, FMT_NORMAL, lane); break;
-        default:  VPrint("%sPCIE%s%d%s %02d: PL %s**Unrecognised ordered set**%s\n", is_down ? FMT_DOWN : FMT_UP, dirstr, nodenum, FMT_NORMAL, lane, FMT_RED, FMT_NORMAL); break;
+        case IDL: VPrint("%sPCIE%s%d%s %02d: PL Electrical idle ordered set\n", is_down ? fmtdnstr : fmtupstr, dirstr, nodenum, fmtnormstr, lane); break;
+        case FTS: VPrint("%sPCIE%s%d%s %02d: PL Fast training sequence ordered set\n", is_down ? fmtdnstr : fmtupstr, dirstr, nodenum, fmtnormstr, lane); break;
+        case SKP: VPrint("%sPCIE%s%d%s %02d: PL Skip ordered set\n", is_down ? fmtdnstr : fmtupstr, dirstr, nodenum, fmtnormstr, lane); break;
+        default:  VPrint("%sPCIE%s%d%s %02d: PL %s**Unrecognised ordered set**%s\n", is_down ? fmtdnstr : fmtupstr, dirstr, nodenum, fmtnormstr, lane, fmterrstr, fmtnormstr); break;
         }
     }
 }
@@ -327,12 +378,12 @@ void DispDll(const pPcieModelState_t const state, const pPkt_t const pkt, const 
     bool dllen   = IsDispEnabled(state, rx, DISPDL | DISPALL);
     bool is_down = (rx && state->Endpoint) | (!rx && !state->Endpoint);
 
-    sprintf(prefixstr, "%sPCIE%s%d%s", is_down ? FMT_DOWN : FMT_UP, is_down ? "D" : "U", rx ? state->usrconf.BackNodeNum : state->thisnode, FMT_NORMAL);
+    sprintf(prefixstr, "%sPCIE%s%d%s", is_down ? fmtdnstr : fmtupstr, is_down ? "D" : "U", rx ? state->usrconf.BackNodeNum : state->thisnode, fmtnormstr);
 
     if (phyen)
     {
         VPrint("%s: {SDP\n", prefixstr);
-        VPrint("%s%s:", prefixstr, FMT_DATA_GREY);
+        VPrint("%s%s:", prefixstr, fmtdatastr);
         for (int idx = 1; idx <= 6; idx++)
         {
             VPrint(" %02x", pkt->data[idx]);
@@ -441,7 +492,7 @@ void DispTl(const pPcieModelState_t const state, const pPkt_t const pkt, const b
     int is_down = (rx && state->Endpoint) | (!rx && !state->Endpoint);
 
     // Create marker suffix
-    sprintf(prefixstr, "%sPCIE%s%d%s", is_down ? FMT_DOWN : FMT_UP, is_down ? "D" : "U", rx ? state->usrconf.BackNodeNum : state->thisnode, FMT_NORMAL);
+    sprintf(prefixstr, "%sPCIE%s%d%s", is_down ? fmtdnstr : fmtupstr, is_down ? "D" : "U", rx ? state->usrconf.BackNodeNum : state->thisnode, fmtnormstr);
 
     if (phyen)
     {
@@ -450,12 +501,12 @@ void DispTl(const pPcieModelState_t const state, const pPkt_t const pkt, const b
         for (idx = 1; pkt->data[idx] != EDB && pkt->data[idx] != END; idx++)
         {
             if ((idx-1)%22 == 0)
-                VPrint("%s:%s", prefixstr, FMT_DATA_GREY);
+                VPrint("%s:%s", prefixstr, fmtdatastr);
 
             VPrint(" %02x", pkt->data[idx]);
 
             if ((idx-1)%22 == 21)
-                VPrint("%s\n", FMT_NORMAL);
+                VPrint("%s\n", fmtnormstr);
         }
         VPrint("%s", !((idx-1)%22) ? "" : "\n");
         VPrint("%s: %s}\n", prefixstr, pkt->data[idx] == EDB ? "EDB" : "END");
@@ -635,7 +686,7 @@ void DispTl(const pPcieModelState_t const state, const pPkt_t const pkt, const b
             case MSG_SET_PWR_LIMIT: VPrint("Set slot power limit "); break;
             case MSG_VENDOR_0     : VPrint("Vendor type 0 "); break;
             case MSG_VENDOR_1     : VPrint("Vendor tyoe 1 "); break;
-            default               : VPrint("%s**illegal Msg code**%s ", FMT_RED, FMT_NORMAL);
+            default               : VPrint("%s**illegal Msg code**%s ", fmterrstr, fmtnormstr);
             }
 
             VPrint("ID=%04x TAG=%02x ", tl_id, tl_tag);
@@ -653,7 +704,7 @@ void DispTl(const pPcieModelState_t const state, const pPkt_t const pkt, const b
             case MSG_ROUTE_BCAST : VPrint("(broadcast from root complex)\n"); break;
             case MSG_ROUTE_LOCAL : VPrint("(Local)\n"); break;
             case MSG_ROUTE_GATHER: VPrint("(Gather and route to root complex)\n"); break;
-            default              : VPrint("(%s**illegal route**%s)\n", FMT_RED, FMT_NORMAL); break;
+            default              : VPrint("(%s**illegal route**%s)\n", fmterrstr, fmtnormstr); break;
             }
 
             // Display traffic class and other attributes

@@ -1781,6 +1781,7 @@ void InitPcieState(const pPcieModelState_t const state, const int node)
 
     ConstDisp(usrconf);
 
+
     state->RandNum                = node;
 
     state->CompletionEvent        = 0;
