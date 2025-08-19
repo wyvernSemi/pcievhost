@@ -2275,6 +2275,10 @@ void ConfigurePcie (const config_t type, const int value, const int node)
         ConfigDispFormat(type == CONFIG_ENABLE_DISPLINK_COLOUR);
         break;
 
+    case CONFIG_DISP_BCK_NODE_NUM:
+        usrconf->BackNodeNum = value % 10;
+        break;
+
     case CONFIG_POST_HDR_CR:
         if (value > MAX_HDR_CREDITS)
         {
