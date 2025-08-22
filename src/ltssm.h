@@ -44,18 +44,6 @@ extern "C" {
 
 #define LINK_INIT_NO_CHANGE  (-1)
 
-# ifndef PCIENOFORMAT
-
-#define FMT_NORMAL              "\033[0m"
-#define FMT_RED                 "\033[31m"
-
-#else
-
-#define FMT_NORMAL              ""
-#define FMT_RED                 ""
-
-#endif
-
 typedef struct
 {
     int ltssm_linknum;
@@ -65,6 +53,7 @@ typedef struct
     int ltssm_enable_tests;
     int ltssm_force_tests;
     int ltssm_poll_active_tx_count;
+    int ltssm_disable_disp_state;
 
 } ConfigLinkInit_t;
 
@@ -76,6 +65,7 @@ typedef struct
   (_cfg).ltssm_enable_tests         = LINK_INIT_NO_CHANGE; \
   (_cfg).ltssm_force_tests          = LINK_INIT_NO_CHANGE; \
   (_cfg).ltssm_poll_active_tx_count = LINK_INIT_NO_CHANGE; \
+  (_cfg).ltssm_disable_disp_state    = LINK_INIT_NO_CHANGE; \
 }
 
 // Link initialisation

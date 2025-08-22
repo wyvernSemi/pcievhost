@@ -57,12 +57,12 @@ static uint32_t CalcNewRxCredits(const uint32_t rxfc, const uint32_t currfc, con
 
     if (hdrcheck && newfc >= currfc + 127) /* Checks for 2.6.1 PCIE 1.1 pg 110 */
     {
-        VPrint("CalcNewRxCredits(): %s***Error --- Received Hdr FC advertising more than 127 credits NewFC %d OldFC %d\%sn", FMT_RED, newfc, currfc, FMT_NORMAL);
+        VPrint("CalcNewRxCredits(): %s***Error --- Received Hdr FC advertising more than 127 credits NewFC %d OldFC %d\%sn", fmterrstr, newfc, currfc, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
     else if (newfc >= currfc + 2047)
     {
-        VPrint("CalcNewRxCredits(): %s***Error --- Received Data FC advertising more than 2047 credits NewFC %d OldFC %d%s\n", FMT_RED, newfc, currfc, FMT_NORMAL);
+        VPrint("CalcNewRxCredits(): %s***Error --- Received Data FC advertising more than 2047 credits NewFC %d OldFC %d%s\n", fmterrstr, newfc, currfc, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -96,7 +96,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
             flw->RxHdrCredits[0][FC_POST] += 1;
             if (flw->RxHdrCredits[0][FC_POST] > flw->ConsumedHdrCredits[0][FC_POST])
             {
-                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Posted header Credits%s", FMT_RED, FMT_NORMAL);
+                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Posted header Credits%s", fmterrstr, fmtnormstr);
                 VWrite(PVH_FATAL, 0, 0, node);
             }
         }
@@ -105,7 +105,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
             flw->RxDataCredits[0][FC_POST] += payload_length/4 + ((payload_length%4) ? 1 : 0);
             if (flw->RxDataCredits[0][FC_POST] > flw->ConsumedDataCredits[0][FC_POST])
             {
-                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Posted Data Credits%s", FMT_RED, FMT_NORMAL);
+                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Posted Data Credits%s", fmterrstr, fmtnormstr);
                 VWrite(PVH_FATAL, 0, 0, node);
             }
         }
@@ -118,7 +118,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
 
             if (flw->RxHdrCredits[0][FC_POST] > flw->ConsumedHdrCredits[0][FC_POST])
             {
-                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Posted header Credits%s", FMT_RED, FMT_NORMAL);
+                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Posted header Credits%s", fmterrstr, fmtnormstr);
                 VWrite(PVH_FATAL, 0, 0, node);
             }
         }
@@ -130,7 +130,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
             flw->RxHdrCredits[0][FC_CMPL]  += 1;
             if (flw->RxHdrCredits[0][FC_CMPL] > flw->ConsumedHdrCredits[0][FC_CMPL])
             {
-                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Completion header Credits%s", FMT_RED, FMT_NORMAL);
+                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Completion header Credits%s", fmterrstr, fmtnormstr);
                 VWrite(PVH_FATAL, 0, 0, node);
             }
         }
@@ -142,7 +142,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
             flw->RxHdrCredits[0][FC_CMPL]  += 1;
             if (flw->RxHdrCredits[0][FC_CMPL] > flw->ConsumedHdrCredits[0][FC_CMPL])
             {
-                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Completion header Credits%s", FMT_RED, FMT_NORMAL);
+                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Completion header Credits%s", fmterrstr, fmtnormstr);
                 VWrite(PVH_FATAL, 0, 0, node);
             }
         }
@@ -151,7 +151,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
             flw->RxDataCredits[0][FC_CMPL] += payload_length/4 + ((payload_length%4) ? 1 : 0);
             if (flw->RxDataCredits[0][FC_CMPL] > flw->ConsumedDataCredits[0][FC_CMPL])
             {
-                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Completion data Credits%s", FMT_RED, FMT_NORMAL);
+                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Completion data Credits%s", fmterrstr, fmtnormstr);
                 VWrite(PVH_FATAL, 0, 0, node);
             }
         }
@@ -168,7 +168,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
             flw->RxHdrCredits[0][FC_NONPOST]  += 1;
             if (flw->RxHdrCredits[0][FC_NONPOST] > flw->ConsumedHdrCredits[0][FC_NONPOST])
             {
-                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Non-posted header Credits%s", FMT_RED, FMT_NORMAL);
+                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Non-posted header Credits%s", fmterrstr, fmtnormstr);
                 VWrite(PVH_FATAL, 0, 0, node);
             }
         }
@@ -180,7 +180,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
             flw->RxHdrCredits[0][FC_NONPOST] += 1;
             if (flw->RxHdrCredits[0][FC_NONPOST] > flw->ConsumedHdrCredits[0][FC_NONPOST])
             {
-                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Non-posted header Credits%s", FMT_RED, FMT_NORMAL);
+                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Non-posted header Credits%s", fmterrstr, fmtnormstr);
                 VWrite(PVH_FATAL, 0, 0, node);
             }
         }
@@ -189,7 +189,7 @@ static void ProcessRxFlowControl(const pFlowControl_t const flw, const int intyp
             flw->RxDataCredits[0][FC_NONPOST] += payload_length/4 + ((payload_length%4) ? 1 : 0);
             if (flw->RxDataCredits[0][FC_NONPOST] > flw->ConsumedDataCredits[0][FC_NONPOST])
             {
-                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Non-posted data Credits%s", FMT_RED, FMT_NORMAL);
+                VPrint("ProcessRxFlowControl(): %s***Error --- Overflow on Non-posted data Credits%s", fmterrstr, fmtnormstr);
                 VWrite(PVH_FATAL, 0, 0, node);
             }
         }
@@ -708,7 +708,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
             }
             else
             {
-                VPrint("ProcessInput: Info --- %sTlp LCRC failure%s. Sending NAK from node %d\n", FMT_RED, FMT_NORMAL, state->thisnode);
+                VPrint("ProcessInput: Info --- %sTlp LCRC failure%s. Sending NAK from node %d\n", fmterrstr, fmtnormstr, state->thisnode);
                 if (!state->usrconf.DisableAck)
                 {
                     SendNak (pkt->seq, state->thisnode);
@@ -733,7 +733,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
         if (ecrc_present && (ecrc[0] != pkt->data[ecrc_offset+0] || ecrc[1] != pkt->data[ecrc_offset+1] ||
                              ecrc[2] != pkt->data[ecrc_offset+2] || ecrc[3] != pkt->data[ecrc_offset+3] ))
         {
-            VPrint("ProcessInput: Info --- %sTlp ECRC failure at node %d%s\n", FMT_RED, state->thisnode, FMT_NORMAL);
+            VPrint("ProcessInput: Info --- %sTlp ECRC failure at node %d%s\n", fmterrstr, state->thisnode, fmtnormstr);
             status |= PKT_STATUS_BAD_ECRC;
             if (state->vuser_cb != NULL)
             {
@@ -816,7 +816,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
 
                 if (ReadRamByteBlock (addr, buff, length*4, state->thisnode))
                 {
-                    VPrint("ProcessInput: %s***Error --- ReadRamByteBlock for address %llx returned bad status at node %d%s\n", FMT_RED, (long long unsigned)addr, state->thisnode, FMT_NORMAL);
+                    VPrint("ProcessInput: %s***Error --- ReadRamByteBlock for address %llx returned bad status at node %d%s\n", fmterrstr, (long long unsigned)addr, state->thisnode, fmtnormstr);
                     VWrite(PVH_FATAL, 0, 0, state->thisnode);
                 }
 
@@ -1010,7 +1010,7 @@ void CheckFree (void*  ptr)
 {
     if (! ptr)
     {
-        VPrint ("CheckFree(): %s***Error --- received null ptr to free%s\n", FMT_RED, FMT_NORMAL);
+        VPrint ("CheckFree(): %s***Error --- received null ptr to free%s\n", fmterrstr, fmtnormstr);
         exit (EXIT_FAILURE);
     }
     else
@@ -1095,7 +1095,7 @@ static pPkt_t PcieSortQueue (const pPkt_t const head_p, pPkt_t* end, const int n
     // Check we haven't overflowed
     if (idx == (MAX_HDR_CREDITS+1) && tmp_p != NULL)
     {
-        VPrint("PcieSortQueue(): %s***Error --- completion queue overflow%s\n", FMT_RED, FMT_NORMAL);
+        VPrint("PcieSortQueue(): %s***Error --- completion queue overflow%s\n", fmterrstr, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -1139,7 +1139,7 @@ int CalcByteCount (const int len, const int fbe, const int lbe)
 {
     if (len == 0 && fbe == 0xf && lbe == 0xf)
     {
-        VPrint( "CalcByteCount: %s***Error --- Len = 0, with valid byte enables%s\n", FMT_RED, FMT_NORMAL);
+        VPrint( "CalcByteCount: %s***Error --- Len = 0, with valid byte enables%s\n", fmterrstr, fmtnormstr);
         exit (EXIT_FAILURE);
     }
 
@@ -1313,7 +1313,7 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int by
 
     if (bytelen < 0 || bytelen > MAX_PAYLOAD_BYTES)
     {
-        VPrint( "CreateTlpTemplate(): %s***Error --- bytelen out of range (%d)%s\n", FMT_RED, bytelen, FMT_NORMAL);
+        VPrint( "CreateTlpTemplate(): %s***Error --- bytelen out of range (%d)%s\n", fmterrstr, bytelen, fmtnormstr);
         return NULL;
     }
 
@@ -1365,7 +1365,7 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int by
 
         if (total_length % 4)
         {
-            VPrint( "CreateTlpTemplate(): %s***Error --- total_length not DWORD aligned%s\n", FMT_RED, FMT_NORMAL);
+            VPrint( "CreateTlpTemplate(): %s***Error --- total_length not DWORD aligned%s\n", fmterrstr, fmtnormstr);
             VPrint( "total_length=%d header_length=%d tail_length=%d payload_length=%d actual_length=%d bytelen=%d endpos=%d (addr & 0x3)=%x\n",
                              total_length, header_length, tail_length, payload_length, actual_length, bytelen, endpos, ((uint32_t)addr & 0x3));
             return NULL;
@@ -1373,7 +1373,7 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int by
 
         if ((pmem = (PktData_t *)calloc ((total_length+1) * sizeof(PktData_t), 1)) == NULL)
         {
-            VPrint( "CreateTlpTemplate(): %s***Error --- malloc call failed%s\n", FMT_RED, FMT_NORMAL);
+            VPrint( "CreateTlpTemplate(): %s***Error --- malloc call failed%s\n", fmterrstr, fmtnormstr);
             return NULL;
         }
 
@@ -1434,7 +1434,7 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int by
 
         if (total_length % 4)
         {
-            VPrint( "CreateTlpTemplate(): %s***Error --- total_length not DWORD aligned%s\n", FMT_RED, FMT_NORMAL);
+            VPrint( "CreateTlpTemplate(): %s***Error --- total_length not DWORD aligned%s\n", fmterrstr, fmtnormstr);
             VPrint( "total_length=%d header_length=%d tail_length=%d payload_length=%d bytelen=%d endpos=%d (addr & 0x3)=%x\n",
                              total_length, header_length, tail_length, payload_length, bytelen, endpos, ((uint32_t)addr & 0x3));
             return NULL;
@@ -1442,7 +1442,7 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int by
 
         if ((pmem = (PktData_t *)calloc (total_length * sizeof(PktData_t) + sizeof(PktData_t), 1)) == NULL)
         {
-            VPrint( "CreateTlpTemplate(): %s***Error --- malloc call failed%s\n", FMT_RED, FMT_NORMAL);
+            VPrint( "CreateTlpTemplate(): %s***Error --- malloc call failed%s\n", fmterrstr, fmtnormstr);
             return NULL;
         }
 
@@ -1495,7 +1495,7 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int by
 
         if (total_length % 4)
         {
-            VPrint( "CreateTlpTemplate(): %s***Error --- total_length not DWORD aligned%s\n", FMT_RED, FMT_NORMAL);
+            VPrint( "CreateTlpTemplate(): %s***Error --- total_length not DWORD aligned%s\n", fmterrstr, fmtnormstr);
             VPrint( "total_length=%d header_length=%d tail_length=%d payload_length=%d bytelen=%d endpos=%d (addr & 0x3)=%x\n",
                              total_length, header_length, tail_length, payload_length, bytelen, endpos, ((uint32_t)addr & 0x3));
             return NULL;
@@ -1503,7 +1503,7 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int by
 
         if ((pmem = (PktData_t *)calloc (total_length * sizeof(PktData_t) + sizeof(PktData_t), 1)) == NULL)
         {
-            VPrint( "CreateTlpTemplate(): %s***Error --- malloc call failed%s\n", FMT_RED, FMT_NORMAL);
+            VPrint( "CreateTlpTemplate(): %s***Error --- malloc call failed%s\n", fmterrstr, fmtnormstr);
             return NULL;
         }
 
@@ -1553,7 +1553,7 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int by
 
         if (total_length % 4)
         {
-            VPrint( "CreateTlpTemplate(): %s***Error --- total_length not DWORD aligned%s\n", FMT_RED, FMT_NORMAL);
+            VPrint( "CreateTlpTemplate(): %s***Error --- total_length not DWORD aligned%s\n", fmterrstr, fmtnormstr);
             VPrint( "total_length=%d header_length=%d tail_length=%d payload_length=%d bytelen=%d endpos=%d (addr & 0x3)=%x\n",
                              total_length, header_length, tail_length, payload_length, bytelen, endpos, ((uint32_t)addr & 0x3));
             return NULL;
@@ -1561,7 +1561,7 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int by
 
         if ((pmem = (PktData_t *)calloc (total_length * sizeof(PktData_t) + sizeof(PktData_t), 1)) == NULL)
         {
-            VPrint( "CreateTlpTemplate(): %s***Error --- malloc call failed%s\n", FMT_RED, FMT_NORMAL);
+            VPrint( "CreateTlpTemplate(): %s***Error --- malloc call failed%s\n", fmterrstr, fmtnormstr);
             return NULL;
         }
 
@@ -1611,7 +1611,7 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int by
         break;
 
     default:
-        VPrint( "CreateTlpTemplate(): %s***Error --- Unrecognised type%s\n", FMT_RED, FMT_NORMAL);
+        VPrint( "CreateTlpTemplate(): %s***Error --- Unrecognised type%s\n", fmterrstr, fmtnormstr);
         return NULL;
         break;
     }
@@ -1636,7 +1636,7 @@ PktData_t * CreateDllpTemplate (const int Type, PktData_t **payload_start)
 
     if ((pmem = (PktData_t *)calloc (9, sizeof(PktData_t))) == NULL)
     {
-        VPrint( "CreateDllpTemplate(): %s***Error --- malloc call failed%s\n", FMT_RED, FMT_NORMAL);
+        VPrint( "CreateDllpTemplate(): %s***Error --- malloc call failed%s\n", fmterrstr, fmtnormstr);
         return NULL;
     }
 
@@ -1679,7 +1679,7 @@ PktData_t * CreateDllpTemplate (const int Type, PktData_t **payload_start)
         return pmem;
         break;
     default:
-        VPrint( "CreateDllpTemplate(): %s***Error --- Unrecognised type%s\n", FMT_RED, FMT_NORMAL);
+        VPrint( "CreateDllpTemplate(): %s***Error --- Unrecognised type%s\n", fmterrstr, fmtnormstr);
         return NULL;
         break;
    }
@@ -2017,7 +2017,7 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
         {
             if (state->RxActive)
             {
-                VPrint( "ExtractPhyInput: %s***Error --- New STP/SDP (lane %d) whilst packet active at node %d%s\n", FMT_RED, idx, state->thisnode, FMT_NORMAL);
+                VPrint( "ExtractPhyInput: %s***Error --- New STP/SDP (lane %d) whilst packet active at node %d%s\n", fmterrstr, idx, state->thisnode, fmtnormstr);
                 VWrite(PVH_FATAL, 0, 0, state->thisnode);
             }
             state->RxActive = true;
@@ -2025,7 +2025,7 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
             // Allocate some space for a new packet data
             if ((state->pRxPktData = (PktData_t *)calloc((MAX_RAW_PKT_SIZE) * sizeof(PktData_t), 1)) == NULL)
             {
-                VPrint( "ExtractPhyInput: %s***Error --- memory allocation failure at node %d%s\n", FMT_RED, state->thisnode, FMT_NORMAL);
+                VPrint( "ExtractPhyInput: %s***Error --- memory allocation failure at node %d%s\n", fmterrstr, state->thisnode, fmtnormstr);
                 VWrite(PVH_FATAL, 0, 0, state->thisnode);
             }
         }
@@ -2040,7 +2040,7 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
             }
             else
             {
-                VPrint( "ExtractPhyInput: %s***Error --- packet overflow at node %d%s\n", FMT_RED, state->thisnode, FMT_NORMAL);
+                VPrint( "ExtractPhyInput: %s***Error --- packet overflow at node %d%s\n", fmterrstr, state->thisnode, fmtnormstr);
                 VWrite(PVH_FATAL, 0, 0, state->thisnode);
             }
 
@@ -2053,13 +2053,13 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
                 // reallocate memory for the new packet data's actual size
                 if ((state->pRxPktData = (PktData_t *)realloc(state->pRxPktData, state->RxDataIdx * sizeof(PktData_t))) == NULL)
                 {
-                    VPrint( "ExtractPhyInput: %s***Error --- memory reallocation failure at node %d%s\n", FMT_RED, state->thisnode, FMT_NORMAL);
+                    VPrint( "ExtractPhyInput: %s***Error --- memory reallocation failure at node %d%s\n", fmterrstr, state->thisnode, fmtnormstr);
                     VWrite(PVH_FATAL, 0, 0, state->thisnode);
                 }
 
                 if ((pkt = calloc(sizeof(sPkt_t), 1)) == NULL)
                 {
-                    VPrint( "ExtractPhyInput: %s***Error --- memory allocation failure%s\n", FMT_RED, FMT_NORMAL);
+                    VPrint( "ExtractPhyInput: %s***Error --- memory allocation failure%s\n", fmterrstr, fmtnormstr);
                     VWrite(PVH_FATAL, 0, 0, state->thisnode);
                 }
 

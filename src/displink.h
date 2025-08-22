@@ -116,6 +116,12 @@
 #define FMT_DOWN                 FMT_BRIGHT_GREEN
 #endif
 
+extern char fmtupstr[];
+extern char fmtdnstr[];
+extern char fmterrstr[];
+extern char fmtnormstr[];
+extern char fmtdatastr[];
+
 void ConfigDispFormat (bool enable);
 void ConstDisp        (pUserConfig_t                 usrconf);
 void CheckContDisp    (pUserConfig_t usrconf,                 const int      node);

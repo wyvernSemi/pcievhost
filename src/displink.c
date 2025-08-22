@@ -33,11 +33,11 @@
 #include "pcie_utils.h"
 #include "displink.h"
 
-static char fmtupstr[FMT_STR_SIZE]   = {0};
-static char fmtdnstr[FMT_STR_SIZE]   = {0};
-static char fmterrstr[FMT_STR_SIZE]  = {0};
-static char fmtnormstr[FMT_STR_SIZE] = {0};
-static char fmtdatastr[FMT_STR_SIZE] = {0};
+char fmtupstr[FMT_STR_SIZE]   = {0};
+char fmtdnstr[FMT_STR_SIZE]   = {0};
+char fmterrstr[FMT_STR_SIZE]  = {0};
+char fmtnormstr[FMT_STR_SIZE] = {0};
+char fmtdatastr[FMT_STR_SIZE] = {0};
 
 // -------------------------------------------------------------------------
 // IsDispEnabled()

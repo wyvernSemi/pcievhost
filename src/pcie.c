@@ -79,7 +79,7 @@ void SendPacket(const int node)
 
     if (this->draining_queue)
     {
-        VPrint("SendPacket: %s***Error --- Re-entered SendPacket() at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("SendPacket: %s***Error --- Re-entered SendPacket() at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -297,31 +297,31 @@ pPktData_t MemWriteDigest (const uint64_t addr, const PktData_t *data, const int
     // Do some checks
     if (node < 0 || node >= VP_MAX_NODES)
     {
-        VPrint("MemWriteDigest(): %s***Error --- invalid node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("MemWriteDigest(): %s***Error --- invalid node %d%s\n", fmterrstr, node, fmtnormstr);
         exit(EXIT_FAILURE);
     }
 
     if (pms == NULL || this == NULL)
     {
-        VPrint("MemWriteDigest: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("MemWriteDigest: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
     if (length < 0 || length > MAX_PAYLOAD_BYTES)
     {
-        VPrint( "MemWriteDigest: %s***Error --- invalid payload length (%d) at node %d%s\n", FMT_RED, length, node, FMT_NORMAL);
+        VPrint( "MemWriteDigest: %s***Error --- invalid payload length (%d) at node %d%s\n", fmterrstr, length, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
     else if (length && (((addr + (uint64_t)(length-1)) & ~(MASK_4K_BITS)) > (addr & ~(MASK_4K_BITS))))
     {
-        VPrint( "MemWriteDigest: %s***Error --- address + length crosses 4K boundary at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "MemWriteDigest: %s***Error --- address + length crosses 4K boundary at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
     // Create a template for a mem write
     if ((pkt_p = CreateTlpTemplate (TL_MWR64, addr, length, digest, &data_p)) == NULL)
     {
-        VPrint( "MemWriteDigest: %s***Error --- CreateTlpTemplate failed at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "MemWriteDigest: %s***Error --- CreateTlpTemplate failed at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -344,7 +344,7 @@ pPktData_t MemWriteDigest (const uint64_t addr, const PktData_t *data, const int
 
     if ((packet = (pPkt_t)calloc(sizeof(sPkt_t), 1)) == NULL)
     {
-        VPrint( "MemWriteDigest: %s***Error --- memory allocation failed%s\n", FMT_RED, FMT_NORMAL);
+        VPrint( "MemWriteDigest: %s***Error --- memory allocation failed%s\n", fmterrstr, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -419,31 +419,31 @@ pPktData_t MemReadDigest (const uint64_t addr, const int length, const int tag, 
     // Do some checks
     if (node < 0 || node >= VP_MAX_NODES)
     {
-        VPrint("MemReadDigest: %s***Error --- Invalid node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("MemReadDigest: %s***Error --- Invalid node %d%s\n", fmterrstr, node, fmtnormstr);
         exit(EXIT_FAILURE);
     }
 
     if (pms == NULL || this == NULL)
     {
-        VPrint("MemReadDigest: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("MemReadDigest: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
     if (length < 0 || length > MAX_PAYLOAD_BYTES)
     {
-        VPrint( "MemReadDigest: %s***Error --- invalid payload (%d) at node %d%s\n", FMT_RED, length, node, FMT_NORMAL);
+        VPrint( "MemReadDigest: %s***Error --- invalid payload (%d) at node %d%s\n", fmterrstr, length, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
     else if (length && (((addr + (uint64_t)(length-1)) & ~(MASK_4K_BITS)) > (addr & ~(MASK_4K_BITS))))
     {
-        VPrint( "MemReadDigest: %s***Error --- address + length crosses 4K boundary at node %d, addr 0x%lx, length 0x%x%s\n", FMT_RED, node, addr, length, FMT_NORMAL);
+        VPrint( "MemReadDigest: %s***Error --- address + length crosses 4K boundary at node %d, addr 0x%lx, length 0x%x%s\n", fmterrstr, node, addr, length, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
     // Create a template for a mem read
     if ((pkt_p = CreateTlpTemplate (TL_MRD64, addr, length, digest, &data_p)) == NULL)
     {
-        VPrint( "MemReadDigest: %s***Error --- CreateTlpTemplate failed at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "MemReadDigest: %s***Error --- CreateTlpTemplate failed at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -461,7 +461,7 @@ pPktData_t MemReadDigest (const uint64_t addr, const int length, const int tag, 
 
     if ((packet = calloc(sizeof(sPkt_t), 1)) == NULL)
     {
-        VPrint( "MemReadDigest: %s***Error --- memory allocation failed%s\n", FMT_RED, FMT_NORMAL);
+        VPrint( "MemReadDigest: %s***Error --- memory allocation failed%s\n", fmterrstr, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -531,19 +531,19 @@ pPktData_t CompletionDigest (uint64_t addr, const PktData_t *data, int status, i
     // Do some checks
     if (node < 0 || node >= VP_MAX_NODES)
     {
-        VPrint("CompletionDigest: %s***Error --- Invalid node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("CompletionDigest: %s***Error --- Invalid node %d%s\n", fmterrstr, node, fmtnormstr);
         exit(EXIT_FAILURE);
     }
 
     if (pms == NULL || this == NULL)
     {
-        VPrint("CompletionDigest: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("CompletionDigest: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
     if (length < 0 || length > (MAX_PAYLOAD_BYTES/4))
     {
-        VPrint( "CompletionDigest: %s***Error --- invalid payload (%d) at node %d\n%s", FMT_RED, length, node, FMT_NORMAL);
+        VPrint( "CompletionDigest: %s***Error --- invalid payload (%d) at node %d\n%s", fmterrstr, length, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -586,26 +586,26 @@ pPktData_t PartCompletionDelay (const uint64_t addr, const PktData_t *data, cons
     // Do some checks
     if (node < 0 || node >= VP_MAX_NODES)
     {
-        VPrint("PartCompletionDelay: %s***Error --- Invalid node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("PartCompletionDelay: %s***Error --- Invalid node %d%s\n", fmterrstr, node, fmtnormstr);
         exit(EXIT_FAILURE);
     }
 
     if (pms == NULL || this == NULL)
     {
-        VPrint("PartCompletionDelay: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("PartCompletionDelay: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
     if (length < 0 || length > (MAX_PAYLOAD_BYTES/4))
     {
-        VPrint( "PartCompletionDelay: %s***Error --- invalid payload (%d) at node %d%s\n", FMT_RED, length, node, FMT_NORMAL);
+        VPrint( "PartCompletionDelay: %s***Error --- invalid payload (%d) at node %d%s\n", fmterrstr, length, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
     // Create a template for a mem read completiom
     if ((pkt_p = CreateTlpTemplate (length ? TL_CPLD : TL_CPL, addr, length*4, digest, &data_p)) == NULL)
     {
-        VPrint( "PartCompletionDelay: %s***Error --- CreateTlpTemplate failed at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "PartCompletionDelay: %s***Error --- CreateTlpTemplate failed at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -632,7 +632,7 @@ pPktData_t PartCompletionDelay (const uint64_t addr, const PktData_t *data, cons
 
     if ((packet = calloc(sizeof(sPkt_t), 1)) == NULL)
     {
-        VPrint( "PartCompletionDelay: %s***Error --- memory allocation failed at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "PartCompletionDelay: %s***Error --- memory allocation failed at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -712,31 +712,31 @@ pPktData_t IoWriteDigest (const uint64_t addr, const PktData_t *data, const int 
     // Do some checks
     if (node < 0 || node >= VP_MAX_NODES)
     {
-        VPrint("IoWriteDigest: %s***Error --- Invalid node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("IoWriteDigest: %s***Error --- Invalid node %d%s\n", fmterrstr, node, fmtnormstr);
         exit(EXIT_FAILURE);
     }
 
     if (pms == NULL || this == NULL)
     {
-        VPrint("IoWriteDigest: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("IoWriteDigest: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
     if (((addr & ADDR_DW_OFFSET_MASK) + length) > 4)
     {
-        VPrint( "IoWriteDigest: %s***Error --- payload > 1 at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "IoWriteDigest: %s***Error --- payload > 1 at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
     else if (addr > ADDR_LO_BIT_MASK)
     {
-        VPrint( "IoWriteDigest: %s***Error --- 64 bit address at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "IoWriteDigest: %s***Error --- 64 bit address at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
     // Create a template for an IO write
     if ((pkt_p = CreateTlpTemplate (TL_IOWR, addr, length, digest, &data_p)) == NULL)
     {
-        VPrint( "IoWriteDigest: %s***Error --- CreateTlpTemplate failed at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "IoWriteDigest: %s***Error --- CreateTlpTemplate failed at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -759,7 +759,7 @@ pPktData_t IoWriteDigest (const uint64_t addr, const PktData_t *data, const int 
 
     if ((packet = calloc(sizeof(sPkt_t), 1)) == NULL)
     {
-        VPrint( "IoWriteDigest: %s***Error --- memory allocation failed%s\n", FMT_RED, FMT_NORMAL);
+        VPrint( "IoWriteDigest: %s***Error --- memory allocation failed%s\n", fmterrstr, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -825,31 +825,31 @@ pPktData_t IoReadDigest (const uint64_t addr, const int length, const int tag, c
     // Do some checks
     if (node < 0 || node >= VP_MAX_NODES)
     {
-        VPrint("IoReadDigest: %s***Error --- Invalid node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("IoReadDigest: %s***Error --- Invalid node %d%s\n", fmterrstr, node, fmtnormstr);
         exit(EXIT_FAILURE);
     }
 
     if (pms == NULL || this == NULL)
     {
-        VPrint("IoReadDigest: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("IoReadDigest: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
     if (((addr & ADDR_DW_OFFSET_MASK) + length) > 4)
     {
-        VPrint( "IoReadDigest: %s***Error --- payload > 1 at bode %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "IoReadDigest: %s***Error --- payload > 1 at bode %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
     else if (addr > ADDR_LO_BIT_MASK)
     {
-        VPrint( "IoReadDigest: %s***Error --- 64 bit address at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "IoReadDigest: %s***Error --- 64 bit address at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
     // Create a template for an IO read
     if ((pkt_p = CreateTlpTemplate (TL_IORD, addr, length, digest, &data_p)) == NULL)
     {
-        VPrint( "IoReadDigest: %s***Error --- CreateTlpTemplate failed at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "IoReadDigest: %s***Error --- CreateTlpTemplate failed at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -867,7 +867,7 @@ pPktData_t IoReadDigest (const uint64_t addr, const int length, const int tag, c
 
     if ((packet = calloc(sizeof(sPkt_t), 1)) == NULL)
     {
-        VPrint( "IoReadDigest: %s***Error --- memory allocation failed%s\n", FMT_RED, FMT_NORMAL);
+        VPrint( "IoReadDigest: %s***Error --- memory allocation failed%s\n", fmterrstr, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -936,31 +936,31 @@ pPktData_t CfgWriteDigest (const uint64_t addr, const PktData_t *data, const int
     // Do some checks
     if (node < 0 || node >= VP_MAX_NODES)
     {
-        VPrint("CfgWriteDigest: %s***Error --- Invalid node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("CfgWriteDigest: %s***Error --- Invalid node %d%s\n", fmterrstr, node, fmtnormstr);
         exit(EXIT_FAILURE);
     }
 
     if (pms == NULL || this == NULL)
     {
-        VPrint("CfgWriteDigest: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("CfgWriteDigest: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
     if (length > 4)
     {
-        VPrint( "CfgWriteDigest: %s***Error --- payload length > 1 at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "CfgWriteDigest: %s***Error --- payload length > 1 at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
     else if ((addr & 0xffff) > TLP_CFG_LO_ADDR_MASK)
     {
-        VPrint( "CfgWriteDigest: %s***Error --- index out of range at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "CfgWriteDigest: %s***Error --- index out of range at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
     // Create a template for a cfg write
     if ((pkt_p = CreateTlpTemplate (TL_CFGWR0, addr, length, digest, &data_p)) == NULL)
     {
-        VPrint( "CfgWriteDigest: %s***Error --- CreateTlpTemplate failed at node%d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "CfgWriteDigest: %s***Error --- CreateTlpTemplate failed at node%d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -984,7 +984,7 @@ pPktData_t CfgWriteDigest (const uint64_t addr, const PktData_t *data, const int
 
     if ((packet = calloc(sizeof(sPkt_t), 1)) == NULL)
     {
-        VPrint( "CfgWriteDigest: %s***Error --- memory allocation failed at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "CfgWriteDigest: %s***Error --- memory allocation failed at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -1052,31 +1052,31 @@ pPktData_t CfgReadDigest (const uint64_t addr, const int length, const int tag, 
     // Do some checks
     if (node < 0 || node >= VP_MAX_NODES)
     {
-        VPrint("CfgReadDigest: %s***Error --- Invalid node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("CfgReadDigest: %s***Error --- Invalid node %d%s\n", fmterrstr, node, fmtnormstr);
         exit(EXIT_FAILURE);
     }
 
     if (pms == NULL || this == NULL)
     {
-        VPrint("CfgReadDigest: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("CfgReadDigest: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
     if (length > 4)
     {
-        VPrint( "CfgReadDigest: %s***Error --- payload length > 1 at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "CfgReadDigest: %s***Error --- payload length > 1 at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
     else if ((addr & 0xffff) > TLP_CFG_LO_ADDR_MASK)
     {
-        VPrint( "CfgReadDigest: %s***Error --- index out of range at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "CfgReadDigest: %s***Error --- index out of range at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
     // Create a template for a cfg read
     if ((pkt_p = CreateTlpTemplate (TL_CFGRD0, addr, length, digest, &data_p)) == NULL)
     {
-        VPrint( "CfgReadDigest: %s***Error --- CreateTlpTemplate failed at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "CfgReadDigest: %s***Error --- CreateTlpTemplate failed at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -1094,7 +1094,7 @@ pPktData_t CfgReadDigest (const uint64_t addr, const int length, const int tag, 
 
     if ((packet = calloc(sizeof(sPkt_t), 1)) == NULL)
     {
-        VPrint( "CfgReadDigest: %s***Error --- memory allocation failed at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "CfgReadDigest: %s***Error --- memory allocation failed at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -1164,13 +1164,13 @@ pPktData_t MessageDigest (const int code, const PktData_t *data, const int lengt
 
     if (node < 0 || node >= VP_MAX_NODES)
     {
-        VPrint("MessageDigest: %s***Error --- Invalid node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("MessageDigest: %s***Error --- Invalid node %d%s\n", fmterrstr, node, fmtnormstr);
         exit(EXIT_FAILURE);
     }
 
     if (pms == NULL || this == NULL)
     {
-        VPrint("MessageDigest: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("MessageDigest: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -1228,7 +1228,7 @@ pPktData_t MessageDigest (const int code, const PktData_t *data, const int lengt
         break;
 
     default:
-        VPrint( "MessageDigest: %s***Error --- invalid message code (%0x) at node %d%s\n", FMT_RED, code, node, FMT_NORMAL);
+        VPrint( "MessageDigest: %s***Error --- invalid message code (%0x) at node %d%s\n", fmterrstr, code, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
         break;
     }
@@ -1236,7 +1236,7 @@ pPktData_t MessageDigest (const int code, const PktData_t *data, const int lengt
     // Create a template for a message
     if ((pkt_p = CreateTlpTemplate (type | routing, 0, length, digest, &data_p)) == NULL)
     {
-        VPrint( "MessageDigest: %s***Error --- CreateTlpTemplate failed at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "MessageDigest: %s***Error --- CreateTlpTemplate failed at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -1260,7 +1260,7 @@ pPktData_t MessageDigest (const int code, const PktData_t *data, const int lengt
 
     if ((packet = calloc(sizeof(sPkt_t), 1)) == NULL)
     {
-        VPrint( "MessageDigest: %s***Error --- memory allocation failed at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "MessageDigest: %s***Error --- memory allocation failed at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -1328,19 +1328,19 @@ void SendAck (const int sequence, const int node)
 
     if (node < 0 || node >= VP_MAX_NODES)
     {
-        VPrint("SendAck: %s***Error --- Invalid node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("SendAck: %s***Error --- Invalid node %d%s\n", fmterrstr, node, fmtnormstr);
         exit(EXIT_FAILURE);
     }
 
     if (pms == NULL || this == NULL)
     {
-        VPrint("SendAck: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("SendAck: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
     if (sequence < 0 || sequence > 4095)
     {
-        VPrint( "SendAck: %s***Error --- sequence > 4095 at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "SendAck: %s***Error --- sequence > 4095 at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -1370,7 +1370,7 @@ void SendAck (const int sequence, const int node)
         // Create a new packet
         if ((packet = calloc(sizeof(sPkt_t), 1)) == NULL)
         {
-            VPrint( "SendAck: %s***Error --- memory allocation failed at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+            VPrint( "SendAck: %s***Error --- memory allocation failed at node %d%s\n", fmterrstr, node, fmtnormstr);
             VWrite(PVH_FATAL, 0, 0, node);
         }
 
@@ -1412,19 +1412,19 @@ void SendNak (const int sequence, const int node)
 
     if (node < 0 || node >=  VP_MAX_NODES)
     {
-        VPrint("SendNak: %s***Error --- Invalid node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("SendNak: %s***Error --- Invalid node %d%s\n", fmterrstr, node, fmtnormstr);
         exit(EXIT_FAILURE);
     }
 
     if (pms == NULL || this == NULL)
     {
-        VPrint("SendNak: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("SendNak: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
     if (sequence < 0 || sequence > 4095)
     {
-        VPrint( "SendNak: %s***Error --- sequence > 4095 at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "SendNak: %s***Error --- sequence > 4095 at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -1454,7 +1454,7 @@ void SendNak (const int sequence, const int node)
         // Create a new packet
         if ((packet = calloc(sizeof(sPkt_t), 1)) == NULL)
         {
-            VPrint( "SendNak: %s***Error --- memory allocation failed%s\n", FMT_RED, FMT_NORMAL);
+            VPrint( "SendNak: %s***Error --- memory allocation failed%s\n", fmterrstr, fmtnormstr);
             VWrite(PVH_FATAL, 0, 0, node);
         }
 
@@ -1499,24 +1499,24 @@ void SendFC (const int type, const int vc, const int hdrfc, const int datafc, co
 
     if (node < 0 || node >= VP_MAX_NODES)
     {
-        VPrint("SendFC: %s***Error --- Invalid node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("SendFC: %s***Error --- Invalid node %d%s\n", fmterrstr, node, fmtnormstr);
         exit(EXIT_FAILURE);
     }
 
     if (pms == NULL || this == NULL)
     {
-        VPrint("SendFC: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("SendFC: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
     if (vc < 0 || vc >= NUM_VIRTUAL_CHANNELS)
     {
-        VPrint( "SendFC: %s***Error --- invalid virtual channel (%d). Maximum supported = %d at node %d%s\n", FMT_RED, vc, NUM_VIRTUAL_CHANNELS, node, FMT_NORMAL);
+        VPrint( "SendFC: %s***Error --- invalid virtual channel (%d). Maximum supported = %d at node %d%s\n", fmterrstr, vc, NUM_VIRTUAL_CHANNELS, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
     else if (hdrfc < 0 || hdrfc > DL_MAX_HDRFC || datafc < 0 || datafc > DL_MAX_DATAFC)
     {
-        VPrint( "SendFC: %s***Error --- invalid FC credits (hdr=%d data=%d) at node %d%s\n", FMT_RED, hdrfc, datafc, node, FMT_NORMAL);
+        VPrint( "SendFC: %s***Error --- invalid FC credits (hdr=%d data=%d) at node %d%s\n", fmterrstr, hdrfc, datafc, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -1533,7 +1533,7 @@ void SendFC (const int type, const int vc, const int hdrfc, const int datafc, co
 
     if ((packet = calloc(1, sizeof(sPkt_t))) == NULL)
     {
-        VPrint( "SendFC: %s***Error --- memory allocation failed at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "SendFC: %s***Error --- memory allocation failed at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -1565,13 +1565,13 @@ void SendPM (const int type, const bool queue, const int node)
 
     if (node < 0 || node >= VP_MAX_NODES)
     {
-        VPrint("SendPM: %s***Error --- Invalid node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("SendPM: %s***Error --- Invalid node %d%s\n", fmterrstr, node, fmtnormstr);
         exit(EXIT_FAILURE);
     }
 
     if (pms == NULL || this == NULL)
     {
-        VPrint("SendPM: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("SendPM: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -1586,7 +1586,7 @@ void SendPM (const int type, const bool queue, const int node)
 
     if ((packet = calloc(sizeof(sPkt_t), 1)) == NULL)
     {
-        VPrint( "SendPM: %s***Error --- memory allocation failed at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "SendPM: %s***Error --- memory allocation failed at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -1619,13 +1619,13 @@ void SendVendor (const bool queue, const int data, const int node)
 
     if (node < 0 || node > VP_MAX_NODES)
     {
-        VPrint("SendVendor: %s***Error --- Invalid node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("SendVendor: %s***Error --- Invalid node %d%s\n", fmterrstr, node, fmtnormstr);
         exit(EXIT_FAILURE);
     }
 
     if (pms == NULL || this == NULL)
     {
-        VPrint("SendVendor: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("SendVendor: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -1640,7 +1640,7 @@ void SendVendor (const bool queue, const int data, const int node)
 
     if ((packet = calloc(sizeof(sPkt_t), 1)) == NULL)
     {
-        VPrint( "SendVendor: %s***Error --- memory allocation failed at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "SendVendor: %s***Error --- memory allocation failed at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -1676,19 +1676,19 @@ void SendOs (const int Type, const int node)
 
     if (node < 0 || node > VP_MAX_NODES)
     {
-        VPrint("SendOs: %s***Error --- Invalid node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("SendOs: %s***Error --- Invalid node %d%s\n", fmterrstr, node, fmtnormstr);
         exit(EXIT_FAILURE);
     }
 
     if (pms == NULL || this == NULL)
     {
-        VPrint("SendOs: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("SendOs: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
     if (Type != IDL && Type != SKP && Type != FTS)
     {
-        VPrint( "SendOs: %s***Error --- invalid ordered set(%03x) at node %d%s\n", FMT_RED, Type, node, FMT_NORMAL);
+        VPrint( "SendOs: %s***Error --- invalid ordered set(%03x) at node %d%s\n", fmterrstr, Type, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -1748,34 +1748,34 @@ void SendTs (const int identifier, const int lane_num, const int link_num, const
     // Do some checks
     if (node < 0 || node > VP_MAX_NODES)
     {
-        VPrint("SendTs: %s***Error --- Invalid node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("SendTs: %s***Error --- Invalid node %d%s\n", fmterrstr, node, fmtnormstr);
         exit(EXIT_FAILURE);
     }
 
     if (pms == NULL || this == NULL)
     {
-        VPrint("SendTs: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("SendTs: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
     if (identifier != TS1_ID && identifier != TS2_ID)
     {
-        VPrint( "SendTs: %s***Error --- bad identifier (%02x) at node %d%s\n", FMT_RED, identifier, node, FMT_NORMAL);
+        VPrint( "SendTs: %s***Error --- bad identifier (%02x) at node %d%s\n", fmterrstr, identifier, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
     else if (link_num != PAD && (link_num < 0 || link_num > TS_LINK_NUM_MAX_VALUE))
     {
-        VPrint( "SendTs: %s***Error --- bad link number (%02x) at node %d%s\n", FMT_RED, link_num, node, FMT_NORMAL);
+        VPrint( "SendTs: %s***Error --- bad link number (%02x) at node %d%s\n", fmterrstr, link_num, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
     else if (n_fts < 0 || n_fts > TS_N_FTS_MAX_VALUE)
     {
-        VPrint( "SendTs: %s***Error --- bad N FTS (%02x) at node %d%s\n", FMT_RED, n_fts, node, FMT_NORMAL);
+        VPrint( "SendTs: %s***Error --- bad N FTS (%02x) at node %d%s\n", fmterrstr, n_fts, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
     else if (control < 0 || control > TS_CNTL_MAX_VALUE)
     {
-        VPrint( "SendTs: %s***Error --- bad control (%02x) at node %d%s\n", FMT_RED, control, node, FMT_NORMAL);
+        VPrint( "SendTs: %s***Error --- bad control (%02x) at node %d%s\n", fmterrstr, control, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -1854,19 +1854,19 @@ void SendIdle(const int Ticks, const int node)
 
     if (node < 0 || node > VP_MAX_NODES)
     {
-        VPrint("SendIdle: %s***Error --- Invalid node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("SendIdle: %s***Error --- Invalid node %d%s\n", fmterrstr, node, fmtnormstr);
         exit(EXIT_FAILURE);
     }
 
     if (pms == NULL || this == NULL)
     {
-        VPrint("SendIdle: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("SendIdle: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
     if (Ticks < 1)
     {
-        VPrint("SendIdle: %s***Error --- Ticks argument (%d) cannot be less than 1 at node %d%s\n", FMT_RED, Ticks, node, FMT_NORMAL);
+        VPrint("SendIdle: %s***Error --- Ticks argument (%d) cannot be less than 1 at node %d%s\n", fmterrstr, Ticks, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -1897,13 +1897,13 @@ void WaitForCompletionN (const uint32_t count, const int node)
 
     if (node < 0 || node > VP_MAX_NODES)
     {
-        VPrint("WaitForCompletionN: %s***Error --- Invalid node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("WaitForCompletionN: %s***Error --- Invalid node %d%s\n", fmterrstr, node, fmtnormstr);
         exit(EXIT_FAILURE);
     }
 
     if (pms == NULL || this == NULL)
     {
-        VPrint("WaitForCompletionN: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("WaitForCompletionN: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -1948,7 +1948,7 @@ void InitialisePcie (const callback_t cb_func, void *usrptr, const int node)
 
     if (node < 0 || node >= VP_MAX_NODES)
     {
-        VPrint( "InitialisePcie: %s***Error --- Invalid node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "InitialisePcie: %s***Error --- Invalid node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -1956,7 +1956,7 @@ void InitialisePcie (const callback_t cb_func, void *usrptr, const int node)
     {
         if ((pms = malloc(sizeof(pPcieModelState_t) * VP_MAX_NODES)) == NULL)
         {
-            VPrint( "InitialisePcie: %s***Error --- memory allocation failed at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+            VPrint( "InitialisePcie: %s***Error --- memory allocation failed at node %d%s\n", fmterrstr, node, fmtnormstr);
             VWrite(PVH_FATAL, 0, 0, node);
         }
         for (i = 0; i < VP_MAX_NODES; i++)
@@ -1967,13 +1967,13 @@ void InitialisePcie (const callback_t cb_func, void *usrptr, const int node)
 
     if (this != NULL)
     {
-        VPrint( "InitialisePcie: %s***Error --- InitialisePcie() already called for node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "InitialisePcie: %s***Error --- InitialisePcie() already called for node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
     if ((this = calloc(1, sizeof(PcieModelState_t))) == NULL)
     {
-        VPrint( "InitialisePcie: %s***Error --- memory allocation failed at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint( "InitialisePcie: %s***Error --- memory allocation failed at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -1996,7 +1996,7 @@ void InitialisePcie (const callback_t cb_func, void *usrptr, const int node)
     }
     else
     {
-        VPrint( "InitialisePcie: %s***Error --- invalid linkwidth (%d) at node %d%s\n", FMT_RED, linkwidth, node, FMT_NORMAL);
+        VPrint( "InitialisePcie: %s***Error --- invalid linkwidth (%d) at node %d%s\n", fmterrstr, linkwidth, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 }
@@ -2067,7 +2067,7 @@ int ResetEventCount(const int type, const int node)
     }
     else
     {
-        VPrint("ResetEventCount: %s***Error --- invalid type (%d) at node %d%s\n", FMT_RED, type, node, FMT_NORMAL);
+        VPrint("ResetEventCount: %s***Error --- invalid type (%d) at node %d%s\n", fmterrstr, type, node, fmtnormstr);
         return -1;
     }
 
@@ -2113,7 +2113,7 @@ int ReadEventCount (const int type, uint32_t *ts_data, const int node)
     }
     else
     {
-        VPrint("ReadEventCount: %s***Error --- invalid type (%d) at node %d%s\n", FMT_RED, type, node, FMT_NORMAL);
+        VPrint("ReadEventCount: %s***Error --- invalid type (%d) at node %d%s\n", fmterrstr, type, node, fmtnormstr);
         return -1;
     }
 
@@ -2186,7 +2186,7 @@ void ConfigurePcie (const config_t type, const int value, const int node)
     case CONFIG_FC_HDR_RATE:
         if (value < 0)
         {
-            VPrint("ConfigurePcie: %s***Error --- bad config value at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+            VPrint("ConfigurePcie: %s***Error --- bad config value at node %d%s\n", fmterrstr, node, fmtnormstr);
             VWrite(PVH_FATAL, 0, 0, node);
         }
         usrconf->HdrConsumptionRate = value;
@@ -2195,7 +2195,7 @@ void ConfigurePcie (const config_t type, const int value, const int node)
     case CONFIG_FC_DATA_RATE:
         if (value < 0)
         {
-            VPrint("ConfigurePcie: %s***Error --- bad config value at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+            VPrint("ConfigurePcie: %s***Error --- bad config value at node %d%s\n", fmterrstr, node, fmtnormstr);
             VWrite(PVH_FATAL, 0, 0, node);
         }
         usrconf->DataConsumptionRate = value;
@@ -2213,7 +2213,7 @@ void ConfigurePcie (const config_t type, const int value, const int node)
         {
             if (value < 1)
             {
-                VPrint("ConfigurePcie: %s***Error --- an ACK rate of %d is a bit daft, at node %d%s\n", FMT_RED, value, node, FMT_NORMAL);
+                VPrint("ConfigurePcie: %s***Error --- an ACK rate of %d is a bit daft, at node %d%s\n", fmterrstr, value, node, fmtnormstr);
                 VWrite(PVH_FATAL, 0, 0, node);
             }
             else
@@ -2235,7 +2235,7 @@ void ConfigurePcie (const config_t type, const int value, const int node)
         {
             if (value < MINIMUM_SKIP_INTERVAL)
             {
-                VPrint("ConfigurePcie: %s***Error --- a skip interval of %d is a bit daft, at node %d%s\n", FMT_RED, value, node, FMT_NORMAL);
+                VPrint("ConfigurePcie: %s***Error --- a skip interval of %d is a bit daft, at node %d%s\n", fmterrstr, value, node, fmtnormstr);
                 VWrite(PVH_FATAL, 0, 0, node);
             }
             else
@@ -2282,7 +2282,7 @@ void ConfigurePcie (const config_t type, const int value, const int node)
     case CONFIG_POST_HDR_CR:
         if (value > MAX_HDR_CREDITS)
         {
-            VPrint("ConfigurePcie: %s***Error --- post header credits of %d too big at node %d%s\n", FMT_RED, value, node, FMT_NORMAL);
+            VPrint("ConfigurePcie: %s***Error --- post header credits of %d too big at node %d%s\n", fmterrstr, value, node, fmtnormstr);
             VWrite(PVH_FATAL, 0, 0, node);
         }
         else
@@ -2300,7 +2300,7 @@ void ConfigurePcie (const config_t type, const int value, const int node)
     case CONFIG_NONPOST_HDR_CR:
         if (value > MAX_HDR_CREDITS)
         {
-            VPrint("ConfigurePcie: %s***Error --- non-post header credits of %d too big at node %d%s\n", FMT_RED, value, node, FMT_NORMAL);
+            VPrint("ConfigurePcie: %s***Error --- non-post header credits of %d too big at node %d%s\n", fmterrstr, value, node, fmtnormstr);
             VWrite(PVH_FATAL, 0, 0, node);
         }
         else
@@ -2318,7 +2318,7 @@ void ConfigurePcie (const config_t type, const int value, const int node)
     case CONFIG_CPL_HDR_CR:
         if (value > MAX_HDR_CREDITS)
         {
-            VPrint("ConfigurePcie: %s***Error --- completion header credits of %d too big at node %d%s\n", FMT_RED, value, node, FMT_NORMAL);
+            VPrint("ConfigurePcie: %s***Error --- completion header credits of %d too big at node %d%s\n", fmterrstr, value, node, fmtnormstr);
             VWrite(PVH_FATAL, 0, 0, node);
         }
         else
@@ -2354,7 +2354,7 @@ void ConfigurePcie (const config_t type, const int value, const int node)
     case CONFIG_NONPOST_DATA_CR:
         if (value > MAX_DATA_CREDITS)
         {
-            VPrint("ConfigurePcie: %s***Error --- non-posted data credits of %d too big at node %d%s\n", FMT_RED, value, node, FMT_NORMAL);
+            VPrint("ConfigurePcie: %s***Error --- non-posted data credits of %d too big at node %d%s\n", fmterrstr, value, node, fmtnormstr);
             VWrite(PVH_FATAL, 0, 0, node);
         }
         else
@@ -2372,7 +2372,7 @@ void ConfigurePcie (const config_t type, const int value, const int node)
     case CONFIG_CPL_DATA_CR:
         if (value > MAX_DATA_CREDITS)
         {
-            VPrint("ConfigurePcie: %s***Error --- posted data credits of %d too big at node %d%s\n", FMT_RED, value, node, FMT_NORMAL);
+            VPrint("ConfigurePcie: %s***Error --- posted data credits of %d too big at node %d%s\n", fmterrstr, value, node, fmtnormstr);
             VWrite(PVH_FATAL, 0, 0, node);
         }
         else
@@ -2390,7 +2390,7 @@ void ConfigurePcie (const config_t type, const int value, const int node)
     case CONFIG_CPL_DELAY_RATE:
         if (value < 0)
         {
-            VPrint("ConfigurePcie: %s***Error --- Completion delay value of %d invalid at node %d%s\n", FMT_RED, value, node, FMT_NORMAL);
+            VPrint("ConfigurePcie: %s***Error --- Completion delay value of %d invalid at node %d%s\n", fmterrstr, value, node, fmtnormstr);
             VWrite(PVH_FATAL, 0, 0, node);
         }
         else
@@ -2402,7 +2402,7 @@ void ConfigurePcie (const config_t type, const int value, const int node)
     case CONFIG_CPL_DELAY_SPREAD:
         if (value < 0)
         {
-            VPrint("ConfigurePcie: %s***Error --- Completion spread value of %d invalid at node %d%s\n", FMT_RED, value, node, FMT_NORMAL);
+            VPrint("ConfigurePcie: %s***Error --- Completion spread value of %d invalid at node %d%s\n", fmterrstr, value, node, fmtnormstr);
             VWrite(PVH_FATAL, 0, 0, node);
         }
         else
@@ -2425,7 +2425,7 @@ void ConfigurePcie (const config_t type, const int value, const int node)
 #endif
 
     default:
-        VPrint("ConfigurePcie: %s***Error --- bad config type at node %d%s\n", FMT_RED, node, FMT_NORMAL);
+        VPrint("ConfigurePcie: %s***Error --- bad config type at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
         break;
     }
