@@ -84,6 +84,7 @@
 
 #define DEFAULT_ENABLED_TESTS        0
 #define DEFAULT_FORCE_TESTS          0 
+#define DEFAULT_DISABLE_DISP_STATE   0
 
 #define LTSSM_SET_MINIMUM            0
 
@@ -103,7 +104,7 @@ static int  ltssm_detect_quiet_to    [VP_MAX_NODES] = { [0 ... VP_MAX_NODES-1] =
 static int  ltssm_enable_tests       [VP_MAX_NODES] = { [0 ... VP_MAX_NODES-1] = DEFAULT_ENABLED_TESTS};
 static int  ltssm_force_tests        [VP_MAX_NODES] = { [0 ... VP_MAX_NODES-1] = DEFAULT_FORCE_TESTS};
 static int  ltssm_poll_tx_count      [VP_MAX_NODES] = { [0 ... VP_MAX_NODES-1] = PCIE_POLLING_ACTIVE_TX_COUNT};
-static int  ltssm_disable_disp_state [VP_MAX_NODES] = { [0 ... VP_MAX_NODES-1] = false};
+static int  ltssm_disable_disp_state [VP_MAX_NODES] = { [0 ... VP_MAX_NODES-1] = DEFAULT_DISABLE_DISP_STATE};
 
 static int  ltssm_tx_n_fts           [VP_MAX_NODES] = { [0 ... VP_MAX_NODES-1] = 0};
                                      
@@ -124,7 +125,7 @@ static int Detect (const int link_width, const int node)
     ltssm_max_link_mask[node]  = ((1 << ltssm_max_link_width[node])-1) & 0xffff;
 
     // Quiet
-    if (!ltssm_disable_disp_state) VPrint("---> Detect Quiet (node %d)\n", node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> Detect Quiet (node %d)\n", node);
 
     // Loop until rcvr_idle_status indicates at least one lane not idle
     do 
@@ -136,9 +137,9 @@ static int Detect (const int link_width, const int node)
     } while ((++i < ltssm_detect_quiet_to[node]) && ((rcvr_idle_status & ltssm_max_link_mask[node]) == ltssm_max_link_mask[node]));
 
     // Active (If no rcvr detect, assume all 16 lanes are present)
-    if (!ltssm_disable_disp_state) VPrint("---> Detect Active (node %d)\n", node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> Detect Active (node %d)\n", node);
     VRead(LINK_STATE, &rcvr_idle_status, 1, node);
-    if (!ltssm_disable_disp_state) VPrint("---> rcvr_idle_status = %x (node %d)\n", rcvr_idle_status & ltssm_max_link_mask[node], node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> rcvr_idle_status = %x (node %d)\n", rcvr_idle_status & ltssm_max_link_mask[node], node);
 
     // Exit to polling
     return LTSSM_POLLING;
@@ -163,7 +164,7 @@ static int Polling(int *active_lanes, const int node)
     // --- force compliance ---
     if (polling_compliance[node] == false && ((ltssm_force_tests[node] & ENABLE_COMPLIANCE) || ((ltssm_enable_tests[node] & ENABLE_COMPLIANCE) && ((PcieRand(node) % 3) == 0))))
     {
-        if (!ltssm_disable_disp_state) VPrint("---> Polling Compliance (node %d)\n", node);
+        if (!ltssm_disable_disp_state[node]) VPrint("---> Polling Compliance (node %d)\n", node);
         polling_compliance[node] = true;
         VWrite(LINK_STATE, (1 << (PcieRand(node) % ltssm_max_link_width[node])) | ~ltssm_max_link_mask[node], 1, node);
 
@@ -175,7 +176,7 @@ static int Polling(int *active_lanes, const int node)
     }
 
     // --- Active ---
-    if (!ltssm_disable_disp_state) VPrint("---> Polling Active (node %d)\n", node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> Polling Active (node %d)\n", node);
     i = 0;
     VWrite(LINK_STATE, (~ltssm_max_link_mask[node]) & 0xffff, 1, node);
     do 
@@ -196,7 +197,7 @@ static int Polling(int *active_lanes, const int node)
     } while(((ts1_count[0] < 8) && (ts2_count[0] < 8)) || (i < ltssm_poll_tx_count[node]));
 
     // --- Config ---
-    if (!ltssm_disable_disp_state) VPrint("---> Polling Config (node %d)\n", node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> Polling Config (node %d)\n", node);
     i = 0;
     ResetEventCount(TS2_ID, node);
     do
@@ -220,7 +221,7 @@ static int Polling(int *active_lanes, const int node)
     {
         *active_lanes |= (ts2_count[i] ? 1 : 0) << i;
     }
-    if (!ltssm_disable_disp_state) VPrint("---> Active lanes = 0x%04x (node %d)\n", *active_lanes, node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> Active lanes = 0x%04x (node %d)\n", *active_lanes, node);
 
     // Exit to configuration
     return LTSSM_CONFIG;
@@ -243,13 +244,13 @@ static int Configuration(const int active_lanes, const int target_state, const i
                                          1;
 
     // Linkwidth.Start
-    if (!ltssm_disable_disp_state) VPrint("---> Configuration Start (node %d)\n", node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> Configuration Start (node %d)\n", node);
 
     // If not done so before, randomly choose to go to disabled state
     if (config_disable[node] == false && ((ltssm_force_tests[node] & ENABLE_DISABLE) || ((ltssm_enable_tests[node] & ENABLE_DISABLE) && ((PcieRand(node) % 3) == 0))))
     {
         config_disable[node] = true;
-        if (!ltssm_disable_disp_state) VPrint("---> Going to Disabled from Configuration Start (node %d)\n", node);
+        if (!ltssm_disable_disp_state[node]) VPrint("---> Going to Disabled from Configuration Start (node %d)\n", node);
         return LTSSM_DISABLED;
     }
 
@@ -257,7 +258,7 @@ static int Configuration(const int active_lanes, const int target_state, const i
     if (config_loopback[node] == false && ((ltssm_force_tests[node] & ENABLE_LOOPBACK) || ((ltssm_enable_tests[node] & ENABLE_LOOPBACK) && ((PcieRand(node) % 3) == 0))))
     {
         config_loopback[node] = true;
-        if (!ltssm_disable_disp_state) VPrint("---> Going to Loopback from Configuration Start (node %d)\n", node);
+        if (!ltssm_disable_disp_state[node]) VPrint("---> Going to Loopback from Configuration Start (node %d)\n", node);
         return LTSSM_LOOPBACK;
     }
 
@@ -277,10 +278,10 @@ static int Configuration(const int active_lanes, const int target_state, const i
     } while(ts1_count[0] < 2 || ts_status.linknum != ltssm_linknum[node]);
 
     // Linkwidth.Accept (fall through state)
-    if (!ltssm_disable_disp_state) VPrint("---> Configuration Linkwidth Accept (node %d)\n", node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> Configuration Linkwidth Accept (node %d)\n", node);
 
     // Lanenum.Wait
-    if (!ltssm_disable_disp_state) VPrint("---> Configuration Lanenum Wait (node %d)\n", node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> Configuration Lanenum Wait (node %d)\n", node);
     ResetEventCount(TS1_ID, node);
     do
     {
@@ -298,7 +299,7 @@ static int Configuration(const int active_lanes, const int target_state, const i
     } while (ts1_count[0] < 2);
 
     // Lanenum.Accept
-    if (!ltssm_disable_disp_state) VPrint("---> Configuration Lanenum Accept (node %d)\n", node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> Configuration Lanenum Accept (node %d)\n", node);
     ResetEventCount(TS1_ID, node);
     do
     {
@@ -316,7 +317,7 @@ static int Configuration(const int active_lanes, const int target_state, const i
     } while (ts1_count[0] < 2);
 
     // Complete
-    if (!ltssm_disable_disp_state) VPrint("---> Configuration Complete (node %d)\n", node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> Configuration Complete (node %d)\n", node);
     ResetEventCount(TS2_ID, node);
     int ts2_sendcount = 0;
     do
@@ -342,7 +343,7 @@ static int Configuration(const int active_lanes, const int target_state, const i
     ltssm_tx_n_fts[node] = ts_status.n_fts;
 
     // Idle
-    if (!ltssm_disable_disp_state) VPrint("---> Configuration Idle (node %d)\n", node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> Configuration Idle (node %d)\n", node);
     i = 0;
     ResetEventCount(0, node);
     do
@@ -357,7 +358,7 @@ static int Configuration(const int active_lanes, const int target_state, const i
         DebugVPrint("--->i = %d ts2_count[0] = %d (node %d)\n", i, ts2_count[0], node);
     } while(i < 16 || ts2_count[0] < 8);
 
-    if (!ltssm_disable_disp_state) VPrint("---> Configuration exit to L0 (node %d)\n", node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> Configuration exit to L0 (node %d)\n", node);
 
     // Exit to L0
     return LTSSM_L0;
@@ -372,7 +373,7 @@ static int TxL0s (const int target_state, const int active_lanes, const int tick
     int i;
 
     // ---------------
-    if (!ltssm_disable_disp_state)  VPrint("---> TxL0s Entry (node %d)\n", node);
+    if (!ltssm_disable_disp_state[node])  VPrint("---> TxL0s Entry (node %d)\n", node);
 
     // Inform model that the transmitter is down (and thus queue their data)
     SetTxDisabled(node);
@@ -382,11 +383,11 @@ static int TxL0s (const int target_state, const int active_lanes, const int tick
     VWrite(LINK_STATE, 0xffff, 1, node);
 
     // ---------------
-    if (!ltssm_disable_disp_state) VPrint("---> TxL0s Idle: sleeping for %d ticks (node %d)\n", ticks, node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> TxL0s Idle: sleeping for %d ticks (node %d)\n", ticks, node);
     SendIdle(ticks, node);
 
     // ---------------
-    if (!ltssm_disable_disp_state) VPrint("---> TxL0s FTS (node %d)\n", node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> TxL0s FTS (node %d)\n", node);
     VWrite(LINK_STATE, ~(active_lanes & ltssm_max_link_mask[node]) & 0xffff, 1, node);
     for (i = 0; i < ltssm_tx_n_fts[node]; i++)
     {
@@ -412,7 +413,7 @@ static int Recovery (const int target_state, const int node)
     TS_t ts_status;
 
     // --- RcvrLock ---
-    if (!ltssm_disable_disp_state) VPrint("---> Recovery Lock (node %d)\n", node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> Recovery Lock (node %d)\n", node);
     // Clear TS  rx state
     ResetEventCount(TS1_ID, node);
     ResetEventCount(TS2_ID, node);
@@ -439,7 +440,7 @@ static int Recovery (const int target_state, const int node)
 
     // --- RcvrCfg ---
     // Clear TS  rx state
-    if (!ltssm_disable_disp_state) VPrint("---> Recovery RcvrCfg (node %d)\n", node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> Recovery RcvrCfg (node %d)\n", node);
     ResetEventCount(IDL, node);
     ResetEventCount(TS2_ID, node);
 
@@ -471,12 +472,12 @@ static int Recovery (const int target_state, const int node)
     // If we're updating
     if (0 && change_config)
     {
-        if (!ltssm_disable_disp_state) VPrint("---> Leaving Recovery (node %d)\n", node);
+        if (!ltssm_disable_disp_state[node]) VPrint("---> Leaving Recovery (node %d)\n", node);
         return LTSSM_CONFIG;
     }
 
     // --- Idle ---
-    if (!ltssm_disable_disp_state) VPrint("---> Recovery Idle (node %d)\n", node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> Recovery Idle (node %d)\n", node);
     i = 0;
     ResetEventCount(0, node);
     do
@@ -490,7 +491,7 @@ static int Recovery (const int target_state, const int node)
         }
     } while(i < 16 || ts2_count[0] < 8);
 
-    if (!ltssm_disable_disp_state) VPrint("---> Leaving Recovery (node %d)\n", node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> Leaving Recovery (node %d)\n", node);
     // Exit to L0
     return LTSSM_L0;
 }
@@ -504,7 +505,7 @@ static int Disabled (const int node)
     int i, rand_idle;
     uint32_t idl_count[MAX_LINK_WIDTH];
 
-    if (!ltssm_disable_disp_state) VPrint("---> Disabled (node %d)\n", node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> Disabled (node %d)\n", node);
 
     ResetEventCount(IDL, node);
     // Transmit 16 TS1 OS's with disabled set
@@ -531,10 +532,10 @@ static int Disabled (const int node)
     //rand_idle = (PcieRand(node) % 1000) + 25;
     rand_idle = 100;
 
-    if (!ltssm_disable_disp_state) VPrint("---> Waiting for %d ticks (node %d)\n", rand_idle, node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> Waiting for %d ticks (node %d)\n", rand_idle, node);
     SendIdle(rand_idle, node);
 
-    if (!ltssm_disable_disp_state) VPrint("---> Leaving Disabled for Detect (node %d)\n", node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> Leaving Disabled for Detect (node %d)\n", node);
 
     return LTSSM_DETECT;
 }
@@ -549,7 +550,7 @@ static int Loopback (const int node)
     TS_t ts_status;
     uint32_t count[MAX_LINK_WIDTH];
 
-    if (!ltssm_disable_disp_state) VPrint("---> Loopback (node %d)\n", node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> Loopback (node %d)\n", node);
 
     // ---- Loopback.Entry ----
 
@@ -561,11 +562,11 @@ static int Loopback (const int node)
         SendTs(TS1_ID, ENABLE_LANENUMS, ltssm_linknum[node], ltssm_n_fts[node], TS_CTL_LOOPBACK, false, node); 
         ReadEventCount(TS1_ID, count, node);
         ts_status = GetTS(0, node);
-        if (!ltssm_disable_disp_state) VPrint("count[0] = %x ts_status.control = %x\n", count[0], ts_status.control);
+        if (!ltssm_disable_disp_state[node]) VPrint("count[0] = %x ts_status.control = %x\n", count[0], ts_status.control);
     } while (count[0] == 0 || !(ts_status.control & TS_CNTL_LOOPBACK));
 
     // ---- Loopback.Active ----
-    if (!ltssm_disable_disp_state) VPrint("---> Loopback.Active (node %d)\n", node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> Loopback.Active (node %d)\n", node);
 
     // Stay in Loopback.Active for a while
     for (i = 0; i < 64; i++)
@@ -575,7 +576,7 @@ static int Loopback (const int node)
 
     // ---- Loopback.Exit ----
 
-    if (!ltssm_disable_disp_state) VPrint("---> Loopback.Exit (node %d)\n", node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> Loopback.Exit (node %d)\n", node);
     ResetEventCount(IDL, node);
 
     // Send and Electrical Idle
@@ -596,10 +597,10 @@ static int Loopback (const int node)
     //rand_idle = (PcieRand(node) % 1000) + 25;
     rand_idle = 1000;
 
-    if (!ltssm_disable_disp_state) VPrint("---> Waiting for %d ticks (node %d)\n", rand_idle, node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> Waiting for %d ticks (node %d)\n", rand_idle, node);
     SendIdle(rand_idle, node);
 
-    if (!ltssm_disable_disp_state) VPrint("---> Leaving Loopback for Detect (node %d)\n", node);
+    if (!ltssm_disable_disp_state[node]) VPrint("---> Leaving Loopback for Detect (node %d)\n", node);
 
     return LTSSM_DETECT;
 }
@@ -742,7 +743,7 @@ void InitLink(const int link_width, const int node)
     do
     {
         ltssm_state = LinkState(ltssm_state, LTSSM_L0, link_width, node);
-        if (!ltssm_disable_disp_state) VPrint("ltssm_state = %d\n", ltssm_state);
+        if (!ltssm_disable_disp_state[node]) VPrint("ltssm_state = %d\n", ltssm_state);
     } while (ltssm_state != LTSSM_L0);
 }
 
@@ -814,6 +815,11 @@ void ConfigurePcieLtssm(const config_t type, const int value, const int node)
 
     case CONFIG_LTSSM_POLL_ACTIVE_TX_COUNT:
         ltssm_cfg.ltssm_poll_active_tx_count = value;
+        ltssm_cfg_updated = true;
+        break;
+
+    case CONFIG_LTSSM_DISABLE_DISP_STATE:
+        ltssm_cfg.ltssm_disable_disp_state = value;
         ltssm_cfg_updated = true;
         break;
 

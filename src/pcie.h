@@ -61,7 +61,7 @@
 
 #define PCIE_MAJOR_VER                    1
 #define PCIE_MINOR_VER                    5
-#define PCIE_PATCH_VER                    12
+#define PCIE_PATCH_VER                    13
 
 // Used in macros
 #define BYTE_MASK                         0xff
@@ -431,6 +431,7 @@ enum config_e {
     CONFIG_LTSSM_ENABLE_TESTS,
     CONFIG_LTSSM_FORCE_TESTS,
     CONFIG_LTSSM_POLL_ACTIVE_TX_COUNT,
+    CONFIG_LTSSM_DISABLE_DISP_STATE,
 
     // Enables even, disables odd
     CONFIG_DISABLE_SCRAMBLING,
