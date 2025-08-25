@@ -2203,12 +2203,12 @@ void ConfigurePcie (const config_t type, const int value, const int node)
 
     case CONFIG_ENABLE_FC:
     case CONFIG_DISABLE_FC:
-        usrconf->DisableFc = type & 0x1;
+        usrconf->DisableFc = type == CONFIG_DISABLE_FC;
         break;
 
     case CONFIG_ENABLE_ACK:
     case CONFIG_DISABLE_ACK:
-        usrconf->DisableAck = type & 0x1;
+        usrconf->DisableAck = type == CONFIG_DISABLE_ACK;
         if (type == CONFIG_ENABLE_ACK)
         {
             if (value < 1)
@@ -2225,12 +2225,12 @@ void ConfigurePcie (const config_t type, const int value, const int node)
 
     case CONFIG_ENABLE_MEM:
     case CONFIG_DISABLE_MEM:
-        usrconf->DisableMem = type & 0x1;
+        usrconf->DisableMem = type == CONFIG_DISABLE_MEM;
         break;
 
     case CONFIG_ENABLE_SKIPS:
     case CONFIG_DISABLE_SKIPS:
-        usrconf->DisableSkips = type & 0x1;
+        usrconf->DisableSkips = type == CONFIG_DISABLE_SKIPS;
         if (type == CONFIG_ENABLE_SKIPS)
         {
             if (value < MINIMUM_SKIP_INTERVAL)
@@ -2247,27 +2247,27 @@ void ConfigurePcie (const config_t type, const int value, const int node)
 
     case CONFIG_ENABLE_UR_CPL:
     case CONFIG_DISABLE_UR_CPL:
-        usrconf->DisableUrCpl = type & 0x1;
+        usrconf->DisableUrCpl = type == CONFIG_DISABLE_UR_CPL;
         break;
 
     case CONFIG_ENABLE_SCRAMBLING:
     case CONFIG_DISABLE_SCRAMBLING:
-        usrconf->DisableScrambling = type & 0x1;
+        usrconf->DisableScrambling = type == CONFIG_DISABLE_SCRAMBLING;
         break;
 
     case CONFIG_ENABLE_8B10B:
     case CONFIG_DISABLE_8B10B:
-        usrconf->Disable8b10b = type & 0x1;
+        usrconf->Disable8b10b = type == CONFIG_DISABLE_8B10B;
         break;
 
     case CONFIG_ENABLE_ECRC_CMPL:
     case CONFIG_DISABLE_ECRC_CMPL:
-        usrconf->DisableEcrcCmpl = type & 0x1;
+        usrconf->DisableEcrcCmpl = type & CONFIG_DISABLE_ECRC_CMPL;
         break;
 
     case CONFIG_ENABLE_INTERNAL_MEM:
     case CONFIG_DISABLE_INTERNAL_MEM:
-        usrconf->DisableMem = type & 0x1;
+        usrconf->DisableMem = type == CONFIG_DISABLE_INTERNAL_MEM;
         break;
 
     case CONFIG_ENABLE_DISPLINK_COLOUR:
@@ -2276,7 +2276,7 @@ void ConfigurePcie (const config_t type, const int value, const int node)
         break;
 
     case CONFIG_DISP_BCK_NODE_NUM:
-        usrconf->BackNodeNum = value % 10;
+        usrconf->BackNodeNum = value % 10; // Maximum of 9 to keep formatting alignment
         break;
 
     case CONFIG_POST_HDR_CR:
