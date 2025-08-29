@@ -388,6 +388,7 @@ void DispDll(const pPcieModelState_t const state, const pPkt_t const pkt, const 
         {
             VPrint(" %02x", pkt->data[idx]);
         }
+        VPrint("%s", fmtnormstr);
 
         VPrint("\n%s: %s}\n", prefixstr, pkt->data[pkt->ByteCount-1] == EDB ? "EDB" : "END");
     }
@@ -508,6 +509,7 @@ void DispTl(const pPcieModelState_t const state, const pPkt_t const pkt, const b
             if ((idx-1)%22 == 21)
                 VPrint("%s\n", fmtnormstr);
         }
+        VPrint("%s", fmtnormstr);
         VPrint("%s", !((idx-1)%22) ? "" : "\n");
         VPrint("%s: %s}\n", prefixstr, pkt->data[idx] == EDB ? "EDB" : "END");
     }
