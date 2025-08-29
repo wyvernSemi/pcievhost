@@ -159,6 +159,8 @@ inline void CheckContDisp (pUserConfig_t usrconf, const int node)
             VWrite((usrconf->ActiveContDisp & DISPSTOP) ? PVH_STOP : PVH_FINISH, 0, 0, node);
         }
 
+        ConfigDispFormat(!(usrconf->ActiveContDisp & DISPSWNOCOLOUR));
+
         // Increment the ContDisp index (up to maximum)
         if (usrconf->ContDispIdx < MAXCONSTDISP)
         {

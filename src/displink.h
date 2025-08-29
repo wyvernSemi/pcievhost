@@ -45,6 +45,7 @@
 #define DISPSWTX                     0x100
 #define DISPSWENRC                   0x200
 #define DISPSWENEP                   0x400
+#define DISPSWNOCOLOUR               0x800
 
 // Definitions for use in formatted packet information display
 
