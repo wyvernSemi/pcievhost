@@ -1967,8 +1967,7 @@ void InitialisePcie (const callback_t cb_func, void *usrptr, const int node)
 
     if (this != NULL)
     {
-        VPrint( "InitialisePcie: %s***Error --- InitialisePcie() already called for node %d%s\n", fmterrstr, node, fmtnormstr);
-        VWrite(PVH_FATAL, 0, 0, node);
+        free((void*)this);
     }
 
     if ((this = calloc(1, sizeof(PcieModelState_t))) == NULL)
