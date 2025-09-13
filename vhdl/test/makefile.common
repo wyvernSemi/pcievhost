@@ -97,7 +97,7 @@ pcie_c_lib:
 vproc_lib: $(VPROC_TOP)
 	@$(MAKE) --no-print-directory                          \
 	         -C $(VPROC_TOP)/test                          \
-	         HDL=VHDL                                      \
+	         $(VPROCMAKEOPT)                               \
 	         ARCHFLAG=$(ARCHFLAG)                          \
 	         MAX_NUM_VPROC=$(NUM_VPROC)                    \
 	         USRFLAGS="-I$(CURDIR)/$(SRCDIR) $(EXTFLAGS)"  \
