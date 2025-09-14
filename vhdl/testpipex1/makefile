@@ -31,7 +31,7 @@ ifneq ("$(SERIALISER)", "")
  SIMELABOPT   = -GSERIALISER=1
 endif
 
-EXTFLAGS      = -DVPROC_VHDL -DEXCLUDE_LTSSM
+EXTFLAGS      = -DVPROC_VHDL -DEXCLUDE_LTSSM -DVPROC_NO_PLI
 
 include makefile.common
 
