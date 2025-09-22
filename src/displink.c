@@ -75,6 +75,7 @@ void ConfigDispFormat(bool enable)
         strncpy(fmtupstr,   "", FMT_STR_SIZE);
         strncpy(fmtdnstr,   "", FMT_STR_SIZE);
         strncpy(fmterrstr,  "", FMT_STR_SIZE);
+        strncpy(fmtnormstr, "", FMT_STR_SIZE);
         strncpy(fmtdatastr, "", FMT_STR_SIZE);
     }
 }
@@ -86,7 +87,7 @@ void ConfigDispFormat(bool enable)
 //
 // -------------------------------------------------------------------------
 
-void ConstDisp (pUserConfig_t usrconf)
+void ContDisp (pUserConfig_t usrconf)
 {
     int error = 0;
 
@@ -98,7 +99,7 @@ void ConstDisp (pUserConfig_t usrconf)
     if (fp == NULL)
     {
         error++;
-        VPrint("%s**ERROR**%s: ConstDisp() failed to read ContDisps.hex file, No display output.\n", fmterrstr, fmtnormstr);
+        VPrint("%s**ERROR**%s: ContDisp() failed to read ContDisps.hex file, No display output.\n", fmterrstr, fmtnormstr);
     }
 
     char buf [STRBUFSIZE];
@@ -131,9 +132,9 @@ void ConstDisp (pUserConfig_t usrconf)
                 }
             }
         }
+    
+        fclose(fp);
     }
-
-    fclose(fp);
 }
 
 // -------------------------------------------------------------------------
@@ -436,7 +437,7 @@ void DispDll(const pPcieModelState_t const state, const pPkt_t const pkt, const 
         case DL_UPDATEFC_P:
         case DL_UPDATEFC_NP:
         case DL_UPDATEFC_CPL:
-            VPrint("%s: %sDL UpdataFC-%sVC%d  HdrFC=%d DataFC=%d\n", prefixstr, offstr,
+            VPrint("%s: %sDL UpdateFC-%sVC%d  HdrFC=%d DataFC=%d\n", prefixstr, offstr,
                 (type & 0x30) == 0x00 ? "P   " : (type & 0x30) == 0x10 ? "NP  ": "Cpl ", type & 0x7,
                 (data >> 14) & 0xff,
                 (data & 0xfff)
