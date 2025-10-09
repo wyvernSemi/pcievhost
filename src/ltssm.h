@@ -33,6 +33,10 @@ extern "C" {
 }
 #endif
 
+#ifdef OSVVM
+#include "OsvvmVUserVPrint.h"
+#endif
+
 #ifdef __cplusplus
 #define EXTERN extern "C"
 #else

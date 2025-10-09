@@ -48,6 +48,10 @@
 #include "VProc.h"
 #endif
 
+#if defined(OSVVM)
+#include "OsvvmVUserVPrint.h"
+#endif
+
 #if defined(PCIEDPI)
 #include "pcie_dpi.h"
 #endif
@@ -61,7 +65,7 @@
 
 #define PCIE_MAJOR_VER                    1
 #define PCIE_MINOR_VER                    6
-#define PCIE_PATCH_VER                    4
+#define PCIE_PATCH_VER                    5
 
 // Used in macros
 #define BYTE_MASK                         0xff
@@ -558,9 +562,6 @@ EXTERN void       getPcieVersionString (char*     sbuf, const int bufsize);
 # ifdef OSVVM
 EXTERN int        VWrite               (unsigned int addr, unsigned int  data, int delta, unsigned int node);
 EXTERN int        VRead                (unsigned int addr, unsigned int *data, int delta, unsigned int node);
-#define VPrint printf
-#define DebugVPrint //
-//#define DebugVPrint printf
 # endif
 
 #endif

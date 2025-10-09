@@ -209,9 +209,13 @@ static inline void DispPayload(const char const *prefixstr, const char const *tl
         VPrint("%08x",wdata);
 
         if (((idx / 4) % 8) == 7)
+        {
             VPrint("%s\n", fmtnormstr);
+        }
         else
+        {
             VPrint(" ");
+        }
     }
 
     if ((idx/4)%8)
@@ -256,18 +260,26 @@ inline static void DispTlpCrc(const char const *prefixstr, const char const *tlo
     if (tl_td)
     {
         if (got_ecrc == exp_ecrc)
+        {
             VPrint("%s: %sTL Good ECRC (%08x)\n", prefixstr, tloffstr, got_ecrc);
+        }
         else
+        {
             VPrint("%s: %sTL %s**Bad ECRC**%s (%08x v %08x)\n", prefixstr, tloffstr, fmterrstr, fmtnormstr, got_ecrc, exp_ecrc);
+        }
     }
     else
     {
         VPrint("%s: %sTL No ECRC\n", prefixstr, tloffstr);
     }
     if (got_lcrc == exp_lcrc)
+    {
         VPrint("%s: %sDL Good LCRC (%08x)\n", prefixstr, dlloffstr, got_lcrc);
+    }
     else
+    {
         VPrint("%s: %sDL%s **Bad LCRC%s** (%08x v %08x)\n", prefixstr, dlloffstr, fmterrstr, fmtnormstr, got_lcrc, exp_lcrc);
+    }
 }
 
 // -------------------------------------------------------------------------
@@ -305,9 +317,13 @@ void DispRaw(const pPcieModelState_t const state, const PktData_t *linkin, const
             case RV3: VPrint("RV3 "); break;
             default:
               if (linkin[idx] & SYMCTRLBIT)
+              {
                   VPrint("??? ");
+              }
               else
+              {
                   VPrint (" %02x ", linkin[idx]);
+              }
               break;
             }
         }
@@ -561,13 +577,21 @@ void DispTl(const pPcieModelState_t const state, const pPkt_t const pkt, const b
             VPrint("%s: %sTL Mem %s req Addr=", prefixstr, tloffstr, (tl_type & TL_TYPE_WRITE) ? "write" : "read");
 
             if (tl_type & TL_TYPE_ADDR64)
+            {
                 VPrint("%016lx (64) ", ((uint64_t)tl_word2 << 32) | ((uint64_t)tl_word3));
+            }
             else
+            {
                 VPrint("%08x (32) ", tl_word2);
+                
+            }
+            
             VPrint("%s=%04x TAG=%02x FBE=%04x LBE=%04x ", (tl_type & TL_TYPE_MEMLOCK) ? "LOCKED ID" : "RID", tl_id, tl_tag, tl_fbe, tl_lbe);
 
             if (!(tl_type & TL_TYPE_WRITE))
+            {
                 VPrint("Len=%03x", tl_length);
+            }
             VPrint("\n");
 
             // Display traffic class and other attributes

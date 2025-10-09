@@ -803,17 +803,16 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
             }
 
             length     = GET_TLP_LENGTH(pkt->data);
-
+            pdata      = (type == TL_MRD32) ? &(pkt->data[TLP_DATA_OFFSET32]) : &(pkt->data[TLP_DATA_OFFSET64]);
+            fbe        = GET_TLP_FBE(pkt->data);
+            lbe        = GET_TLP_LBE(pkt->data);
+            rid        = GET_TLP_RID(pkt->data);
+            cid        = state->CplId;
+            tag        = GET_TLP_TAG(pkt->data);
+                
             // Check address is good for an access
             if (checkBars(addr, length*4, state->thisnode))
             {
-                pdata  = (type == TL_MRD32) ? &(pkt->data[TLP_DATA_OFFSET32]) : &(pkt->data[TLP_DATA_OFFSET64]);
-                fbe    = GET_TLP_FBE(pkt->data);
-                lbe    = GET_TLP_LBE(pkt->data);
-                rid    = GET_TLP_RID(pkt->data);
-                cid    = state->CplId;
-                tag    = GET_TLP_TAG(pkt->data);
-
                 if (ReadRamByteBlock (addr, buff, length*4, state->thisnode))
                 {
                     VPrint("ProcessInput: %s***Error --- ReadRamByteBlock for address %llx returned bad status at node %d%s\n", fmterrstr, (long long unsigned)addr, state->thisnode, fmtnormstr);

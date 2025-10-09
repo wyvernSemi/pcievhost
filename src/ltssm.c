@@ -38,8 +38,12 @@
 // DEFINES
 // -------------------------------------------------------------------------
 
-// Assume a clock rate of 500MHz
+// Assume a clock rate of 500MHz unless set externally
+#ifdef OSVVM_LTSSM_CLKPERIOD_NS
+#define CLK_CYCLE_NS                 OSVVM_PCIE_CLKPERIOD_NS
+#else
 #define CLK_CYCLE_NS                 2
+#endif
 
 #define CYCLES_1US                   (1000 / CLK_CYCLE_NS)
 #define CYCLES_1MS                   (1000 * CYCLES_1US)
