@@ -1152,11 +1152,17 @@ pPktData_t CfgReadDigest (const uint64_t addr, const int length, const int tag, 
 pPktData_t Message (const int code, const PktData_t *data, const int length, const int tag, const uint32_t rid,
                     const bool queue, const int node)
 {
-    return MessageDigest(code, data, length, tag, rid, true, queue, node);
+    return MessageVendorDigest(code, data, length, tag, rid, 0ULL, true, queue, node);
 }
 
-pPktData_t MessageDigest (const int code, const PktData_t *data, const int length, const int tag, const uint32_t rid,
-                         const bool digest, const bool queue, const int node)
+pPktData_t MessageDigest (const int code, const PktData_t *data, const int length, const int tag, const uint32_t rid, 
+                               const bool digest, const bool queue, const int node)
+{
+    return MessageVendorDigest(code, data, length, tag, rid, 0ULL, digest, queue, node);
+}
+
+pPktData_t MessageVendorDigest (const int code, const PktData_t *data, const int length, const int tag, const uint32_t rid, const uint64_t vend_data,
+                                const bool digest, const bool queue, const int node)
 {
     PktData_t *pkt_p, *data_p;
     pPkt_t packet;
@@ -1172,11 +1178,6 @@ pPktData_t MessageDigest (const int code, const PktData_t *data, const int lengt
     {
         VPrint("MessageDigest: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
-    }
-
-    if (((code == MSG_VENDOR_0 || code == MSG_VENDOR_1) && length != 0) || code == MSG_SET_PWR_LIMIT)
-    {
-        type = TL_MSGD;
     }
 
     switch (code)
@@ -1238,6 +1239,18 @@ pPktData_t MessageDigest (const int code, const PktData_t *data, const int lengt
     {
         VPrint( "MessageDigest: %s***Error --- CreateTlpTemplate failed at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
+    }
+    
+    if (code == MSG_VENDOR_0 || code == MSG_VENDOR_1)
+    {
+        pkt_p[11] = (PktData_t)((vend_data >>  0) & 0xffULL);
+        pkt_p[12] = (PktData_t)((vend_data >>  8) & 0xffULL);
+        pkt_p[13] = (PktData_t)((vend_data >> 16) & 0xffULL);
+        pkt_p[14] = (PktData_t)((vend_data >> 24) & 0xffULL);
+        pkt_p[15] = (PktData_t)((vend_data >> 24) & 0xffULL);
+        pkt_p[16] = (PktData_t)((vend_data >> 32) & 0xffULL);
+        pkt_p[17] = (PktData_t)((vend_data >> 40) & 0xffULL);
+        pkt_p[18] = (PktData_t)((vend_data >> 56) & 0xffULL);
     }
 
     // Set the tag and sequence number of the packet

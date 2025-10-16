@@ -80,8 +80,9 @@ public:
     pPktData_t ioRead               (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool queue = false, const bool digest = false)
                                         {return IoReadDigest(addr, length, tag, rid, digest, queue, node);};
 
-    pPktData_t message              (const int code, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool queue = false, const bool digest = false)
-                                        {return MessageDigest(code, data, length, tag, rid, digest, queue, node);};
+    pPktData_t message              (const int code, const PktData_t *data, const int length, const int tag, const uint32_t rid, const uint64_t vend_data,
+                                     const bool queue = false, const bool digest = false)
+                                        {return MessageVendorDigest(code, data, length, tag, rid, vend_data, digest, queue, node);};
 
     // TLP variant with digest (ECRC) generation argument
     pPktData_t memWriteDigest       (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool digest = true,

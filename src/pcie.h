@@ -65,7 +65,7 @@
 
 #define PCIE_MAJOR_VER                    1
 #define PCIE_MINOR_VER                    6
-#define PCIE_PATCH_VER                    5
+#define PCIE_PATCH_VER                    6
 
 // Used in macros
 #define BYTE_MASK                         0xff
@@ -520,6 +520,8 @@ EXTERN pPktData_t IoReadDigest         (const uint64_t addr, const int length, c
 EXTERN pPktData_t MessageDigest        (const int code, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool digest,
                                         const bool queue, const int node);
 
+EXTERN pPktData_t MessageVendorDigest  (const int code, const PktData_t *data, const int length, const int tag, const uint32_t rid, const uint64_t vend_data,
+                                        const bool digest, const bool queue, const int node);
 
 // Flow control initialisation
 EXTERN void       InitFc               (const int node);
