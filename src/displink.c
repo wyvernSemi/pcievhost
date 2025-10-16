@@ -714,7 +714,7 @@ void DispTl(const pPcieModelState_t const state, const pPkt_t const pkt, const b
             case MSG_UNLOCK       : VPrint("Unlock locked transaction "); break;
             case MSG_SET_PWR_LIMIT: VPrint("Set slot power limit "); break;
             case MSG_VENDOR_0     : VPrint("Vendor type 0 "); break;
-            case MSG_VENDOR_1     : VPrint("Vendor tyoe 1 "); break;
+            case MSG_VENDOR_1     : VPrint("Vendor type 1 "); break;
             default               : VPrint("%s**illegal Msg code**%s ", fmterrstr, fmtnormstr);
             }
 
