@@ -2274,7 +2274,12 @@ void ConfigurePcie (const config_t type, const int value, const int node)
 
     case CONFIG_ENABLE_ECRC_CMPL:
     case CONFIG_DISABLE_ECRC_CMPL:
-        usrconf->DisableEcrcCmpl = type & CONFIG_DISABLE_ECRC_CMPL;
+        usrconf->DisableEcrcCmpl = type == CONFIG_DISABLE_ECRC_CMPL;
+        break;
+        
+    case CONFIG_ENABLE_CRC_CHK:
+    case CONFIG_DISABLE_CRC_CHK:
+        usrconf->DisableCrcChk = type == CONFIG_DISABLE_CRC_CHK;
         break;
 
     case CONFIG_ENABLE_INTERNAL_MEM:

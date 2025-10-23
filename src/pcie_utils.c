@@ -499,8 +499,6 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
     PktData_t buff[MAX_BYTE_BLOCK], *pdata;
     int status;
     pFlowControl_t flw = &(state->flwcntl);
-    uint32_t got_lcrc, exp_lcrc;
-    uint32_t got_ecrc, exp_ecrc;
 
     // Set an optimistic packet status
     status = PKT_STATUS_GOOD;
@@ -522,7 +520,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
         DispDll(state, pkt, true);
 
         // If good CRC ...
-        if (expcrc == gotcrc)
+        if (expcrc == gotcrc || state->usrconf.DisableCrcChk)
         {
             type = pkt->data[1];
             type &= ((type & 0x30) == 0x20) ? 0xff : 0xf8; // Mask VC bits
@@ -676,9 +674,6 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
         crc[3] = pkt->data[lcrc_offset+3];
         CalcLcrc(pkt->data);
 
-        exp_lcrc = ((uint32_t)pkt->data[lcrc_offset+0] << 24) | ((uint32_t)pkt->data[lcrc_offset+1] << 16) | ((uint32_t)pkt->data[lcrc_offset+2] << 8) | ((uint32_t)pkt->data[lcrc_offset+3]);
-        got_lcrc = ((uint32_t)crc[0] << 24) | ((uint32_t)crc[1] << 16) | ((uint32_t)crc[2] << 8) | ((uint32_t)crc[3]);
-
         if (ecrc_present)
         {
             ecrc_offset = lcrc_offset - 4;
@@ -687,15 +682,14 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
             ecrc[2] = pkt->data[ecrc_offset+2];
             ecrc[3] = pkt->data[ecrc_offset+3];
             CalcEcrc(pkt->data);
-            exp_ecrc = ((uint32_t)pkt->data[ecrc_offset+0] << 24) | ((uint32_t)pkt->data[ecrc_offset+1] << 16) | ((uint32_t)pkt->data[ecrc_offset+2] << 8) | ((uint32_t)pkt->data[ecrc_offset+3]);
-            got_ecrc = ((uint32_t)ecrc[0] << 24) | ((uint32_t)ecrc[1] << 16) | ((uint32_t)ecrc[2] << 8) | ((uint32_t)ecrc[3]);
         }
 
         DispTl(state, pkt, true);
 
         // Bad CRC
-        if (crc[0] != pkt->data[lcrc_offset+0] || crc[1] != pkt->data[lcrc_offset+1] ||
-            crc[2] != pkt->data[lcrc_offset+2] || crc[3] != pkt->data[lcrc_offset+3] )
+        if (!state->usrconf.DisableCrcChk &&
+            (crc[0] != pkt->data[lcrc_offset+0] || crc[1] != pkt->data[lcrc_offset+1] ||
+             crc[2] != pkt->data[lcrc_offset+2] || crc[3] != pkt->data[lcrc_offset+3] ))
             {
 
             // Check to see if it isn't a discarded TLP, and NAK if not.
@@ -730,8 +724,9 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
         }
 
         // Check ECRC, if present
-        if (ecrc_present && (ecrc[0] != pkt->data[ecrc_offset+0] || ecrc[1] != pkt->data[ecrc_offset+1] ||
-                             ecrc[2] != pkt->data[ecrc_offset+2] || ecrc[3] != pkt->data[ecrc_offset+3] ))
+        if (!state->usrconf.DisableCrcChk &&
+            (ecrc_present && (ecrc[0] != pkt->data[ecrc_offset+0] || ecrc[1] != pkt->data[ecrc_offset+1] ||
+                              ecrc[2] != pkt->data[ecrc_offset+2] || ecrc[3] != pkt->data[ecrc_offset+3] )))
         {
             VPrint("ProcessInput: Info --- %sTlp ECRC failure at node %d%s\n", fmterrstr, state->thisnode, fmtnormstr);
             status |= PKT_STATUS_BAD_ECRC;
@@ -809,7 +804,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
             rid        = GET_TLP_RID(pkt->data);
             cid        = state->CplId;
             tag        = GET_TLP_TAG(pkt->data);
-                
+
             // Check address is good for an access
             if (checkBars(addr, length*4, state->thisnode))
             {
@@ -970,9 +965,9 @@ static void ProcessOS(const pPcieModelState_t const state,
             {
                 DebugVPrint("ProcessOS: Seen TS1 on lane %d at node %d\n", lane, node);
                 DebugVPrint("           linknum=0x%02x lanenum=0x%02x n_fts=%d datarate=%d control=%d\n", ts_data->linknum, ts_data->lanenum, ts_data->n_fts, ts_data->datarate, ts_data->control);
-            
+
                 //DispOS(state, type, ts_data, lane, true, node);
-            
+
                 linkevent->Ts1Count[lane]++;
                 linkevent->LastTS[lane] = *ts_data;
             }
@@ -980,9 +975,9 @@ static void ProcessOS(const pPcieModelState_t const state,
             {
                 DebugVPrint("ProcessOS: Seen TS2 on lane %d at node %d\n", lane, node);
                 DebugVPrint("           linknum=0x%02x lanenum=0x%02x n_fts=%d datarate=%d control=%d\n", ts_data->linknum, ts_data->lanenum, ts_data->n_fts, ts_data->datarate, ts_data->control);
-            
+
                 //DispOS(state, type, ts_data, lane, true, node);
-            
+
                 linkevent->Ts2Count[lane]++;
                 linkevent->LastTS[lane] = *ts_data;
             }
@@ -1744,7 +1739,7 @@ void InitPcieState(const pPcieModelState_t const state, const int node)
             flw->RxDataCredits[fc_vc][fc_type]         = 0;
             flw->LastSentFcTime[fc_vc][fc_type]        = 0;
         }
-        flw->fc_state[fc_vc] = 0;
+        flw->fc_state[fc_vc] = INITFC_IDLE;
         flw->rx_fc_state[fc_vc] = INITFC_IDLE;
     }
 
@@ -1772,6 +1767,7 @@ void InitPcieState(const pPcieModelState_t const state, const int node)
     usrconf->DisableScrambling    = 0;
     usrconf->Disable8b10b         = 0;
     usrconf->DisableEcrcCmpl      = 0;
+    usrconf->DisableCrcChk        = 0;
     usrconf->SkipInterval         = DEFAULT_SKIP_INTERVAL;
     usrconf->AckRate              = DEFAULT_ACK_RATE;
     usrconf->ContDispIdx          = 0;

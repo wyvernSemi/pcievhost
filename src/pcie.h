@@ -65,7 +65,7 @@
 
 #define PCIE_MAJOR_VER                    1
 #define PCIE_MINOR_VER                    6
-#define PCIE_PATCH_VER                    6
+#define PCIE_PATCH_VER                    7
 
 // Used in macros
 #define BYTE_MASK                         0xff
@@ -444,6 +444,9 @@ enum config_e {
 
     CONFIG_DISABLE_ECRC_CMPL,
     CONFIG_ENABLE_ECRC_CMPL,
+
+    CONFIG_DISABLE_CRC_CHK,
+    CONFIG_ENABLE_CRC_CHK,
 
     CONFIG_DISABLE_INTERNAL_MEM,
     CONFIG_ENABLE_INTERNAL_MEM,

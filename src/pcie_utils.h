@@ -160,6 +160,7 @@ typedef struct {
     int            DisableScrambling;
     int            Disable8b10b;
     int            DisableEcrcCmpl;
+    int            DisableCrcChk;
     int            BackNodeNum;
 
     ContDisp_type  contdisp[MAXCONSTDISP];
