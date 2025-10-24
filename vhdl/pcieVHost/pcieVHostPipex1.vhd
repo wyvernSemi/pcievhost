@@ -33,17 +33,19 @@ use work.pcieVHost_pkg.all;
 entity pcieVHostPipex1 is
 generic (
   NodeNum                    : integer := 8;
-  EndPoint                   : integer := 1
+  EndPoint                   : integer := 1;
+  DataWidth                  : integer := 8
 );
 port (
+  pcieclk                    : in  std_logic;
   pclk                       : in  std_logic;
   nreset                     : in  std_logic;
 
-  RxData                     : in  std_logic_vector (PIPEDATAWIDTH-1 downto 0);
-  RxDataK                    : in  std_logic;
+  RxData                     : in  std_logic_vector (DataWidth-1 downto 0);
+  RxDataK                    : in  std_logic_vector (DataWidth/8-1 downto 0);
 
-  TxData                     : out std_logic_vector (PIPEDATAWIDTH-1 downto 0);
-  TxDataK                    : out std_logic
+  TxData                     : out std_logic_vector (DataWidth-1 downto 0);
+  TxDataK                    : out std_logic_vector (DataWidth/8-1 downto 0)
 );
 
 end entity;
@@ -52,11 +54,88 @@ architecture behavioural of pcieVHostPipex1 is
 
 constant LINKWIDTH           : integer := 1;
 signal   LinkOut             : std_logic_vector (LANEWIDTH-1 downto 0);
+signal   LinkIn              : std_logic_vector (LANEWIDTH-1 downto 0);
+signal   TxSampleClk         : std_logic;
+
+signal   RxDataSampleShift   : std_logic_vector (DataWidth-1   downto 0);
+signal   RxDataKSampleShift  : std_logic_vector (DataWidth/8-1 downto 0);
+signal   TxDataPipeShift     : std_logic_vector (DataWidth-1   downto 0);
+signal   TxDataKPipeShift    : std_logic_vector (DataWidth/8-1 downto 0);
+
+signal   RxDataSample        : std_logic_vector (DataWidth-1   downto 0);
+signal   RxDataKSample       : std_logic_vector (DataWidth/8-1 downto 0);
+signal   TxDataPipe          : std_logic_vector (DataWidth-1   downto 0);
+signal   TxDataKPipe         : std_logic_vector (DataWidth/8-1 downto 0);
+
+signal   rxcount             : integer := 0;
 
 begin
 
-  TxData                     <= LinkOut(PIPEDATAWIDTH-1 downto 0);
-  TxDataK                    <= LinkOut(PIPEKBIT);
+-- If DataWidth is 8 use the pcieclk and make the pclk unused
+-- (for backward compatibility)
+g_SHIFT : if DataWidth = 8 generate
+
+  TxSampleClk                <= pcieclk;
+  RxDataSampleShift          <= RxData;
+  RxDataKSampleShift         <= RxDataK;
+  TxDataPipeShift            <= LinkOut(7 downto 0);
+  TxDataKPipeShift(0)        <= LinkOut(8);
+
+else generate
+
+  TxSampleClk                <= pclk;
+  RxDataSampleShift          <= 8x"00" & RxDataSample(DataWidth-1 downto 8);
+  RxDataKSampleShift         <= '0' & RxDataKSample(DataWidth/8-1 downto 1);
+  TxDataPipeShift            <= LinkOut(7 downto 0) &  TxDataPipe(DataWidth-1 downto 8);
+  TxDataKPipeShift           <= LinkOut(8) & TxDataKPipe(DataWidth/8-1 downto 1);
+
+end generate g_SHIFT;
+
+-- Link input is the lower bits of the sampled RX input
+LinkIn                       <='0' & RxDataKSample(0) & RxDataSample(7 downto 0);
+
+-- Process PIPE interface signals
+process (pcieclk, nreset)
+begin
+  if nreset = '0' then
+
+    rxcount                  <= 0;
+
+  elsif pcieclk'event and pcieclk = '1' then
+
+    -- Sample the RX input every PIPE width bytes
+    if rxcount = 0 then
+
+      RxDataSample           <= RxData;
+      RxDataKSample          <= RxDataK;
+
+      -- After sampling, set count to PIPE bytes minus 1
+      rxcount                <= (DataWidth/8)-1;
+
+     --  When rxcount non-zero, shift right the sample registers and decrement the count
+    else
+
+      RxDataSample           <= RxDataSampleShift;
+      RxDataKSample          <= RxDataKSampleShift;
+
+      rxcount                <= rxcount - 1;
+    end if;
+
+    -- At each cycle, shift right TX PIPE registers, adding link output to top
+    TxDataPipe               <= TxDataPipeShift;
+    TxDataKPipe              <= TxDataKPipeShift;
+  end if;
+
+end process;
+
+-- At the PIPE clock rate, update TX outputs with TX PIPE data
+process (TxSampleClk)
+begin
+  if TxSampleClk'event and TxSampleClk = '1' then
+    TxData                   <= TxDataPipe;
+    TxDataK                  <= TxDataKPipe;
+  end if;
+end process;
 
   -- pcievhost configured with x1 link
   pcievh_i : entity work.PcieVhost
@@ -66,11 +145,11 @@ begin
     EndPoint                 => EndPoint
   )
   port map (
-    Clk                      => pclk,
+    Clk                      => pcieclk,
     notReset                 => nreset,
 
      -- Link lane input
-    LinkIn0                  => '0' & RxDataK & RxData,
+    LinkIn0                  => LinkIn,
 
     -- Unused inputs
     LinkIn1                  => (others => 'Z'), LinkIn2  => (others => 'Z'), LinkIn3  => (others => 'Z'),

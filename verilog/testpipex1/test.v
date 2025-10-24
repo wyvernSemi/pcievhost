@@ -80,6 +80,7 @@ wire       LinkUpDataKInt    = LinkUpDataK;
 `endif
     pcieVHostPipex1 #(RcNodeNum, ROOTCMPLX) rc
     (
+       .pcieclk             (Clk),
        .pclk                (Clk),
        .nreset              (notReset),
 
@@ -97,6 +98,7 @@ wire       LinkUpDataKInt    = LinkUpDataK;
     
     pcieVHostPipex1 #(EpNodeNum, ENDPOINT) ep
     (
+       .pcieclk             (Clk),
        .pclk                (Clk),
        .nreset              (notReset),
 

@@ -44,18 +44,20 @@ end entity ;
 architecture behavioural of test is
 
 -- Derive some useful local constants
-constant CLK_PERIOD        : time      := 1 us / CLK_FREQ_MHZ;
+constant PCIE_CLK_PERIOD   : time     := 1 us / CLK_FREQ_MHZ;
+constant PIPE_CLK_PERIOD   : time     := PCIE_CLK_PERIOD * (PIPEDATAWIDTH/8);
 constant TIMEOUT_COUNT     : integer   := CLK_FREQ_MHZ * TIMEOUT_US;
 
-signal   clk               : std_logic := '1';
+signal   pcieclk           : std_logic := '1';
+signal   pclk              : std_logic := '1';
 signal   serclk            : std_logic := '1';
 signal   nreset            : std_logic := '0';
 signal   count             : integer   := 0;
 
 signal   UpData            : std_logic_vector (PIPEDATAWIDTH-1 downto 0);
-signal   UpDataK           : std_logic;
+signal   UpDataK           : std_logic_vector (PIPEDATAWIDTH/8-1 downto 0);
 signal   DownData          : std_logic_vector (PIPEDATAWIDTH-1 downto 0);
-signal   DownDataK         : std_logic;
+signal   DownDataK         : std_logic_vector (PIPEDATAWIDTH/8-1 downto 0);
 
 begin
 
@@ -66,21 +68,32 @@ nreset                     <= '1' when count >= 10 else '0';
 -- Clock Generation and timing
 -- -----------------------------------------------
 
-  P_CLKGEN : process
+  PCIE_CLKGEN : process
   begin
     -- Generate a clock cycle
     loop
-      clk                              <= '1';
-      wait for CLK_PERIOD/2.0;
-      clk                              <= '0';
-      wait for CLK_PERIOD/2.0;
+      pcieclk                              <= '1';
+      wait for PCIE_CLK_PERIOD/2.0;
+      pcieclk                              <= '0';
+      wait for PCIE_CLK_PERIOD/2.0;
+    end loop;
+  end process;
+  
+  PIPE_CLKGEN : process
+  begin
+    -- Generate a clock cycle
+    loop
+      pclk                                 <= '1';
+      wait for PIPE_CLK_PERIOD/2.0;
+      pclk                                 <= '0';
+      wait for PIPE_CLK_PERIOD/2.0;
     end loop;
   end process;
 
   -- Keep a clock count and monitor for a timeout
-  process (clk)
+  process (pcieclk)
   begin
-    if clk'event and clk = '1' then
+    if pcieclk'event and pcieclk = '1' then
 
       if count = 0 and DEBUG_STOP /= 0 then
         report "Simulation stopped for debug attachment. Waiting for restart...";
@@ -108,11 +121,13 @@ nreset                     <= '1' when count >= 10 else '0';
   rc_i : entity work.pcieVHostPipex1
     generic map (
       NodeNum                          => 0,
-      EndPoint                         => 0
+      EndPoint                         => 0,
+      DataWidth                        => PIPEDATAWIDTH
     )
     port map (
 
-      pclk                             => clk,
+      pcieclk                          => pcieclk,
+      pclk                             => pclk,
       nreset                           => nreset,
 
       TxData                           => DownData,
@@ -129,11 +144,13 @@ nreset                     <= '1' when count >= 10 else '0';
   ep_i : entity work.pcieVHostPipex1
     generic map (
       NodeNum                          => 1,
-      EndPoint                         => 1
+      EndPoint                         => 1,
+      DataWidth                        => PIPEDATAWIDTH
     )
     port map (
 
-      pclk                             => clk,
+      pcieclk                          => pcieclk,
+      pclk                             => pclk,
       nreset                           => nreset,
 
       TxData                           => UpData,
