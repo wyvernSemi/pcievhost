@@ -243,6 +243,10 @@ extern "C" void VUserMain0(int node)
         buff[2] = 0x73;
         buff[3] = 0x45;
         pcie->message (MSG_SET_PWR_LIMIT, buff, 4, tag++, rid, SEND, gen_ecrc);
+        
+        
+        pcie->memRead (0x12345679, 1, tag++, rid, SEND, gen_ecrc, true);
+        
     }
 
     // Go quiet for a while, before finishing

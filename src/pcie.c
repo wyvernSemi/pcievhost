@@ -259,7 +259,7 @@ void SendPacket(const int node)
 
     // If we've terminated midway through the lanes, then flush with PADs
     this->draining_queue = false;
-    
+
     // Send out any accumulated skips
     while (this->SkipScheduled)
     {
@@ -406,11 +406,17 @@ pPktData_t MemWriteDigest (const uint64_t addr, const PktData_t *data, const int
 
 pPktData_t MemRead (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool queue, const int node)
 {
-    return MemReadDigest (addr, length, tag, rid, true, queue, node);
+    return MemReadLockDigest (addr, length, tag, rid, false, true, queue, node);
 }
 
 pPktData_t MemReadDigest (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool digest,
                           const bool queue, const int node)
+{
+    return MemReadLockDigest(addr, length, tag, rid, false, digest, queue, node);
+}
+
+pPktData_t MemReadLockDigest (const uint64_t addr, const int length, const int tag, const uint32_t rid,
+                              const bool lock, const bool digest, const bool queue, const int node)
 {
     PktData_t *pkt_p, *data_p;
     pPkt_t packet;
@@ -441,7 +447,7 @@ pPktData_t MemReadDigest (const uint64_t addr, const int length, const int tag, 
     }
 
     // Create a template for a mem read
-    if ((pkt_p = CreateTlpTemplate (TL_MRD64, addr, length, digest, &data_p)) == NULL)
+    if ((pkt_p = CreateTlpTemplate (TL_MRD64 | (lock ? 1 : 0), addr, length, digest, &data_p)) == NULL)
     {
         VPrint( "MemReadDigest: %s***Error --- CreateTlpTemplate failed at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
@@ -579,6 +585,13 @@ pPktData_t PartCompletionDelay (const uint64_t addr, const PktData_t *data, cons
                                 const int rlength, const int length, const int tag, const uint32_t cid, const uint32_t rid,
                                 const bool digest, const bool delay, const bool queue, const int node)
 {
+   PartCompletionLockDelay(addr, data, status, fbe, lbe, rlength, length, tag, cid, rid, false, digest, delay, queue, node);
+}
+
+pPktData_t PartCompletionLockDelay (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe,
+                                    const int rlength, const int length, const int tag, const uint32_t cid, const uint32_t rid,
+                                    const bool lock, const bool digest, const bool delay, const bool queue, const int node)
+{
     PktData_t *pkt_p, *data_p;
     pPkt_t packet;
     int i;
@@ -586,26 +599,26 @@ pPktData_t PartCompletionDelay (const uint64_t addr, const PktData_t *data, cons
     // Do some checks
     if (node < 0 || node >= VP_MAX_NODES)
     {
-        VPrint("PartCompletionDelay: %s***Error --- Invalid node %d%s\n", fmterrstr, node, fmtnormstr);
+        VPrint("PartCompletionLockDelay: %s***Error --- Invalid node %d%s\n", fmterrstr, node, fmtnormstr);
         exit(EXIT_FAILURE);
     }
 
     if (pms == NULL || this == NULL)
     {
-        VPrint("PartCompletionDelay: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", fmterrstr, node, fmtnormstr);
+        VPrint("PartCompletionLockDelay: %s***Error --- Called before initialisation. Call InitialisePcie() first from node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
     if (length < 0 || length > (MAX_PAYLOAD_BYTES/4))
     {
-        VPrint( "PartCompletionDelay: %s***Error --- invalid payload (%d) at node %d%s\n", fmterrstr, length, node, fmtnormstr);
+        VPrint( "PartCompletionLockDelay: %s***Error --- invalid payload (%d) at node %d%s\n", fmterrstr, length, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
     // Create a template for a mem read completiom
-    if ((pkt_p = CreateTlpTemplate (length ? TL_CPLD : TL_CPL, addr, length*4, digest, &data_p)) == NULL)
+    if ((pkt_p = CreateTlpTemplate ((length ? TL_CPLD : TL_CPL) | (lock ? 1 : 0), addr, length*4, digest, &data_p)) == NULL)
     {
-        VPrint( "PartCompletionDelay: %s***Error --- CreateTlpTemplate failed at node %d%s\n", fmterrstr, node, fmtnormstr);
+        VPrint( "PartCompletionLockDelay: %s***Error --- CreateTlpTemplate failed at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -632,7 +645,7 @@ pPktData_t PartCompletionDelay (const uint64_t addr, const PktData_t *data, cons
 
     if ((packet = calloc(sizeof(sPkt_t), 1)) == NULL)
     {
-        VPrint( "PartCompletionDelay: %s***Error --- memory allocation failed at node %d%s\n", fmterrstr, node, fmtnormstr);
+        VPrint( "PartCompletionLockDelay: %s***Error --- memory allocation failed at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
@@ -1155,7 +1168,7 @@ pPktData_t Message (const int code, const PktData_t *data, const int length, con
     return MessageVendorDigest(code, data, length, tag, rid, 0ULL, true, queue, node);
 }
 
-pPktData_t MessageDigest (const int code, const PktData_t *data, const int length, const int tag, const uint32_t rid, 
+pPktData_t MessageDigest (const int code, const PktData_t *data, const int length, const int tag, const uint32_t rid,
                                const bool digest, const bool queue, const int node)
 {
     return MessageVendorDigest(code, data, length, tag, rid, 0ULL, digest, queue, node);
@@ -1240,7 +1253,7 @@ pPktData_t MessageVendorDigest (const int code, const PktData_t *data, const int
         VPrint( "MessageDigest: %s***Error --- CreateTlpTemplate failed at node %d%s\n", fmterrstr, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
     }
-    
+
     if (code == MSG_VENDOR_0 || code == MSG_VENDOR_1)
     {
         pkt_p[11] = (PktData_t)((vend_data >>  0) & 0xffULL);
@@ -1721,7 +1734,7 @@ void SendOs (const int Type, const int node)
             LinkOut[sequence][lanes] = (sequence == 0) ? COM : Type;
             LinkIn[lanes]  = VWrite(LINKADDR0+lanes, Encode(LinkOut[sequence][lanes], this->usrconf.DisableScrambling, this->usrconf.Disable8b10b,
                                     lanes, this->LinkWidth, node), lanes != this->LinkWidth-1, node);
-            
+
             // When the last OS symbol is being output, display the OS
             if (lanes == this->LinkWidth-1)
             {
@@ -2276,7 +2289,7 @@ void ConfigurePcie (const config_t type, const int value, const int node)
     case CONFIG_DISABLE_ECRC_CMPL:
         usrconf->DisableEcrcCmpl = type == CONFIG_DISABLE_ECRC_CMPL;
         break;
-        
+
     case CONFIG_ENABLE_CRC_CHK:
     case CONFIG_DISABLE_CRC_CHK:
         usrconf->DisableCrcChk = type == CONFIG_DISABLE_CRC_CHK;
@@ -2429,7 +2442,7 @@ void ConfigurePcie (const config_t type, const int value, const int node)
         break;
 
 #if !defined(EXCLUDE_LTSSM) && !defined(OSVVM)
-    // For LTSSM configurations, pass to the ltssm.c API functon 
+    // For LTSSM configurations, pass to the ltssm.c API functon
     case CONFIG_LTSSM_LINKNUM:
     case CONFIG_LTSSM_N_FTS:
     case CONFIG_LTSSM_TS_CTL:

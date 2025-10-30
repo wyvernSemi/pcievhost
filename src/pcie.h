@@ -65,7 +65,7 @@
 
 #define PCIE_MAJOR_VER                    1
 #define PCIE_MINOR_VER                    6
-#define PCIE_PATCH_VER                    8
+#define PCIE_PATCH_VER                    9
 
 // Used in macros
 #define BYTE_MASK                         0xff
@@ -464,105 +464,112 @@ typedef enum config_e config_t;
 // -------------------------------------------------------------------------
 
 // TLPs
-EXTERN pPktData_t MemWrite             (const uint64_t addr, const PktData_t *data, const int length, const int tag,
-                                        const uint32_t rid, const bool queue, const int node);
+EXTERN pPktData_t MemWrite                (const uint64_t addr, const PktData_t *data, const int length, const int tag,
+                                           const uint32_t rid, const bool queue, const int node);
+                                          
+EXTERN pPktData_t MemRead                 (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool queue, const int node);
+                                          
+EXTERN pPktData_t Completion              (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int length,
+                                           const int tag, const uint32_t cid, const uint32_t rid, const bool queue, const int node);
+                                          
+EXTERN pPktData_t PartCompletion          (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int rlength,
+                                           const int length, const int tag, const uint32_t cid, const uint32_t rid, const bool queue, const int node);
+                                          
+EXTERN pPktData_t CompletionDelay         (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int length,
+                                           const int tag, const uint32_t cid, const uint32_t rid, const int node);
+                                          
+EXTERN pPktData_t PartCompletionDelay     (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int rlength,
+                                           const int length, const int tag, const uint32_t cid, const uint32_t rid, const bool digest, const bool delay,
+                                           const bool queue, const int node);
 
-EXTERN pPktData_t MemRead              (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool queue, const int node);
+EXTERN pPktData_t PartCompletionLockDelay (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int rlength,
+                                           const int length, const int tag, const uint32_t cid, const uint32_t rid, const bool digest, const bool delay,
+                                           const bool lock, const bool queue, const int node);
 
-EXTERN pPktData_t Completion           (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int length,
-                                        const int tag, const uint32_t cid, const uint32_t rid, const bool queue, const int node);
-
-EXTERN pPktData_t PartCompletion       (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int rlength,
-                                        const int length, const int tag, const uint32_t cid, const uint32_t rid, const bool queue, const int node);
-
-EXTERN pPktData_t CompletionDelay      (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int length,
-                                        const int tag, const uint32_t cid, const uint32_t rid, const int node);
-
-EXTERN pPktData_t PartCompletionDelay  (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int rlength,
-                                        const int length, const int tag, const uint32_t cid, const uint32_t rid, const bool digest, const bool delay,
-                                        const bool queue, const int node);
-
-EXTERN pPktData_t CfgWrite             (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool queue,
-                                        const int node);
-
-EXTERN pPktData_t CfgRead              (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool queue, const int node);
-
-EXTERN pPktData_t IoWrite              (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid,
-                                        const bool queue, const int node);
-
-EXTERN pPktData_t IoRead               (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool queue, const int node);
-
-EXTERN pPktData_t Message              (const int code, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool queue,
-                                        const int node);
+EXTERN pPktData_t CfgWrite                (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool queue,
+                                           const int node);
+                                          
+EXTERN pPktData_t CfgRead                 (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool queue, const int node);
+                                          
+EXTERN pPktData_t IoWrite                 (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid,
+                                           const bool queue, const int node);
+                                          
+EXTERN pPktData_t IoRead                  (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool queue, const int node);
+                                          
+EXTERN pPktData_t Message                 (const int code, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool queue,
+                                           const int node);
 
 // TLP variant with digest (ECRC) generation argument
-EXTERN pPktData_t MemWriteDigest       (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool digest,
-                                        const bool queue, const int node);
-
-EXTERN pPktData_t MemReadDigest        (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool digest, const bool queue,
-                                        const int node);
-
-EXTERN pPktData_t CompletionDigest     (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int length,
-                                        const int tag, const uint32_t cid, const uint32_t rid, const bool digest, const bool queue, const int node);
-
-EXTERN pPktData_t PartCompletionDigest (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int rlength,
-                                        const int length, const int tag , const uint32_t cid, const uint32_t rid, const bool digest, const bool queue, const int node);
-
-EXTERN pPktData_t CfgWriteDigest       (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool digest,
-                                        const bool queue, const int node);
-
-EXTERN pPktData_t CfgReadDigest        (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool digest, const bool queue,
-                                        const int node);
-
-EXTERN pPktData_t IoWriteDigest        (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool digest,
-                                        const bool queue, const int node);
-
-EXTERN pPktData_t IoReadDigest         (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool digest, const bool queue,
-                                        const int node);
-
-EXTERN pPktData_t MessageDigest        (const int code, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool digest,
-                                        const bool queue, const int node);
-
-EXTERN pPktData_t MessageVendorDigest  (const int code, const PktData_t *data, const int length, const int tag, const uint32_t rid, const uint64_t vend_data,
-                                        const bool digest, const bool queue, const int node);
-
-// Flow control initialisation
-EXTERN void       InitFc               (const int node);
-
-// Queue flushing
-EXTERN void       SendPacket           (const int node);
-
-// Dllps
-EXTERN void       SendAck              (const int seq,    const int node);
-EXTERN void       SendNak              (const int seq,    const int node);
-EXTERN void       SendFC               (const int type,   const int vc,     const int hdrfc, const int datafc, const bool queue, const int node);
-EXTERN void       SendPM               (const int type,   const bool queue, const int node);
-EXTERN void       SendVendor           (const bool queue, const int data,   const int node);
-
-// Physical layer Ordered sets etc.
-EXTERN void       SendIdle             (const int Ticks, const int node);
-EXTERN void       SendOs               (const int Type,  const int node);
-EXTERN void       SendTs               (const int identifier, const int lane_num, const int link_num, const int n_fts, const int control,
-                                        const bool is_gen2, const int node);
-
-EXTERN void       WaitForCompletion    (const int node);
-EXTERN void       WaitForCompletionN   (const uint32_t count,          const int node);
-EXTERN void       InitialisePcie       (const callback_t    cb_func, void *usrptr, const int node);
-EXTERN void       RegisterOsCallback   (const os_callback_t cb_func, const int node);
-EXTERN uint32_t   GetCycleCount        (const int node);
-EXTERN void       ConfigurePcie        (const config_t type, const int value, const int node);
-
-// Physical layer event routines
-EXTERN int        ResetEventCount      (const int type, const int node);
-EXTERN int        ReadEventCount       (const int type, uint32_t *ts_data, const int node);
-EXTERN TS_t       GetTS                (const int lane, const int node);
-
-// Miscellaneous support routines
-EXTERN uint32_t   PcieRand             (const int node);
-EXTERN void       PcieSeed             (const uint32_t seed, const int node);
-EXTERN void       SetTxEnabled         (const int node);
-EXTERN void       SetTxDisabled        (const int node);
-EXTERN void       getPcieVersionString (char*     sbuf, const int bufsize);
+EXTERN pPktData_t MemWriteDigest          (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool digest,
+                                           const bool queue, const int node);
+                                          
+EXTERN pPktData_t MemReadDigest           (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool digest, const bool queue,
+                                           const int node);
+                                           
+EXTERN pPktData_t MemReadLockDigest       (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool lock, const bool digest,
+                                           const bool queue, const int node);
+                                          
+EXTERN pPktData_t CompletionDigest        (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int length,
+                                           const int tag, const uint32_t cid, const uint32_t rid, const bool digest, const bool queue, const int node);
+                                          
+EXTERN pPktData_t PartCompletionDigest    (const uint64_t addr, const PktData_t *data, const int status, const int fbe, const int lbe, const int rlength,
+                                           const int length, const int tag , const uint32_t cid, const uint32_t rid, const bool digest, const bool queue, const int node);
+                                          
+EXTERN pPktData_t CfgWriteDigest          (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool digest,
+                                           const bool queue, const int node);
+                                          
+EXTERN pPktData_t CfgReadDigest           (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool digest, const bool queue,
+                                           const int node);
+                                          
+EXTERN pPktData_t IoWriteDigest           (const uint64_t addr, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool digest,
+                                           const bool queue, const int node);
+                                          
+EXTERN pPktData_t IoReadDigest            (const uint64_t addr, const int length, const int tag, const uint32_t rid, const bool digest, const bool queue,
+                                           const int node);
+                                          
+EXTERN pPktData_t MessageDigest           (const int code, const PktData_t *data, const int length, const int tag, const uint32_t rid, const bool digest,
+                                           const bool queue, const int node);
+                                          
+EXTERN pPktData_t MessageVendorDigest     (const int code, const PktData_t *data, const int length, const int tag, const uint32_t rid, const uint64_t vend_data,
+                                           const bool digest, const bool queue, const int node);
+                                          
+// Flow control initialisation            
+EXTERN void       InitFc                  (const int node);
+                                          
+// Queue flushing                         
+EXTERN void       SendPacket              (const int node);
+                                          
+// Dllps                                  
+EXTERN void       SendAck                 (const int seq,    const int node);
+EXTERN void       SendNak                 (const int seq,    const int node);
+EXTERN void       SendFC                  (const int type,   const int vc,     const int hdrfc, const int datafc, const bool queue, const int node);
+EXTERN void       SendPM                  (const int type,   const bool queue, const int node);
+EXTERN void       SendVendor              (const bool queue, const int data,   const int node);
+                                          
+// Physical layer Ordered sets etc.       
+EXTERN void       SendIdle                (const int Ticks, const int node);
+EXTERN void       SendOs                  (const int Type,  const int node);
+EXTERN void       SendTs                  (const int identifier, const int lane_num, const int link_num, const int n_fts, const int control,
+                                           const bool is_gen2, const int node);
+                                          
+EXTERN void       WaitForCompletion       (const int node);
+EXTERN void       WaitForCompletionN      (const uint32_t count,          const int node);
+EXTERN void       InitialisePcie          (const callback_t    cb_func, void *usrptr, const int node);
+EXTERN void       RegisterOsCallback      (const os_callback_t cb_func, const int node);
+EXTERN uint32_t   GetCycleCount           (const int node);
+EXTERN void       ConfigurePcie           (const config_t type, const int value, const int node);
+                                          
+// Physical layer event routines          
+EXTERN int        ResetEventCount         (const int type, const int node);
+EXTERN int        ReadEventCount          (const int type, uint32_t *ts_data, const int node);
+EXTERN TS_t       GetTS                   (const int lane, const int node);
+                                          
+// Miscellaneous support routines         
+EXTERN uint32_t   PcieRand                (const int node);
+EXTERN void       PcieSeed                (const uint32_t seed, const int node);
+EXTERN void       SetTxEnabled            (const int node);
+EXTERN void       SetTxDisabled           (const int node);
+EXTERN void       getPcieVersionString    (char*     sbuf, const int bufsize);
 
 # ifdef OSVVM
 EXTERN int        VWrite               (unsigned int addr, unsigned int  data, int delta, unsigned int node);

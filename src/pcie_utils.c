@@ -781,10 +781,12 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
 
         // If mem read ...
         }
-        else if (!state->usrconf.DisableMem && (type == TL_MRD32 || type == TL_MRD64))
+        else if (!state->usrconf.DisableMem && (type == TL_MRD32 || type == TL_MRD64 || type == TL_MRDLCK32 || type == TL_MRDLCK64))
         {
+            bool is_locked = type == TL_MRDLCK32 || type == TL_MRDLCK64;
+            
             // Construct completion and add to queue
-            if (type == TL_MRD32)
+            if (type == TL_MRD32 || type == TL_MRDLCK32)
             {
                 addr   = ((uint64_t)pkt->data[TLP_ADDR_OFFSET]   << 24) | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+1] << 16) |
                          ((uint64_t)pkt->data[TLP_ADDR_OFFSET+2] << 8)  | ((uint64_t)pkt->data[TLP_ADDR_OFFSET+3] << 0) ;
@@ -798,7 +800,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
             }
 
             length     = GET_TLP_LENGTH(pkt->data);
-            pdata      = (type == TL_MRD32) ? &(pkt->data[TLP_DATA_OFFSET32]) : &(pkt->data[TLP_DATA_OFFSET64]);
+            pdata      = (type == TL_MRD32 || type == TL_MRDLCK32) ? &(pkt->data[TLP_DATA_OFFSET32]) : &(pkt->data[TLP_DATA_OFFSET64]);
             fbe        = GET_TLP_FBE(pkt->data);
             lbe        = GET_TLP_LBE(pkt->data);
             rid        = GET_TLP_RID(pkt->data);
@@ -815,11 +817,11 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
                 }
 
                 int rlen = (length ? length : MAX_PAYLOAD_BYTES/4);
-                PartCompletionDelay(addr, buff, CPL_SUCCESS, fbe, lbe, rlen, rlen, tag, cid, rid, gen_cmpl_ecrc, state->usrconf.CompletionRate, true, state->thisnode);
+                PartCompletionLockDelay(addr, buff, CPL_SUCCESS, fbe, lbe, rlen, rlen, tag, cid, rid, is_locked, gen_cmpl_ecrc, state->usrconf.CompletionRate, true, state->thisnode);
             }
             else
             {
-                PartCompletionDelay(0, NULL, CPL_UNSUPPORTED, 0x0, 0x0, 0, 0, tag, cid, rid, gen_cmpl_ecrc, state->usrconf.CompletionRate, true, state->thisnode);
+                PartCompletionLockDelay(0, NULL, CPL_UNSUPPORTED, 0x0, 0x0, 0, 0, tag, cid, rid, is_locked, gen_cmpl_ecrc, state->usrconf.CompletionRate, true, state->thisnode);
             }
 
             CheckFree(pkt->data);
@@ -1322,14 +1324,13 @@ PktData_t * CreateTlpTemplate (const int Type, const uint64_t addr, const int by
     payload_length = bytelen ? (bytelen + (addr & ADDR_DW_OFFSET_MASK) + (endpos ? (4 - endpos)%4 : 0)) : 0;
     if (payload_length == 0) /* We have to deal with special zero byte reads and write having non-zero payloads */
     {
-        if (Type == TL_MRD64 || Type == TL_MRD32 || Type == TL_MWR64 || Type == TL_MWR32)
+        if (Type == TL_MRD64 || Type == TL_MRD32 || Type == TL_MRDLCK64 || Type == TL_MRDLCK32 || Type == TL_MWR64 || Type == TL_MWR32)
         {
             payload_length = 4;
         }
     }
 
     tail_length    = digest_present ? TAILDWDIGEST : TAILDWNODIGEST;
-
 
     switch (type)
     {
