@@ -65,7 +65,7 @@
 
 #define PCIE_MAJOR_VER                    1
 #define PCIE_MINOR_VER                    6
-#define PCIE_PATCH_VER                    9
+#define PCIE_PATCH_VER                    10
 
 // Used in macros
 #define BYTE_MASK                         0xff
@@ -447,9 +447,6 @@ enum config_e {
 
     CONFIG_DISABLE_CRC_CHK,
     CONFIG_ENABLE_CRC_CHK,
-
-    CONFIG_DISABLE_INTERNAL_MEM,
-    CONFIG_ENABLE_INTERNAL_MEM,
 
     CONFIG_DISABLE_DISPLINK_COLOUR,
     CONFIG_ENABLE_DISPLINK_COLOUR,

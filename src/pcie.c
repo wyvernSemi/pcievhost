@@ -2295,11 +2295,6 @@ void ConfigurePcie (const config_t type, const int value, const int node)
         usrconf->DisableCrcChk = type == CONFIG_DISABLE_CRC_CHK;
         break;
 
-    case CONFIG_ENABLE_INTERNAL_MEM:
-    case CONFIG_DISABLE_INTERNAL_MEM:
-        usrconf->DisableMem = type == CONFIG_DISABLE_INTERNAL_MEM;
-        break;
-
     case CONFIG_ENABLE_DISPLINK_COLOUR:
     case CONFIG_DISABLE_DISPLINK_COLOUR:
         ConfigDispFormat(type == CONFIG_ENABLE_DISPLINK_COLOUR);
