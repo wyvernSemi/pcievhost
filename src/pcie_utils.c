@@ -898,7 +898,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
             // any registered user callback function
             if (!state->usrconf.DisableUrCpl && !state->usrconf.DisableMem &&
                (type & DL_ROUTE_MASK) != TL_MSG && (type & DL_ROUTE_MASK) != TL_MSGD &&
-                type != TL_MWR32 && type != TL_MWR64 && type != TL_MRD32 && type != TL_MRD64)
+                type != TL_MWR32 && type != TL_MWR64 && type != TL_MRD32 && type != TL_MRD64 && type != TL_MRDLCK32 && type != TL_MRDLCK64)
             {
                 PartCompletionDelay(0, NULL, CPL_UNSUPPORTED, 0x0, 0x0, 0, 0, tag, cid, rid, gen_cmpl_ecrc, state->usrconf.CompletionRate, true, state->thisnode);
             }
