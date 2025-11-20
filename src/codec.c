@@ -361,7 +361,7 @@ unsigned int Decode (const int data, const int no_scramble, const int no_8b10b, 
         Raw = Raw ^ Bitrev8[(this->dlfsr & 0xff00) >> 8];
     }
 
-    // Advance scrambler unless a SKIP or in a training sequence, or reset if COMMA
+    // Advance scrambler unless a SKIP, or reset if COMMA
     if (Raw != SKP && lane == (linkwidth-1))
     {
         ScrambleAdvance(Raw == COM, &(this->dlfsr));
