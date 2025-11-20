@@ -202,13 +202,7 @@ unsigned int Encode (const int data, const int no_scramble, const int no_8b10b, 
         c = data;
     }
 
-    // When scrambling disabled, hold LSRF in reset state
-    if (no_scramble)
-    {
-        ScrambleAdvance(true, &(this->elfsr));
-    }
-    // Advance scrambler unless a SKIP, or reset if COMMA
-    else if (data != SKP && lane == (linkwidth-1))
+    if (data != SKP && lane == (linkwidth-1))
     {
         ScrambleAdvance(data == COM, &(this->elfsr));
     }
@@ -368,7 +362,7 @@ unsigned int Decode (const int data, const int no_scramble, const int no_8b10b, 
     }
 
     // Advance scrambler unless a SKIP or in a training sequence, or reset if COMMA
-    if (!this->ts_active && !no_scramble && Raw != SKP && lane == (linkwidth-1))
+    if (!no_scramble && Raw != SKP && lane == (linkwidth-1))
     {
         ScrambleAdvance(Raw == COM, &(this->dlfsr));
     }
