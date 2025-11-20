@@ -362,7 +362,7 @@ unsigned int Decode (const int data, const int no_scramble, const int no_8b10b, 
     }
 
     // Advance scrambler unless a SKIP or in a training sequence, or reset if COMMA
-    if (!no_scramble && Raw != SKP && lane == (linkwidth-1))
+    if (Raw != SKP && lane == (linkwidth-1))
     {
         ScrambleAdvance(Raw == COM, &(this->dlfsr));
     }
