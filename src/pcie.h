@@ -65,7 +65,7 @@
 
 #define PCIE_MAJOR_VER                    1
 #define PCIE_MINOR_VER                    6
-#define PCIE_PATCH_VER                    12
+#define PCIE_PATCH_VER                    13
 
 // Used in macros
 #define BYTE_MASK                         0xff
@@ -345,13 +345,13 @@
 #define OFFSET_FROM_FBE(_FBE) (((((_FBE) & 0x3) == 0x00) ? 0x2 : 0x0) + ( ((((_FBE) & 0x3) == 0x2) || (((_FBE) & 0xc) == 0x80)) ? 0x1 : 0x0))
 #define OFFSET_FROM_LBE(_LBE) ((((_LBE) == 0xf) || ((_LBE) == 0x0)) ? 0x0 : (_LBE) == 0x7 ? 1 : (_LBE) == 0x3 ? 0x2 : 0x3)
 
-#define GET_TLP_3DW_ADDRESS(_PKT) ((uint64_t)(_PKT)[TLP_ADDR_OFFSET]          | (uint64_t)(_PKT)[TLP_ADDR_OFFSET+1]<<8ULL  | \
-                                   (uint64_t)(_PKT)[TLP_ADDR_OFFSET+2]<<16ULL | (uint64_t)(_PKT)[TLP_ADDR_OFFSET+3]<<24ULL)
+#define GET_TLP_3DW_ADDRESS(_PKT) ((uint64_t)(_PKT)[TLP_ADDR_OFFSET+3]        | (uint64_t)(_PKT)[TLP_ADDR_OFFSET+2]<<8ULL  | \
+                                   (uint64_t)(_PKT)[TLP_ADDR_OFFSET+1]<<16ULL | (uint64_t)(_PKT)[TLP_ADDR_OFFSET+0]<<24ULL)
 
-#define GET_TLP_4DW_ADDRESS(_PKT) ((uint64_t)(_PKT)[TLP_ADDR_OFFSET]          | (uint64_t)(_PKT)[TLP_ADDR_OFFSET+1]<<8ULL  | \
-                                   (uint64_t)(_PKT)[TLP_ADDR_OFFSET+2]<<16ULL | (uint64_t)(_PKT)[TLP_ADDR_OFFSET+3]<<24ULL | \
-                                   (uint64_t)(_PKT)[TLP_ADDR_OFFSET+4]<<32ULL | (uint64_t)(_PKT)[TLP_ADDR_OFFSET+5]<<40ULL | \
-                                   (uint64_t)(_PKT)[TLP_ADDR_OFFSET+6]<<48ULL | (uint64_t)(_PKT)[TLP_ADDR_OFFSET+7]<<56ULL)
+#define GET_TLP_4DW_ADDRESS(_PKT) ((uint64_t)(_PKT)[TLP_ADDR_OFFSET+7]        | (uint64_t)(_PKT)[TLP_ADDR_OFFSET+6]<<8ULL  | \
+                                   (uint64_t)(_PKT)[TLP_ADDR_OFFSET+5]<<16ULL | (uint64_t)(_PKT)[TLP_ADDR_OFFSET+4]<<24ULL | \
+                                   (uint64_t)(_PKT)[TLP_ADDR_OFFSET+3]<<32ULL | (uint64_t)(_PKT)[TLP_ADDR_OFFSET+2]<<40ULL | \
+                                   (uint64_t)(_PKT)[TLP_ADDR_OFFSET+1]<<48ULL | (uint64_t)(_PKT)[TLP_ADDR_OFFSET+0]<<56ULL)
 #define GET_TLP_ADDRESS(_PKT) (TLP_HDR_4DW(_PKT) ? GET_TLP_4DW_ADDRESS(_PKT) : GET_TLP_3DW_ADDRESS(_PKT))
 
 #define GET_TLP_PAYLOAD_PTR(_PKT) (TLP_HDR_4DW(_PKT) ? (&(_PKT)[19]) : (&(_PKT)[15]))
