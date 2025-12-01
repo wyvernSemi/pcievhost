@@ -212,7 +212,7 @@ static void UpdateConsumedFC(const pPcieModelState_t const state)
     pFlowControl_t flw = &(state->flwcntl);
     int fc_timeout[FC_NUMTYPES];
 
-    if (state->usrconf.DisableFc)
+    if (state->usrconf.DisableFc  || flw->fc_state[0] != INITFC_FI2)
     {
         return;
     }
