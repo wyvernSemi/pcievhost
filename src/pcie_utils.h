@@ -226,6 +226,7 @@ typedef struct {
     pPkt_t           nak_to_send_p;
     int              curr_ack;
     int              curr_nak;
+    sPkt_t           AckHolder, NakHolder;
     uint32_t         seq;
 
     // Skip Timing

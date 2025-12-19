@@ -63,7 +63,6 @@ void SendPacket(const int node)
 {
     int lanes = 0, idx = 0;
     pPkt_t tmp_p;
-    sPkt_t AckHolder, NakHolder;
     uint32_t code;
     uint32_t  LinkIn  [MAX_LINK_WIDTH];
     PktData_t LinkOut [MAX_LINK_WIDTH];
@@ -124,14 +123,14 @@ void SendPacket(const int node)
         if (this->nak_to_send_p != NULL && ((GetCycleCount(node) - this->nak_to_send_p->TimeStamp) > usrconf->AckRate))
         {
             // Snap shot the Nak to send (it may get overwritten by new input)
-            NakHolder = *(this->nak_to_send_p);
-            NakHolder.data = NakDataHolder;
+            this->NakHolder = *(this->nak_to_send_p);
+            this->NakHolder.data = NakDataHolder;
             for (i = 0; i < MAX_DLLP_BYTES; i++)
             {
                 NakDataHolder[i] = this->nak_to_send_p->data[i];
             }
-            NakHolder.NextPkt = this->send_p;
-            this->send_p = &NakHolder;
+            this->NakHolder.NextPkt = this->send_p;
+            this->send_p = &(this->NakHolder);
 
             // Free up current NAK memory
             CheckFree(this->nak_to_send_p->data);
@@ -140,17 +139,19 @@ void SendPacket(const int node)
             // Mark as sent
             this->nak_to_send_p = NULL;
         }
+
+
         if (this->ack_to_send_p != NULL && ((GetCycleCount(node) - this->ack_to_send_p->TimeStamp) > usrconf->AckRate))
         {
             // Snap shot the Ack to send (it may get overwritten by new input)
-            AckHolder = *(this->ack_to_send_p);
-            AckHolder.data = AckDataHolder;
+            this->AckHolder = *(this->ack_to_send_p);
+            this->AckHolder.data = AckDataHolder;
             for (i = 0; i < MAX_DLLP_BYTES; i++)
             {
                 AckDataHolder[i] = this->ack_to_send_p->data[i];
             }
-            AckHolder.NextPkt = this->send_p;
-            this->send_p = &AckHolder;
+            this->AckHolder.NextPkt = this->send_p;
+            this->send_p = &(this->AckHolder);
 
             // Free up current ACK memory
             CheckFree(this->ack_to_send_p->data);

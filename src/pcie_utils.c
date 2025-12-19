@@ -1820,7 +1820,6 @@ void AddPktToQueue(const pPcieModelState_t const state, const pPkt_t const packe
     // Remove any previous linkage
     packet->NextPkt = NULL;
 
-
     // Queue is empty, so all pointers set to the end packet
     if (state->head_p == NULL)
     {
@@ -1833,6 +1832,15 @@ void AddPktToQueue(const pPcieModelState_t const state, const pPkt_t const packe
         if (state->send_p == NULL)
         {
             state->send_p = packet;
+        }
+        
+        if (state->AckHolder.NextPkt == NULL)
+        {
+            state->AckHolder.NextPkt = packet;
+        }
+        if (state->NakHolder.NextPkt == NULL)
+        {
+            state->NakHolder.NextPkt = packet;
         }
 
         // Point current end of queue NextPkt pointer to
