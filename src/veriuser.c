@@ -28,9 +28,14 @@
 #ifndef VPROC_VHDL 
 
 #include "VSched_pli.h"
+#include "mem_model.h"
 
 extern int PciCrc32(char* userdata);
 extern int PciCrc16(char* userdata);
+
+#ifndef MEM_MODEL_VPI_TBL
+#define MEM_MODEL_VPI_TBL
+#endif
 
 // -------------------------------------------------------------------------
 // register_vpi_tasks()
@@ -43,6 +48,9 @@ static void register_vpi_tasks()
     s_vpi_systf_data data[] =
       {
           VPROC_VPI_TBL
+#if defined(ENABLE_MEM_PLI)
+          MEM_MODEL_VPI_TBL,
+#endif
           {vpiSysTask, 0, "$pcicrc16",   PciCrc16,   0, 0, 0},
           {vpiSysTask, 0, "$pcicrc32",   PciCrc32,   0, 0, 0},
       };

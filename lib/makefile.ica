@@ -27,7 +27,7 @@ OBJDIR    = obj
 VPROC_TOP = ../../vproc
 ICADIR    = /usr/include/iverilog
 
-C_FILES   = codec.c mem.c pcie.c pcie_utils.c pcicrc32.c ltssm.c displink.c veriuser.c
+C_FILES   = codec.c mem.c mem_model.c pcie.c pcie_utils.c pcicrc32.c ltssm.c displink.c veriuser.c
 CFLAGS    = -c -fPIC -Wno-incompatible-pointer-types -Wno-format -I $(ICADIR) -I$(VPROC_TOP)/code -DICARUS -DLTSSM_ABBREVIATED $(USRFLAGS)
 CC        = gcc
 

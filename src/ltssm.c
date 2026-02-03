@@ -1,5 +1,5 @@
 //=============================================================
-// 
+//
 // Copyright (c) 2016 - 2025 Simon Southwell. All rights reserved.
 //
 // Date: 20th Sep 2016
@@ -22,7 +22,7 @@
 //=============================================================
 //
 // Implements a PCIe LTSSM function. NB. IT IS NOT COMPLETE,
-// and is meant only to be able to power up a link to L0. With 
+// and is meant only to be able to power up a link to L0. With
 // LTSSM_ABBREVIATED defined, sequence is shortened in various
 // places and timeouts reduced.
 //
@@ -87,7 +87,7 @@
 #define DEFAULT_MAX_LINK_WIDTH_MASK  ((1 << DEFAULT_MAX_LINK_WIDTH) - 1)
 
 #define DEFAULT_ENABLED_TESTS        0
-#define DEFAULT_FORCE_TESTS          0 
+#define DEFAULT_FORCE_TESTS          0
 #define DEFAULT_DISABLE_DISP_STATE   0
 
 #define LTSSM_SET_MINIMUM            0
@@ -111,7 +111,7 @@ static int  ltssm_poll_tx_count      [VP_MAX_NODES] = { [0 ... VP_MAX_NODES-1] =
 static int  ltssm_disable_disp_state [VP_MAX_NODES] = { [0 ... VP_MAX_NODES-1] = DEFAULT_DISABLE_DISP_STATE};
 
 static int  ltssm_tx_n_fts           [VP_MAX_NODES] = { [0 ... VP_MAX_NODES-1] = 0};
-                                     
+
 static bool config_disable           [VP_MAX_NODES] = { [0 ... VP_MAX_NODES-1] = false};
 static bool config_loopback          [VP_MAX_NODES] = { [0 ... VP_MAX_NODES-1] = false};
 static bool polling_compliance       [VP_MAX_NODES] = { [0 ... VP_MAX_NODES-1] = false};
@@ -132,7 +132,7 @@ static int Detect (const int link_width, const int node)
     if (!ltssm_disable_disp_state[node]) VPrint("---> Detect Quiet (node %d)\n", node);
 
     // Loop until rcvr_idle_status indicates at least one lane not idle
-    do 
+    do
     {
         SendIdle(1, node);
         VRead(LINK_STATE, &rcvr_idle_status, 1, node);
@@ -183,7 +183,7 @@ static int Polling(int *active_lanes, const int node)
     if (!ltssm_disable_disp_state[node]) VPrint("---> Polling Active (node %d)\n", node);
     i = 0;
     VWrite(LINK_STATE, (~ltssm_max_link_mask[node]) & 0xffff, 1, node);
-    do 
+    do
     {
         SendTs(TS1_ID, PAD, PAD, ltssm_n_fts[node], ltssm_ts_ctl[VP_MAX_NODES], false, node);
         ReadEventCount(TS1_ID, ts1_count, node);
@@ -193,11 +193,11 @@ static int Polling(int *active_lanes, const int node)
         {
             i++;
         }
-        if ((ts1_count[0] || ts2_count[0]) && (ts_status.linknum != PAD || ts_status.lanenum != PAD)) 
+        if ((ts1_count[0] || ts2_count[0]) && (ts_status.linknum != PAD || ts_status.lanenum != PAD))
         {
             ts1_count[0] = ts2_count[0] = 0;
         }
-       
+
     } while(((ts1_count[0] < 8) && (ts2_count[0] < 8)) || (i < ltssm_poll_tx_count[node]));
 
     // --- Config ---
@@ -278,7 +278,7 @@ static int Configuration(const int active_lanes, const int target_state, const i
             ts1_count[0] = 0;
             ResetEventCount(TS1_ID, node);
         }
-        
+
     } while(ts1_count[0] < 2 || ts_status.linknum != ltssm_linknum[node]);
 
     // Linkwidth.Accept (fall through state)
@@ -327,7 +327,7 @@ static int Configuration(const int active_lanes, const int target_state, const i
     do
     {
         SendTs(TS2_ID, ENABLE_LANENUMS, ltssm_linknum[node], ltssm_n_fts[node], ltssm_ts_ctl[VP_MAX_NODES], false, node);
-        
+
         // Start counting sent TS2s once a TS2 has been received
         if (ts2_count[0])
         {
@@ -337,7 +337,7 @@ static int Configuration(const int active_lanes, const int target_state, const i
         {
             ts_status = GetTS(i, node);
             ReadEventCount(TS2_ID, ts2_count, node);
-            if (ts_status.linknum != ltssm_linknum[node] && ts_status.lanenum != i) 
+            if (ts_status.linknum != ltssm_linknum[node] && ts_status.lanenum != i)
             {
                 ts2_count[0] = 0;
             }
@@ -489,7 +489,7 @@ static int Recovery (const int target_state, const int node)
         SendIdle(1, node);
         ReadEventCount(0, ts2_count, node);
 
-        if (ts2_count[0]) 
+        if (ts2_count[0])
         {
             i++;
         }
@@ -515,7 +515,7 @@ static int Disabled (const int node)
     // Transmit 16 TS1 OS's with disabled set
     for (i=0; i < 16; i++)
     {
-       SendTs(TS1_ID, ENABLE_LANENUMS, ltssm_linknum[node], ltssm_n_fts[node], TS_CNTL_DISABLE_LINK, false, node); 
+       SendTs(TS1_ID, ENABLE_LANENUMS, ltssm_linknum[node], ltssm_n_fts[node], TS_CNTL_DISABLE_LINK, false, node);
     }
 
     // Tx EIOS
@@ -563,7 +563,7 @@ static int Loopback (const int node)
     // Transmit TS1s OS's with loopback set until a TS1 with loopback set is received
     do
     {
-        SendTs(TS1_ID, ENABLE_LANENUMS, ltssm_linknum[node], ltssm_n_fts[node], TS_CTL_LOOPBACK, false, node); 
+        SendTs(TS1_ID, ENABLE_LANENUMS, ltssm_linknum[node], ltssm_n_fts[node], TS_CTL_LOOPBACK, false, node);
         ReadEventCount(TS1_ID, count, node);
         ts_status = GetTS(0, node);
         if (!ltssm_disable_disp_state[node]) VPrint("count[0] = %x ts_status.control = %x\n", count[0], ts_status.control);
@@ -575,7 +575,7 @@ static int Loopback (const int node)
     // Stay in Loopback.Active for a while
     for (i = 0; i < 64; i++)
     {
-        SendTs(TS1_ID, ENABLE_LANENUMS, ltssm_linknum[node], ltssm_n_fts[node], TS_CTL_LOOPBACK, false, node); 
+        SendTs(TS1_ID, ENABLE_LANENUMS, ltssm_linknum[node], ltssm_n_fts[node], TS_CTL_LOOPBACK, false, node);
     }
 
     // ---- Loopback.Exit ----
@@ -588,7 +588,7 @@ static int Loopback (const int node)
 
     // Shut down the lanes
     VWrite(LINK_STATE, 0xffff, 1, node);
-    
+
     // Wait for the idle to be returned
     do
     {
@@ -623,7 +623,7 @@ static int HotReset (const int HotResetTO, const int node)
        loops = 2;
     }
 
-    for (i=0; i < loops; i++) 
+    for (i=0; i < loops; i++)
     {
         SendTs(TS1_ID, 0, ltssm_linknum[node], ltssm_n_fts[node], TS_CNTL_HOT_RESET, false, node);
     }
@@ -732,10 +732,10 @@ static int LinkState (const int ltssm_state, const int target_state, const int l
 
     return ltssm_state;
 }
-    
+
 // -------------------------------------------------------------------------
 // InitLink()
-// 
+//
 // Exported user function to initiate a PCIe link initialisation.
 //
 // -------------------------------------------------------------------------
@@ -747,7 +747,6 @@ void InitLink(const int link_width, const int node)
     do
     {
         ltssm_state = LinkState(ltssm_state, LTSSM_L0, link_width, node);
-        if (!ltssm_disable_disp_state[node]) VPrint("ltssm_state = %d\n", ltssm_state);
     } while (ltssm_state != LTSSM_L0);
 }
 
