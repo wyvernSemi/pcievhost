@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<system name="$${FILENAME}">
+ <component
+   name="$${FILENAME}"
+   displayName="$${FILENAME}"
+   version="1.0"
+   description=""
+   tags=""
+   categories="System" />
+ <parameter name="bonusData"><![CDATA[bonusData 
+{
+   element clk_0
+   {
+      datum _sortIndex
+      {
+         value = "0";
+         type = "int";
+      }
+   }
+   element pcie_cv_hip_avmm_0
+   {
+      datum _sortIndex
+      {
+         value = "1";
+         type = "int";
+      }
+   }
+}
+]]></parameter>
+ <parameter name="clockCrossingAdapter" value="HANDSHAKE" />
+ <parameter name="device" value="5CGXFC7D6F31C7" />
+ <parameter name="deviceFamily" value="Cyclone V" />
+ <parameter name="deviceSpeedGrade" value="7_H6" />
+ <parameter name="fabricMode" value="QSYS" />
+ <parameter name="generateLegacySim" value="false" />
+ <parameter name="generationId" value="0" />
+ <parameter name="globalResetBus" value="false" />
+ <parameter name="hdlLanguage" value="VERILOG" />
+ <parameter name="hideFromIPCatalog" value="false" />
+ <parameter name="lockedInterfaceDefinition" value="" />
+ <parameter name="maxAdditionalLatency" value="1" />
+ <parameter name="projectName" value="Pcie.qpf" />
+ <parameter name="sopcBorderPoints" value="false" />
+ <parameter name="systemHash" value="0" />
+ <parameter name="testBenchDutName" value="" />
+ <parameter name="timeStamp" value="0" />
+ <parameter name="useTestBenchNamingPattern" value="false" />
+ <instanceScript></instanceScript>
+ <interface name="clk" internal="clk_0.clk_in" type="clock" dir="end" />
+ <interface name="reset" internal="clk_0.clk_in_reset" type="reset" dir="end" />
+ <module name="clk_0" kind="clock_source" version="25.1" enabled="1">
+  <parameter name="clockFrequency" value="50000000" />
+  <parameter name="clockFrequencyKnown" value="true" />
+  <parameter name="inputClockFrequency" value="0" />
+  <parameter name="resetSynchronousEdges" value="NONE" />
+ </module>
+ <module
+   name="pcie_cv_hip_avmm_0"
+   kind="altera_pcie_cv_hip_avmm"
+   version="25.1"
+   enabled="1">
+  <parameter name="AST_LITE" value="0" />
+  <parameter name="AVALON_ADDR_WIDTH" value="32" />
+  <parameter name="AddressPage">0\,1\,2\,3\,4\,5\,6\,7\,8\,9\,10\,11\,12\,13\,14\,15</parameter>
+  <parameter name="BYPASSS_A2P_TRANSLATION" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_0_HIGH" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_0_LOW" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_10_HIGH" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_10_LOW" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_11_HIGH" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_11_LOW" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_12_HIGH" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_12_LOW" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_13_HIGH" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_13_LOW" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_14_HIGH" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_14_LOW" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_15_HIGH" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_15_LOW" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_1_HIGH" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_1_LOW" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_2_HIGH" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_2_LOW" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_3_HIGH" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_3_LOW" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_4_HIGH" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_4_LOW" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_5_HIGH" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_5_LOW" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_6_HIGH" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_6_LOW" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_7_HIGH" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_7_LOW" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_8_HIGH" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_8_LOW" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_9_HIGH" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_FIXED_TABLE_9_LOW" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_IS_FIXED" value="0" />
+  <parameter name="CB_A2P_ADDR_MAP_NUM_ENTRIES" value="2" />
+  <parameter name="CB_A2P_ADDR_MAP_PASS_THRU_BITS" value="12" />
+  <parameter name="CB_P2A_AVALON_ADDR_B0" value="0x00000000" />
+  <parameter name="CB_P2A_AVALON_ADDR_B1" value="0x00000000" />
+  <parameter name="CB_P2A_AVALON_ADDR_B2" value="0x00000000" />
+  <parameter name="CB_P2A_AVALON_ADDR_B3" value="0x00000000" />
+  <parameter name="CB_P2A_AVALON_ADDR_B4" value="0x00000000" />
+  <parameter name="CB_P2A_AVALON_ADDR_B5" value="0x00000000" />
+  <parameter name="CB_P2A_FIXED_AVALON_ADDR_B0" value="0" />
+  <parameter name="CB_P2A_FIXED_AVALON_ADDR_B1" value="0" />
+  <parameter name="CB_P2A_FIXED_AVALON_ADDR_B2" value="0" />
+  <parameter name="CB_P2A_FIXED_AVALON_ADDR_B3" value="0" />
+  <parameter name="CB_P2A_FIXED_AVALON_ADDR_B4" value="0" />
+  <parameter name="CB_P2A_FIXED_AVALON_ADDR_B5" value="0" />
+  <parameter name="CB_PCIE_MODE" value="1" />
+  <parameter name="CB_PCIE_RX_LITE" value="0" />
+  <parameter name="CB_RP_S_ADDR_WIDTH" value="32" />
+  <parameter name="CG_COMMON_CLOCK_MODE" value="1" />
+  <parameter name="CG_ENABLE_A2P_INTERRUPT" value="0" />
+  <parameter name="CG_ENABLE_ADVANCED_INTERRUPT" value="0" />
+  <parameter name="CG_ENABLE_HIP_STATUS" value="0" />
+  <parameter name="CG_ENABLE_HIP_STATUS_EXTENSION" value="0" />
+  <parameter name="CG_IMPL_CRA_AV_SLAVE_PORT" value="0" />
+  <parameter name="CG_RXM_IRQ_NUM" value="16" />
+  <parameter name="INTENDED_DEVICE_FAMILY" value="Cyclone V" />
+  <parameter name="NUM_PREFETCH_MASTERS" value="1" />
+  <parameter name="PCIeAddress31_0">0x00000000\,0x00000000\,0x00000000\,0x00000000\,0x00000000\,0x00000000\,0x00000000\,0x00000000\,0x00000000\,0x00000000\,0x00000000\,0x00000000\,0x00000000\,0x00000000\,0x00000000\,0x00000000</parameter>
+  <parameter name="PCIeAddress63_32">0x00000000\,0x00000000\,0x00000000\,0x00000000\,0x00000000\,0x00000000\,0x00000000\,0x00000000\,0x00000000\,0x00000000\,0x00000000\,0x00000000\,0x00000000\,0x00000000\,0x00000000\,0x00000000</parameter>
+  <parameter name="RXM_BEN_WIDTH" value="8" />
+  <parameter name="RXM_DATA_WIDTH" value="64" />
+  <parameter name="SLAVE_ADDRESS_MAP_0" value="0" />
+  <parameter name="SLAVE_ADDRESS_MAP_1" value="0" />
+  <parameter name="SLAVE_ADDRESS_MAP_2" value="0" />
+  <parameter name="SLAVE_ADDRESS_MAP_3" value="0" />
+  <parameter name="SLAVE_ADDRESS_MAP_4" value="0" />
+  <parameter name="SLAVE_ADDRESS_MAP_5" value="0" />
+  <parameter name="TX_S_ADDR_WIDTH" value="32" />
+  <parameter name="advanced_default_parameter_override" value="0" />
+  <parameter name="altpcie_avmm_hwtcl" value="1" />
+  <parameter name="atomic_malformed_hwtcl" value="true" />
+  <parameter name="atomic_op_completer_32bit_hwtcl" value="false" />
+  <parameter name="atomic_op_completer_64bit_hwtcl" value="false" />
+  <parameter name="atomic_op_routing_hwtcl" value="false" />
+  <parameter name="avmm_width_hwtcl" value="64" />
+  <parameter name="bar0_type_hwtcl" value="2" />
+  <parameter name="bar1_type_hwtcl" value="0" />
+  <parameter name="bar2_type_hwtcl" value="0" />
+  <parameter name="bar3_type_hwtcl" value="0" />
+  <parameter name="bar4_type_hwtcl" value="0" />
+  <parameter name="bar5_type_hwtcl" value="0" />
+  <parameter name="bridge_port_ssid_support_hwtcl" value="false" />
+  <parameter name="bridge_port_vga_enable_hwtcl" value="false" />
+  <parameter name="bypass_cdc_hwtcl" value="false" />
+  <parameter name="bypass_tl" value="false" />
+  <parameter name="cas_completer_128bit_hwtcl" value="false" />
+  <parameter name="cdc_dummy_insert_limit_advanced_default_hwtcl" value="11" />
+  <parameter name="class_code_hwtcl" value="163841" />
+  <parameter name="completion_timeout_hwtcl" value="ABCD" />
+  <parameter name="coreclkout_hip_phaseshift_hwtcl" value="0 ps" />
+  <parameter name="d0_pme_advanced_default_hwtcl" value="false" />
+  <parameter name="d1_pme_advanced_default_hwtcl" value="false" />
+  <parameter name="d1_support_advanced_default_hwtcl" value="false" />
+  <parameter name="d2_pme_advanced_default_hwtcl" value="false" />
+  <parameter name="d2_support_advanced_default_hwtcl" value="false" />
+  <parameter name="d3_cold_pme_advanced_default_hwtcl" value="false" />
+  <parameter name="d3_hot_pme_advanced_default_hwtcl" value="false" />
+  <parameter name="data_pack_rx_hwtcl" value="disable" />
+  <parameter name="deemphasis_enable_advanced_default_hwtcl" value="false" />
+  <parameter name="deskew_comma_hwtcl" value="skp_eieos_deskw" />
+  <parameter name="device_id_hwtcl" value="1" />
+  <parameter name="device_number_advanced_default_hwtcl" value="0" />
+  <parameter name="diffclock_nfts_count_advanced_default_hwtcl" value="255" />
+  <parameter name="disable_link_x2_support_advanced_default_hwtcl" value="false" />
+  <parameter name="disable_snoop_packet_hwtcl" value="false" />
+  <parameter name="dll_active_report_support_hwtcl" value="0" />
+  <parameter name="ecrc_check_capable_hwtcl" value="0" />
+  <parameter name="ecrc_gen_capable_hwtcl" value="0" />
+  <parameter name="ei_delay_powerdown_count_advanced_default_hwtcl" value="10" />
+  <parameter name="eie_before_nfts_count_advanced_default_hwtcl" value="4" />
+  <parameter name="enable_completion_timeout_disable_hwtcl" value="1" />
+  <parameter name="enable_function_msix_support_hwtcl" value="0" />
+  <parameter name="enable_l0s_aspm_hwtcl" value="true" />
+  <parameter name="enable_l1_aspm_advanced_default_hwtcl" value="false" />
+  <parameter name="enable_rx_buffer_checking_advanced_default_hwtcl" value="false" />
+  <parameter name="enable_slot_register_hwtcl" value="0" />
+  <parameter name="endpoint_l0_latency_hwtcl" value="0" />
+  <parameter name="endpoint_l1_latency_hwtcl" value="0" />
+  <parameter name="expansion_base_address_register_hwtcl" value="0" />
+  <parameter name="extend_tag_field_hwtcl" value="32" />
+  <parameter name="extended_format_field_hwtcl" value="true" />
+  <parameter name="extended_tag_reset_hwtcl" value="false" />
+  <parameter name="fc_init_timer_advanced_default_hwtcl" value="1024" />
+  <parameter name="fixed_address_mode" value="0" />
+  <parameter name="flow_control_timeout_count_advanced_default_hwtcl" value="200" />
+  <parameter name="flow_control_update_count_advanced_default_hwtcl" value="30" />
+  <parameter name="flr_capability_hwtcl" value="0" />
+  <parameter name="force_hrc" value="0" />
+  <parameter name="force_src" value="0" />
+  <parameter name="gen123_lane_rate_mode_hwtcl" value="Gen1 (2.5 Gbps)" />
+  <parameter name="gen2_diffclock_nfts_count_advanced_default_hwtcl" value="255" />
+  <parameter name="gen2_sameclock_nfts_count_advanced_default_hwtcl" value="255" />
+  <parameter name="gen3_rxfreqlock_counter_hwtcl" value="0" />
+  <parameter name="hip_reconfig_hwtcl" value="0" />
+  <parameter name="hot_plug_support_advanced_default_hwtcl" value="0" />
+  <parameter name="in_cvp_mode_hwtcl" value="0" />
+  <parameter name="indicator_advanced_default_hwtcl" value="0" />
+  <parameter name="interrupt_pin_hwtcl" value="inta" />
+  <parameter name="io_window_addr_width_hwtcl" value="0" />
+  <parameter name="l01_entry_latency_advanced_default_hwtcl" value="31" />
+  <parameter name="l0_exit_latency_diffclock_advanced_default_hwtcl" value="6" />
+  <parameter name="l0_exit_latency_sameclock_advanced_default_hwtcl" value="6" />
+  <parameter name="l1_exit_latency_diffclock_advanced_default_hwtcl" value="0" />
+  <parameter name="l1_exit_latency_sameclock_advanced_default_hwtcl" value="0" />
+  <parameter name="l2_async_logic_advanced_default_hwtcl" value="disable" />
+  <parameter name="lane_mask_hwtcl" value="x1" />
+  <parameter name="low_priority_vc_advanced_default_hwtcl" value="single_vc" />
+  <parameter name="ltr_mechanism_hwtcl" value="false" />
+  <parameter name="ltssm_1ms_timeout_hwtcl" value="disable" />
+  <parameter name="ltssm_freqlocked_check_hwtcl" value="disable" />
+  <parameter name="max_payload_size_hwtcl" value="128" />
+  <parameter name="maximum_current_hwtcl" value="0" />
+  <parameter name="msi_64bit_addressing_capable_hwtcl" value="true" />
+  <parameter name="msi_masking_capable_hwtcl" value="false" />
+  <parameter name="msi_multi_message_capable_hwtcl" value="4" />
+  <parameter name="msi_support_hwtcl" value="true" />
+  <parameter name="msix_pba_bir_hwtcl" value="0" />
+  <parameter name="msix_pba_offset_hwtcl" value="0" />
+  <parameter name="msix_table_bir_hwtcl" value="0" />
+  <parameter name="msix_table_offset_hwtcl" value="0" />
+  <parameter name="msix_table_size_hwtcl" value="0" />
+  <parameter name="no_command_completed_advanced_default_hwtcl" value="false" />
+  <parameter name="no_soft_reset_advanced_default_hwtcl" value="false" />
+  <parameter name="override_rxbuffer_cred_preset" value="0" />
+  <parameter name="override_tbpartner_driver_setting_hwtcl" value="0" />
+  <parameter name="pcie_qsys" value="1" />
+  <parameter name="pclk_out_sel_advanced_default_hwtcl" value="pclk" />
+  <parameter name="pipex1_debug_sel_advanced_default_hwtcl" value="disable" />
+  <parameter name="pldclk_hip_phase_shift_hwtcl" value="0 ps" />
+  <parameter name="pll_refclk_freq_hwtcl" value="100 MHz" />
+  <parameter name="port_link_number_hwtcl" value="1" />
+  <parameter name="port_type_hwtcl" value="Native endpoint" />
+  <parameter name="prefetchable_mem_window_addr_width_hwtcl" value="0" />
+  <parameter name="register_pipe_signals_advanced_default_hwtcl" value="true" />
+  <parameter name="reserved_debug_advanced_default_hwtcl" value="0" />
+  <parameter
+     name="retry_buffer_last_active_address_advanced_default_hwtcl"
+     value="255" />
+  <parameter name="revision_id_hwtcl" value="1" />
+  <parameter name="rpre_emph_a_val_hwtcl" value="11" />
+  <parameter name="rpre_emph_b_val_hwtcl" value="0" />
+  <parameter name="rpre_emph_c_val_hwtcl" value="22" />
+  <parameter name="rpre_emph_d_val_hwtcl" value="12" />
+  <parameter name="rpre_emph_e_val_hwtcl" value="21" />
+  <parameter name="rvod_sel_a_val_hwtcl" value="50" />
+  <parameter name="rvod_sel_b_val_hwtcl" value="34" />
+  <parameter name="rvod_sel_c_val_hwtcl" value="50" />
+  <parameter name="rvod_sel_d_val_hwtcl" value="50" />
+  <parameter name="rvod_sel_e_val_hwtcl" value="9" />
+  <parameter name="rx_cdc_almost_full_advanced_default_hwtcl" value="12" />
+  <parameter name="rx_l0s_count_idl_advanced_default_hwtcl" value="0" />
+  <parameter name="rxbuffer_rxreq_hwtcl" value="Balanced" />
+  <parameter name="sameclock_nfts_count_advanced_default_hwtcl" value="255" />
+  <parameter name="serial_sim_hwtcl" value="0" />
+  <parameter name="set_pld_clk_x1_625MHz_hwtcl" value="0" />
+  <parameter name="skp_os_gen3_count_hwtcl" value="0" />
+  <parameter name="skp_os_schedule_count_advanced_default_hwtcl" value="0" />
+  <parameter name="slot_number_hwtcl" value="0" />
+  <parameter name="slot_power_limit_hwtcl" value="0" />
+  <parameter name="slot_power_scale_hwtcl" value="0" />
+  <parameter name="slotclkcfg_hwtcl" value="0" />
+  <parameter name="ssid_hwtcl" value="0" />
+  <parameter name="ssvid_hwtcl" value="0" />
+  <parameter name="subsystem_device_id_hwtcl" value="0" />
+  <parameter name="subsystem_vendor_id_hwtcl" value="0" />
+  <parameter name="surprise_down_error_support_hwtcl" value="0" />
+  <parameter name="tph_completer_hwtcl" value="false" />
+  <parameter name="tx_cdc_almost_empty_advanced_default_hwtcl" value="5" />
+  <parameter name="tx_cdc_almost_full_advanced_default_hwtcl" value="11" />
+  <parameter name="use_aer_hwtcl" value="0" />
+  <parameter name="use_ast_parity" value="0" />
+  <parameter name="use_crc_forwarding_hwtcl" value="0" />
+  <parameter name="use_rx_st_be_hwtcl" value="0" />
+  <parameter name="use_tl_cfg_sync_advanced_default_hwtcl" value="1" />
+  <parameter name="user_id_hwtcl" value="0" />
+  <parameter name="vc0_clk_enable_advanced_default_hwtcl" value="true" />
+  <parameter name="vendor_id_hwtcl" value="5372" />
+  <parameter name="vsec_id_hwtcl" value="4466" />
+  <parameter name="vsec_rev_hwtcl" value="0" />
+  <parameter name="wrong_device_id_hwtcl" value="disable" />
+ </module>
+ <connection
+   kind="clock"
+   version="25.1"
+   start="clk_0.clk"
+   end="pcie_cv_hip_avmm_0.refclk" />
+ <interconnectRequirement for="$system" name="qsys_mm.clockCrossingAdapter" value="HANDSHAKE" />
+ <interconnectRequirement for="$system" name="qsys_mm.enableEccProtection" value="FALSE" />
+ <interconnectRequirement for="$system" name="qsys_mm.insertDefaultSlave" value="FALSE" />
+ <interconnectRequirement for="$system" name="qsys_mm.maxAdditionalLatency" value="1" />
+</system>

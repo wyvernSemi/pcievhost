@@ -1,0 +1,121 @@
+###################################################################
+# Common makefile for Virtual PCIe Host test code
+#
+# Copyright (c) 2026 Simon Southwell.
+#
+# This file is part of pcieVHost.
+#
+# pcieVHost is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# pcieVHost is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with pcieVHost. If not, see <http://www.gnu.org/licenses/>.
+#
+###################################################################
+
+# Location of VProc and mem_model directories. Assumes in same directory as pcieVHost.
+# Update if relocated.
+VPROC_TOP     = ../../../vproc
+MEMMODEL_TOP  = ../../../mem_model
+
+# Define the github repository URL for the VProc virtual processor 
+# and memory models
+VPROC_REPO    = https://github.com/wyvernSemi/vproc.git
+MEMMODEL_REPO = https://github.com/wyvernSemi/mem_model.git
+
+#
+# PCIE VHost test definitions
+#
+PCIE_CLIB_DIR = ../../lib
+SRCDIR        = ../../src
+USRCDIR       = $(CURDIR)/usercode
+WORKDIR       = work
+
+PLI_SO        = VProc.so
+VPROCLIB      = libvproc.a
+
+USER_C        = VUserMain0.cpp
+
+#
+# Flags for C compiler
+#
+CC            = gcc
+C++           = g++
+CFLAGS        = $(ARCHFLAG) -fPIC                          \
+                -Wno-write-strings                         \
+                -I$(SRCDIR)                                \
+                -I$(USRCDIR)                               \
+                -I$(VPROC_TOP)/code                        \
+                -D_REENTRANT
+
+# Get OS type
+OSTYPE:=$(shell uname)
+
+# Set OS specific variables between Linux and Windows (MinGW)
+ifeq ($(OSTYPE), Linux)
+  CFLAGS_SO   = -shared -lpthread -lrt -rdynamic
+  CPPSTD      = -std=c++11
+else
+  CFLAGS_SO   = -shared -Wl,-export-all-symbols
+  CPPSTD      =
+endif
+
+#------------------------------------------------------
+# BUILD RULES
+#------------------------------------------------------
+
+#
+# PLI shared object
+#
+$(PLI_SO): pcie_c_lib vproc_lib  $(wildcard $(USRCDIR)/*.[ch]*)
+	@$(C++) $(VPROCKMAKEOPT)                               \
+            $(CFLAGS_SO) $(CFLAGS)                         \
+	       -Wl,-whole-archive                              \
+	       -lpthread                                       \
+	       -L$(PCIE_CLIB_DIR) -lpcievhost                  \
+	       -L./ -lvproc                                    \
+	       -Wl,-no-whole-archive                           \
+	       -o $@
+
+#
+# PCIe model library
+#
+pcie_c_lib:
+	@$(MAKE) --no-print-directory -C $(PCIE_CLIB_DIR)      \
+	         ARCHFLAG=$(ARCHFLAG)                          \
+	         VPROC_TOP=$(CURDIR)/$(VPROC_TOP)              \
+	         EXTFLAGS="$(EXTFLAGS)"
+
+#
+# VProc library.
+#
+vproc_lib: $(VPROC_TOP)
+	@$(MAKE) --no-print-directory                          \
+	         -C $(VPROC_TOP)/test                          \
+	         $(VPROCMAKEOPT)                               \
+	         ARCHFLAG=$(ARCHFLAG)                          \
+	         MAX_NUM_VPROC=$(NUM_VPROC)                    \
+	         USRFLAGS="-I$(CURDIR)/$(SRCDIR) $(EXTFLAGS)"  \
+	         TESTDIR=$(CURDIR)                             \
+	         USRCDIR=$(USRCDIR)                            \
+	         USER_C="$(USER_C)"                            \
+	         $(CURDIR)/$(VPROCLIB)
+
+#
+# Checkout VProc from github if it doesn't exist at the specified location
+#
+$(VPROC_TOP): $(MEMMODEL_TOP)
+	git clone $(VPROC_REPO) $(VPROC_TOP) --recursive
+    
+#
+# Checkout VProc from github if it doesn't exist at the specified location
+#
+$(MEMMODEL_TOP):
+	git clone $(MEMMODEL_REPO) $(MEMMODEL_TOP) --recursive

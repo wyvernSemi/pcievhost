@@ -1,0 +1,12 @@
+// Example ContDisps.hex file
+// Copy to the appropriate test/hex directory, and edit as necessary.
+
+//                      +8              +4              +2              +1
+//  ,---> 11 - 8:    DispSwNoColour     DispSwEnIfEp   DispSwEnIfRc    DispSwTx
+//  |,-->  7 - 4:    DispRawSym         DispPL         DispDL          DispTL
+//  ||,->  3 - 0:    Unused             DispStop       DispFinish      DispAll
+//  ||| ,-> Time (clock cycles, decimal)
+//  ||| |                          
+    b00 000000000000
+    b00 000000005892
+    002 009999999999
