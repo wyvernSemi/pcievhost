@@ -28,45 +28,47 @@ package pcieVHost_pkg is
 
   type link_array_t is array (natural range <>) of std_logic_vector;
 
-  constant ELECIDLE        : std_logic_vector (9 downto 0)  := 10b"ZZZZZZZZZZ";
-  constant MAXLINKWIDTH    : integer                        := 16;
-  constant LANEWIDTH       : integer                        := 10;
+  constant ELECIDLE           : std_logic_vector (9 downto 0)  := 10b"ZZZZZZZZZZ";
+  constant MAXLINKWIDTH       : integer                        := 16;
+  constant LANEWIDTH          : integer                        := 10;
+                              
+  constant LINKADDR0          : std_logic_vector( 31 downto 0) := 32d"0";
+  constant LINKADDR1          : std_logic_vector( 31 downto 0) := 32d"1";
+  constant LINKADDR2          : std_logic_vector( 31 downto 0) := 32d"2";
+  constant LINKADDR3          : std_logic_vector( 31 downto 0) := 32d"3";
+  constant LINKADDR4          : std_logic_vector( 31 downto 0) := 32d"4";
+  constant LINKADDR5          : std_logic_vector( 31 downto 0) := 32d"5";
+  constant LINKADDR6          : std_logic_vector( 31 downto 0) := 32d"6";
+  constant LINKADDR7          : std_logic_vector( 31 downto 0) := 32d"7";
+  constant LINKADDR8          : std_logic_vector( 31 downto 0) := 32d"8";
+  constant LINKADDR9          : std_logic_vector( 31 downto 0) := 32d"9";
+  constant LINKADDR10         : std_logic_vector( 31 downto 0) := 32d"10";
+  constant LINKADDR11         : std_logic_vector( 31 downto 0) := 32d"11";
+  constant LINKADDR12         : std_logic_vector( 31 downto 0) := 32d"12";
+  constant LINKADDR13         : std_logic_vector( 31 downto 0) := 32d"13";
+  constant LINKADDR14         : std_logic_vector( 31 downto 0) := 32d"14";
+  constant LINKADDR15         : std_logic_vector( 31 downto 0) := 32d"15";
+                              
+  constant NODENUMADDR        : std_logic_vector( 31 downto 0) := 32d"200";
+  constant LANESADDR          : std_logic_vector( 31 downto 0) := 32d"201";
+  constant PVH_INVERT         : std_logic_vector( 31 downto 0) := 32d"202";
+  constant EP_ADDR            : std_logic_vector( 31 downto 0) := 32d"203";
+  constant CLK_COUNT          : std_logic_vector( 31 downto 0) := 32d"204";
+  constant LINK_STATE         : std_logic_vector( 31 downto 0) := 32d"205";
+  constant RESET_STATE        : std_logic_vector( 31 downto 0) := 32d"206";
+  constant DISABLE_SCRAMBLING : std_logic_vector( 31 downto 0) := 32d"207";
+  constant DISABLE_8B10B      : std_logic_vector( 31 downto 0) := 32d"208";
 
-  constant LINKADDR0       : std_logic_vector( 31 downto 0) := 32d"0";
-  constant LINKADDR1       : std_logic_vector( 31 downto 0) := 32d"1";
-  constant LINKADDR2       : std_logic_vector( 31 downto 0) := 32d"2";
-  constant LINKADDR3       : std_logic_vector( 31 downto 0) := 32d"3";
-  constant LINKADDR4       : std_logic_vector( 31 downto 0) := 32d"4";
-  constant LINKADDR5       : std_logic_vector( 31 downto 0) := 32d"5";
-  constant LINKADDR6       : std_logic_vector( 31 downto 0) := 32d"6";
-  constant LINKADDR7       : std_logic_vector( 31 downto 0) := 32d"7";
-  constant LINKADDR8       : std_logic_vector( 31 downto 0) := 32d"8";
-  constant LINKADDR9       : std_logic_vector( 31 downto 0) := 32d"9";
-  constant LINKADDR10      : std_logic_vector( 31 downto 0) := 32d"10";
-  constant LINKADDR11      : std_logic_vector( 31 downto 0) := 32d"11";
-  constant LINKADDR12      : std_logic_vector( 31 downto 0) := 32d"12";
-  constant LINKADDR13      : std_logic_vector( 31 downto 0) := 32d"13";
-  constant LINKADDR14      : std_logic_vector( 31 downto 0) := 32d"14";
-  constant LINKADDR15      : std_logic_vector( 31 downto 0) := 32d"15";
-
-  constant NODENUMADDR     : std_logic_vector( 31 downto 0) := 32d"200";
-  constant LANESADDR       : std_logic_vector( 31 downto 0) := 32d"201";
-  constant PVH_INVERT      : std_logic_vector( 31 downto 0) := 32d"202";
-  constant EP_ADDR         : std_logic_vector( 31 downto 0) := 32d"203";
-  constant CLK_COUNT       : std_logic_vector( 31 downto 0) := 32d"204";
-  constant LINK_STATE      : std_logic_vector( 31 downto 0) := 32d"205";
-  constant RESET_STATE     : std_logic_vector( 31 downto 0) := 32d"206";
-
-  constant PVH_STOP        : std_logic_vector( 31 downto 0) := 32x"fffffffd";
-  constant PVH_FINISH      : std_logic_vector( 31 downto 0) := 32x"fffffffe";
-  constant PVH_FATAL       : std_logic_vector( 31 downto 0) := 32x"ffffffff";
+  constant PVH_STOP           : std_logic_vector( 31 downto 0) := 32x"fffffffd";
+  constant PVH_FINISH         : std_logic_vector( 31 downto 0) := 32x"fffffffe";
+  constant PVH_FATAL          : std_logic_vector( 31 downto 0) := 32x"ffffffff";
   
   -- 10 bit COMMA codes
-  constant PCOMMA          : std_logic_vector (LANEWIDTH-1 downto 0) := 10b"1010000011";   -- 0x283
-  constant NCOMMA          : std_logic_vector (LANEWIDTH-1 downto 0) := 10b"0101111100";   -- 0x17c
-  
-  constant PIPEDATAWIDTH   : integer := 8;
-  constant PIPEKBIT        : integer := 8;
+  constant PCOMMA             : std_logic_vector (LANEWIDTH-1 downto 0) := 10b"1010000011";   -- 0x283
+  constant NCOMMA             : std_logic_vector (LANEWIDTH-1 downto 0) := 10b"0101111100";   -- 0x17c
+                              
+  constant PIPEDATAWIDTH      : integer := 8;
+  constant PIPEKBIT           : integer := 8;
 
   function has_an_x (vec   : std_logic_vector) return boolean;
   function BitRev10 (InVal : in std_logic_vector(9 downto 0)) return std_logic_vector;

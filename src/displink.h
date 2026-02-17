@@ -25,6 +25,7 @@
 //
 //=============================================================
 
+#include <stdio.h>
 #include "pcie_utils.h"
 
 #ifndef _DIPSLINK_H_
@@ -124,7 +125,7 @@ extern char fmtnormstr[];
 extern char fmtdatastr[];
 
 void ConfigDispFormat (bool enable);
-void ContDisp         (pUserConfig_t                 usrconf);
+void ContDisp         (pUserConfig_t usrconf,                 const int      node);
 void CheckContDisp    (pUserConfig_t usrconf,                 const int      node);
 void DispRaw          (const pPcieModelState_t const state,   const PktData_t *linkin, const int rx);
 void DispOS           (const pPcieModelState_t const state,   const int          type, const pTS_t   const ts_data, const int lane, const bool rx, const int node);

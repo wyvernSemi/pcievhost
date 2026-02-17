@@ -47,9 +47,11 @@ module PcieVhost (Clk, notReset,
                   LinkOut8,  LinkOut9,  LinkOut10, LinkOut11,
                   LinkOut12, LinkOut13, LinkOut14, LinkOut15);
 
-parameter LinkWidth = 16;
-parameter NodeNum   = 8;
-parameter EndPoint  = 0;
+parameter LinkWidth          = 16;
+parameter NodeNum            = 8;
+parameter EndPoint           = 0;
+parameter DisableScrambling  = 0;
+parameter Disable8b10b       = 0;
 
 input        Clk;
 input        notReset;
@@ -161,10 +163,12 @@ begin
     if (WE === 1'b1 || RD === 1'b1)
     begin
         case(Addr)
-        `NODENUMADDR: DataIn = Node;
-        `LANESADDR:   DataIn = Lanes;
-        `EP_ADDR:     DataIn = EP;
-        `CLK_COUNT:   DataIn = ClkCount;
+        `NODENUMADDR:        DataIn = Node;
+        `LANESADDR:          DataIn = Lanes;
+        `EP_ADDR:            DataIn = EP;
+        `DISABLE_SCRAMBLING: DataIn = DisableScrambling;
+        `DISABLE_8B10B:      DataIn = Disable8b10b;
+        `CLK_COUNT:          DataIn = ClkCount;
         `LINKADDR0,  `LINKADDR1,  `LINKADDR2,  `LINKADDR3,
         `LINKADDR4,  `LINKADDR5,  `LINKADDR6,  `LINKADDR7,
         `LINKADDR8,  `LINKADDR9,  `LINKADDR10, `LINKADDR11,

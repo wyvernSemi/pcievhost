@@ -1775,7 +1775,7 @@ void InitPcieState(const pPcieModelState_t const state, const int node)
     usrconf->ActiveContDisp       = 0;
     usrconf->BackNodeNum          = node ^ 1; // Assumes connected devices are one node apart
 
-    ContDisp(usrconf);
+    ContDisp(usrconf, node);
 
 
     state->RandNum                = node;

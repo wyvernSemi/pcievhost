@@ -3,16 +3,17 @@
 test_defs.v
 
 // Headers with definitions
-../headers/timescale.v
-../headers/pciedispheader.v
-../headers/pciexpress_header.v
-../headers/pcie_vhost_map.v
+-f ../headers/headers.vc
+
+// Library functions
+../lib/Serialiser.v
 
 // PCIe Display link
-../PcieSwDispLink/pcieSwDispLink.v
+../PcieSwDispLink/PcieSwDispLink.v
+../PcieSwDispLink/PcieSwDispLinkSer.v
 
 // PCIe Host top level
-../pcieVHost/pcieVHost.v
+-f ../pcieVHost/pcieVHost.vc
 
 // VProc
 ../../../vproc/extradefs.v

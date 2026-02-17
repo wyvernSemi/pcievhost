@@ -8,8 +8,18 @@ test_defs.v
 ../headers/pciexpress_header.v
 ../headers/pcie_vhost_map.v
 
+// Library functions
+../lib/Crc16Gen.v
+../lib/Decoder.v
+../lib/RxDP.v
+../lib/ScrambleCodec.v
+../lib/Serialiser.v
+
 // PCIe Display link
-../PcieSwDispLink/pcieSwDispLink.v
+../PcieDispLink/PcieDispLink.v
+../PcieDispLink/PcieDispLinkLane.v
+../PcieDispLink/RxLaneDisp.v
+../PcieDispLink/RxLogicDisp.v
 
 // PCIe Host top level
 ../pcieVHost/pcieVHost.v

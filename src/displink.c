@@ -55,9 +55,9 @@ static bool IsDispEnabled(const pPcieModelState_t const state, const int rx, int
 
 // -------------------------------------------------------------------------
 // ConfigDispFormat()
-// 
+//
 // Enable or disable link display colour formatting
-// 
+//
 // -------------------------------------------------------------------------
 
 void ConfigDispFormat(bool enable)
@@ -87,24 +87,40 @@ void ConfigDispFormat(bool enable)
 //
 // -------------------------------------------------------------------------
 
-void ContDisp (pUserConfig_t usrconf)
+void ContDisp (pUserConfig_t usrconf, const int node)
 {
-    int error = 0;
+    int   error    = 0;
+    int   dispidx  = 0;
+    FILE *fp;
+    char  fnamebuf [STRBUFSIZE];
+    char  buf      [STRBUFSIZE];
 
     // Default the colour formatting strings
     ConfigDispFormat(true);
 
-    FILE* fp = fopen("hex/ContDisps.hex", "r");
+    sprintf(fnamebuf, "hex/ContDisps%d.hex", (unsigned)node);
+    fp = fopen(fnamebuf, "r");
 
+    if (fp == NULL)
+    {
+        sprintf(fnamebuf, "ContDisps%d.hex", (unsigned)node);
+        fp = fopen(fnamebuf, "r");
+    }
+    if (fp == NULL)
+    {
+        sprintf(fnamebuf, "hex/ContDisps.hex");
+        fp = fopen(fnamebuf, "r");
+    }
+    if (fp == NULL)
+    {
+        sprintf(fnamebuf, "ContDisps.hex");
+        fp = fopen(fnamebuf, "r");
+    }
     if (fp == NULL)
     {
         error++;
         VPrint("%s**ERROR**%s: ContDisp() failed to read ContDisps.hex file, No display output.\n", fmterrstr, fmtnormstr);
     }
-
-    char buf [STRBUFSIZE];
-
-    int dispidx = 0;
 
     if (!error)
     {
@@ -112,27 +128,27 @@ void ContDisp (pUserConfig_t usrconf)
         {
             int control;
             uint64_t time;
-        
+
             // Removing whitespace
             int sidx = 0;
             while (buf[sidx] == ' ' || buf[sidx] == '\t')
             {
                 sidx++;
             }
-        
+
             if ((buf[sidx] >= '0' && buf[sidx] <= '9') ||
                 (buf[sidx] >= 'a' && buf[sidx] <= 'f') ||
                 (buf[sidx] >= 'A' && buf[sidx] <= 'F'))
             {
                 sscanf(&buf[sidx], "%x %llu", &usrconf->contdisp[dispidx].control, (long long unsigned *)&usrconf->contdisp[dispidx].time);
-        
+
                 if (++dispidx == MAXCONSTDISP)
                 {
                     break;
                 }
             }
         }
-    
+
         fclose(fp);
     }
 }
@@ -356,7 +372,7 @@ void DispOS(const pPcieModelState_t const state, const int type, const pTS_t con
         case TS2_ID:
             snprintf(lanestr, STRBUFSIZE, "%3d", ts_data->lanenum);
             snprintf(linkstr, STRBUFSIZE, "%3d", ts_data->linknum);
-            
+
             VPrint("%sPCIE%s%d%s %02d: PL TS%d OS Link=%s Lane=%s N_FTS=%2d DataRate=%s %s %s %s %s %s\n",
                    (is_down ? fmtdnstr : fmtupstr),
                    dirstr, nodenum, fmtnormstr,
@@ -583,9 +599,9 @@ void DispTl(const pPcieModelState_t const state, const pPkt_t const pkt, const b
             else
             {
                 VPrint("%08x (32) ", tl_word2);
-                
+
             }
-            
+
             VPrint("%s=%04x TAG=%02x FBE=%04x LBE=%04x ", (tl_type & TL_TYPE_MEMLOCK) ? "LOCKED ID" : "RID", tl_id, tl_tag, tl_fbe, tl_lbe);
 
             if (!(tl_type & TL_TYPE_WRITE))
@@ -646,7 +662,7 @@ void DispTl(const pPcieModelState_t const state, const pPkt_t const pkt, const b
 
             // Display LCRC and (if present) ECRC associated with the TLP
             DispTlpCrc(prefixstr, tloffstr, dlloffstr, tl_td, pkt);
-            
+
             break;
         }
 
@@ -692,7 +708,7 @@ void DispTl(const pPcieModelState_t const state, const pPkt_t const pkt, const b
 
             uint32_t msg_code   = tl_word1 & 0xff;
             uint32_t vend_id    = tl_word2 & 0xffff;
-            uint32_t route_type = tl_type & 0x7; 
+            uint32_t route_type = tl_type & 0x7;
 
             switch(msg_code)
             {

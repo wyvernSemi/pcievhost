@@ -38,7 +38,9 @@ entity PcieVHost is
   generic (
     LinkWidth                         : integer := 0;
     NodeNum                           : integer := 8;
-    EndPoint                          : integer := 0
+    EndPoint                          : integer := 0;
+    DisableScrambling                 : integer := 0;
+    Disable8b10b                      : integer := 0
   );
 
   port (
@@ -157,12 +159,14 @@ begin
 
         case Addr is
 
-          when NODENUMADDR => DataIn <= std_logic_vector(to_unsigned(NodeNum,   32));
-          when LANESADDR   => DataIn <= std_logic_vector(to_unsigned(LinkWidth, 32));
-          when EP_ADDR     => DataIn <= std_logic_vector(to_unsigned(EndPoint,  32));
-          when CLK_COUNT   => DataIn <= std_logic_vector(to_unsigned(ClkCount,  32));
-          when RESET_STATE => DataIn <= 31x"00000000" & not notReset;
-
+          when NODENUMADDR        => DataIn <= std_logic_vector(to_unsigned(NodeNum,   32));
+          when LANESADDR          => DataIn <= std_logic_vector(to_unsigned(LinkWidth, 32));
+          when EP_ADDR            => DataIn <= std_logic_vector(to_unsigned(EndPoint,  32));
+          when CLK_COUNT          => DataIn <= std_logic_vector(to_unsigned(ClkCount,  32));
+          when RESET_STATE        => DataIn <= 31x"00000000" & not notReset;
+          when DISABLE_SCRAMBLING => DataIn <= std_logic_vector(to_unsigned(DisableScrambling, 32));
+          when DISABLE_8B10B      => DataIn <= std_logic_vector(to_unsigned(Disable8b10b, 32));
+          
           when LINKADDR0  | LINKADDR1  | LINKADDR2  | LINKADDR3  |
                LINKADDR4  | LINKADDR5  | LINKADDR6  | LINKADDR7  |
                LINKADDR8  | LINKADDR9  | LINKADDR10 | LINKADDR11 |

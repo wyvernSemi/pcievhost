@@ -65,7 +65,7 @@
 
 #define PENT_BASEADDR                0x0ULL
 
-#define STRBUFSIZE                   256
+#define STRBUFSIZE                   1024
 
 #define MAXCONSTDISP                 256
 

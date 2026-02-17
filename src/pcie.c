@@ -2015,6 +2015,8 @@ void InitialisePcie (const callback_t cb_func, void *usrptr, const int node)
 
     VRead(LANESADDR, &linkwidth, true, node);
     VRead(EP_ADDR, &(this->Endpoint), true, node);
+    VRead (DISABLE_SCRAMBLING, &(this->usrconf.DisableScrambling), true, node);
+    VRead (DISABLE_8B10B, &(this->usrconf.Disable8b10b), true, node);
 
     if (linkwidth == 1 || linkwidth == 2 || linkwidth == 4 || linkwidth == 8 || linkwidth == 12 || linkwidth == 16)
     {
