@@ -237,7 +237,7 @@ endgenerate
 
     // Some required parameters for Avalon to PCIe bridge settings
     .CB_A2P_ADDR_MAP_NUM_ENTRIES                       (2),                    // default 1
-    .a2p_pass_thru_bits                                (20)                    // default 24
+    .a2p_pass_thru_bits                                (12)                    // default 24
 
   ) altpcie_i  (
 
