@@ -58,6 +58,8 @@
 
 #define TS_DATA_RATE_GEN1          0x02
 #define TS_DATA_RATE_GEN2          0x06
+#define TS_DATA_RATE_CHANGE_AUTO   0x40
+#define TS_DATA_RATE_CHANGE_SPEED  0x80
 
 #define TS_CNTL_HOT_RESET          0x01
 #define TS_CNTL_DISABLE_LINK       0x02

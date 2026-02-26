@@ -1,6 +1,6 @@
 //=============================================================
 //
-// Copyright (c) 2016 - 2025 Simon Southwell. All rights reserved.
+// Copyright (c) 2016 - 2026 Simon Southwell. All rights reserved.
 //
 // Date: 20th Sep 2016
 //
@@ -153,7 +153,7 @@ static int Detect (const int link_width, const int node)
 // Polling()
 // -------------------------------------------------------------------------
 
-static int Polling(int *active_lanes, const int node)
+static int Polling(int *active_lanes, const int gen, const int node)
 {
     uint32_t ts1_count[MAX_LINK_WIDTH], ts2_count[MAX_LINK_WIDTH];
     TS_t ts_status;
@@ -185,7 +185,7 @@ static int Polling(int *active_lanes, const int node)
     VWrite(LINK_STATE, (~ltssm_max_link_mask[node]) & 0xffff, 1, node);
     do
     {
-        SendTs(TS1_ID, PAD, PAD, ltssm_n_fts[node], ltssm_ts_ctl[VP_MAX_NODES], false, node);
+        SendTs(TS1_ID, PAD, PAD, ltssm_n_fts[node], ltssm_ts_ctl[node], gen & 0x4, node);
         ReadEventCount(TS1_ID, ts1_count, node);
         ReadEventCount(TS2_ID, ts2_count, node);
         ts_status = GetTS(0, node);
@@ -206,7 +206,7 @@ static int Polling(int *active_lanes, const int node)
     ResetEventCount(TS2_ID, node);
     do
     {
-        SendTs(TS2_ID, PAD, PAD, ltssm_n_fts[node], ltssm_ts_ctl[VP_MAX_NODES], false, node);
+        SendTs(TS2_ID, PAD, PAD, ltssm_n_fts[node], ltssm_ts_ctl[node], gen & 0x4, node);
         ReadEventCount(TS2_ID, ts2_count, node);
         ts_status = GetTS(0, node);
         if (ts2_count[0] || i)
@@ -235,7 +235,7 @@ static int Polling(int *active_lanes, const int node)
 // Configuration()
 // -------------------------------------------------------------------------
 
-static int Configuration(const int active_lanes, const int target_state, const int node)
+static int Configuration(const int active_lanes, const int gen, const int target_state, const int node)
 {
     uint32_t ts1_count[MAX_LINK_WIDTH], ts2_count[MAX_LINK_WIDTH];
     int i, lnkwidth;
@@ -269,7 +269,7 @@ static int Configuration(const int active_lanes, const int target_state, const i
     ResetEventCount(TS1_ID, node);
     do
     {
-        SendTs(TS1_ID, PAD, ltssm_linknum[node], ltssm_n_fts[node], ltssm_ts_ctl[VP_MAX_NODES], false, node);
+        SendTs(TS1_ID, PAD, ltssm_linknum[node], ltssm_n_fts[node], ltssm_ts_ctl[node], gen & 0x4, node);
         ReadEventCount(TS1_ID, ts1_count, node);
         ts_status = GetTS(0, node);
 
@@ -289,7 +289,7 @@ static int Configuration(const int active_lanes, const int target_state, const i
     ResetEventCount(TS1_ID, node);
     do
     {
-        SendTs(TS1_ID, ENABLE_LANENUMS, ltssm_linknum[node], ltssm_n_fts[node], ltssm_ts_ctl[VP_MAX_NODES], false, node);
+        SendTs(TS1_ID, ENABLE_LANENUMS, ltssm_linknum[node], ltssm_n_fts[node], ltssm_ts_ctl[node], gen & 0x4, node);
         for (i=0; i < lnkwidth; i++)
         {
             ts_status = GetTS(i, node);
@@ -307,7 +307,7 @@ static int Configuration(const int active_lanes, const int target_state, const i
     ResetEventCount(TS1_ID, node);
     do
     {
-        SendTs(TS1_ID, ENABLE_LANENUMS, ltssm_linknum[node], ltssm_n_fts[node], ltssm_ts_ctl[VP_MAX_NODES], false, node);
+        SendTs(TS1_ID, ENABLE_LANENUMS, ltssm_linknum[node], ltssm_n_fts[node], ltssm_ts_ctl[node], gen & 0x4, node);
         for (i=0; i < lnkwidth; i++)
         {
             ts_status = GetTS(i, node);
@@ -326,7 +326,7 @@ static int Configuration(const int active_lanes, const int target_state, const i
     int ts2_sendcount = 0;
     do
     {
-        SendTs(TS2_ID, ENABLE_LANENUMS, ltssm_linknum[node], ltssm_n_fts[node], ltssm_ts_ctl[VP_MAX_NODES], false, node);
+        SendTs(TS2_ID, ENABLE_LANENUMS, ltssm_linknum[node], ltssm_n_fts[node], ltssm_ts_ctl[node], gen & 0x4, node);
 
         // Start counting sent TS2s once a TS2 has been received
         if (ts2_count[0])
@@ -410,7 +410,7 @@ static int TxL0s (const int target_state, const int active_lanes, const int tick
 // Recovery()
 // -------------------------------------------------------------------------
 
-static int Recovery (const int target_state, const int node)
+static int Recovery (const int gen, const int target_state, const int node)
 {
     uint32_t ts1_count[MAX_LINK_WIDTH], ts2_count[MAX_LINK_WIDTH], idl_count[MAX_LINK_WIDTH];
     int i, change_config = false;
@@ -432,7 +432,7 @@ static int Recovery (const int target_state, const int node)
     // Exit when seen at least 8
     do
     {
-        SendTs(TS1_ID, ENABLE_LANENUMS, ltssm_linknum[node], ltssm_n_fts[node], ltssm_ts_ctl[VP_MAX_NODES], false, node);
+        SendTs(TS1_ID, ENABLE_LANENUMS, ltssm_linknum[node], ltssm_n_fts[node], ltssm_ts_ctl[node], gen & 0x4, node);
         ReadEventCount(TS1_ID, ts1_count, node);
         ReadEventCount(TS2_ID, ts2_count, node);
     } while((ts1_count[0] < 8) && (ts2_count[0] < 8));
@@ -454,7 +454,7 @@ static int Recovery (const int target_state, const int node)
     i = 0;
     do
     {
-        SendTs(TS2_ID, ENABLE_LANENUMS, ltssm_linknum[node], ltssm_n_fts[node], ltssm_ts_ctl[VP_MAX_NODES], false, node);
+        SendTs(TS2_ID, ENABLE_LANENUMS, ltssm_linknum[node], ltssm_n_fts[node], ltssm_ts_ctl[node], gen & 0x4, node);
         ReadEventCount(TS2_ID, ts2_count, node);
         ReadEventCount(IDL, idl_count, node);
         if (idl_count[0] || (ts2_count[0] == 0))
@@ -504,7 +504,7 @@ static int Recovery (const int target_state, const int node)
 // Disabled()
 // -------------------------------------------------------------------------
 
-static int Disabled (const int node)
+static int Disabled (const int gen, const int node)
 {
     int i, rand_idle;
     uint32_t idl_count[MAX_LINK_WIDTH];
@@ -515,7 +515,7 @@ static int Disabled (const int node)
     // Transmit 16 TS1 OS's with disabled set
     for (i=0; i < 16; i++)
     {
-       SendTs(TS1_ID, ENABLE_LANENUMS, ltssm_linknum[node], ltssm_n_fts[node], TS_CNTL_DISABLE_LINK, false, node);
+       SendTs(TS1_ID, ENABLE_LANENUMS, ltssm_linknum[node], ltssm_n_fts[node], TS_CNTL_DISABLE_LINK, gen & 0x4, node);
     }
 
     // Tx EIOS
@@ -548,7 +548,7 @@ static int Disabled (const int node)
 // Loopback()
 // -------------------------------------------------------------------------
 
-static int Loopback (const int node)
+static int Loopback (const int gen, const int node)
 {
     int i, rand_idle;
     TS_t ts_status;
@@ -563,7 +563,7 @@ static int Loopback (const int node)
     // Transmit TS1s OS's with loopback set until a TS1 with loopback set is received
     do
     {
-        SendTs(TS1_ID, ENABLE_LANENUMS, ltssm_linknum[node], ltssm_n_fts[node], TS_CTL_LOOPBACK, false, node);
+        SendTs(TS1_ID, ENABLE_LANENUMS, ltssm_linknum[node], ltssm_n_fts[node], TS_CTL_LOOPBACK, gen & 0x4, node);
         ReadEventCount(TS1_ID, count, node);
         ts_status = GetTS(0, node);
         if (!ltssm_disable_disp_state[node]) VPrint("count[0] = %x ts_status.control = %x\n", count[0], ts_status.control);
@@ -575,7 +575,7 @@ static int Loopback (const int node)
     // Stay in Loopback.Active for a while
     for (i = 0; i < 64; i++)
     {
-        SendTs(TS1_ID, ENABLE_LANENUMS, ltssm_linknum[node], ltssm_n_fts[node], TS_CTL_LOOPBACK, false, node);
+        SendTs(TS1_ID, ENABLE_LANENUMS, ltssm_linknum[node], ltssm_n_fts[node], TS_CTL_LOOPBACK, gen & 0x4, node);
     }
 
     // ---- Loopback.Exit ----
@@ -613,7 +613,7 @@ static int Loopback (const int node)
 // HotReset()
 // -------------------------------------------------------------------------
 
-static int HotReset (const int HotResetTO, const int node)
+static int HotReset (const int HotResetTO, const int gen, const int node)
 {
     int loops = HotResetTO;
     int i;
@@ -625,7 +625,7 @@ static int HotReset (const int HotResetTO, const int node)
 
     for (i=0; i < loops; i++)
     {
-        SendTs(TS1_ID, 0, ltssm_linknum[node], ltssm_n_fts[node], TS_CNTL_HOT_RESET, false, node);
+        SendTs(TS1_ID, 0, ltssm_linknum[node], ltssm_n_fts[node], TS_CNTL_HOT_RESET, gen & 0x4, node);
     }
 
     return LTSSM_DETECT;
@@ -682,7 +682,7 @@ static int L2 (const int time_in_l2_param, const int node)
 //
 // -------------------------------------------------------------------------
 
-static int LinkState (const int ltssm_state, const int target_state, const int link_width, const int node)
+static int LinkState (const int ltssm_state, const int target_state, const int link_width, const int gen, const int node)
 {
     int active_lanes = 0;
 
@@ -692,23 +692,23 @@ static int LinkState (const int ltssm_state, const int target_state, const int l
         break;
 
     case LTSSM_POLLING:
-        return Polling(&active_lanes, node);
+        return Polling(&active_lanes, gen, node);
         break;
 
     case LTSSM_CONFIG:
-        return Configuration(active_lanes, target_state, node);
+        return Configuration(active_lanes, gen, target_state, node);
         break;
 
     case LTSSM_DISABLED:
-        return Disabled(node);
+        return Disabled(gen, node);
         break;
 
     case LTSSM_LOOPBACK:
-        return Loopback(node);
+        return Loopback(gen, node);
         break;
 
     case LTSSM_HOTRESET:
-        return HotReset(LTSSM_SET_MINIMUM, node);
+        return HotReset(LTSSM_SET_MINIMUM, gen, node);
         break;
 
     case LTSSM_L1:
@@ -720,7 +720,7 @@ static int LinkState (const int ltssm_state, const int target_state, const int l
         break;
 
     case LTSSM_RECOVERY:
-        return Recovery(target_state, node);
+        return Recovery(gen, target_state, node);
         break;
 
     case LTSSM_L0s:
@@ -734,20 +734,25 @@ static int LinkState (const int ltssm_state, const int target_state, const int l
 }
 
 // -------------------------------------------------------------------------
-// InitLink()
+// InitLink()/InitLinkGen()
 //
 // Exported user function to initiate a PCIe link initialisation.
 //
 // -------------------------------------------------------------------------
 
-void InitLink(const int link_width, const int node)
+void InitLinkGen(const int link_width, const int gen, const int node)
 {
     int ltssm_state = LTSSM_DETECT;
 
     do
     {
-        ltssm_state = LinkState(ltssm_state, LTSSM_L0, link_width, node);
+        ltssm_state = LinkState(ltssm_state, LTSSM_L0, link_width, gen, node);
     } while (ltssm_state != LTSSM_L0);
+}
+
+void InitLink(const int link_width, const int node)
+{
+    InitLinkGen(link_width, TS_DATA_RATE_GEN1, node);
 }
 
 // -------------------------------------------------------------------------

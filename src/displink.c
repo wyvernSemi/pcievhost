@@ -55,9 +55,9 @@ static bool IsDispEnabled(const pPcieModelState_t const state, const int rx, int
 
 // -------------------------------------------------------------------------
 // ConfigDispFormat()
-// 
+//
 // Enable or disable link display colour formatting
-// 
+//
 // -------------------------------------------------------------------------
 
 void ConfigDispFormat(bool enable)
@@ -99,7 +99,7 @@ void ContDisp (pUserConfig_t usrconf)
     if (fp == NULL)
     {
         error++;
-        VPrint("%s**ERROR**%s: ContDisp() failed to read ContDisps.hex file, No display output.\n", fmterrstr, fmtnormstr);
+        VPrint("**WARNING**: ContDisp() failed to read ContDisps.hex file, No formatted PCIe display output.\n");
     }
 
     char buf [STRBUFSIZE];
@@ -112,27 +112,27 @@ void ContDisp (pUserConfig_t usrconf)
         {
             int control;
             uint64_t time;
-        
+
             // Removing whitespace
             int sidx = 0;
             while (buf[sidx] == ' ' || buf[sidx] == '\t')
             {
                 sidx++;
             }
-        
+
             if ((buf[sidx] >= '0' && buf[sidx] <= '9') ||
                 (buf[sidx] >= 'a' && buf[sidx] <= 'f') ||
                 (buf[sidx] >= 'A' && buf[sidx] <= 'F'))
             {
                 sscanf(&buf[sidx], "%x %llu", &usrconf->contdisp[dispidx].control, (long long unsigned *)&usrconf->contdisp[dispidx].time);
-        
+
                 if (++dispidx == MAXCONSTDISP)
                 {
                     break;
                 }
             }
         }
-    
+
         fclose(fp);
     }
 }
@@ -356,8 +356,8 @@ void DispOS(const pPcieModelState_t const state, const int type, const pTS_t con
         case TS2_ID:
             snprintf(lanestr, STRBUFSIZE, "%3d", ts_data->lanenum);
             snprintf(linkstr, STRBUFSIZE, "%3d", ts_data->linknum);
-            
-            VPrint("%sPCIE%s%d%s %02d: PL TS%d OS Link=%s Lane=%s N_FTS=%2d DataRate=%s %s %s %s %s %s\n",
+
+            VPrint("%sPCIE%s%d%s %02d: PL TS%d OS Link=%s Lane=%s N_FTS=%2d DataRate=%s %s %s %s %s %s %s %s\n",
                    (is_down ? fmtdnstr : fmtupstr),
                    dirstr, nodenum, fmtnormstr,
                    lane, (type == TS1_ID) ? 1 : 2,
@@ -367,11 +367,13 @@ void DispOS(const pPcieModelState_t const state, const int type, const pTS_t con
                    (ts_data->datarate == 6)  ? "GEN2+GEN1" :
                    (ts_data->datarate == 4)  ? "GEN2" :
                    (ts_data->datarate == 2)  ? "GEN1" : "GEN?",
-                   (ts_data->control & 0x01) ? "AssertReset" : "",
-                   (ts_data->control & 0x02) ? "DisableLink" : "",
-                   (ts_data->control & 0x04) ? "Loopback"    : "",
-                   (ts_data->control & 0x08) ? "NoScramble"  : "",
-                   (ts_data->control & 0x10) ? "ComplianceRx"  : ""
+                   (ts_data->datarate & TS_DATA_RATE_CHANGE_AUTO)  ? "AutonomousChange" : "",
+                   (ts_data->datarate & TS_DATA_RATE_CHANGE_SPEED) ? "SpeedChange" : "",
+                   (ts_data->control  & 0x01) ? "AssertReset"   : "",
+                   (ts_data->control  & 0x02) ? "DisableLink"   : "",
+                   (ts_data->control  & 0x04) ? "Loopback"      : "",
+                   (ts_data->control  & 0x08) ? "NoScramble"    : "",
+                   (ts_data->control  & 0x10) ? "ComplianceRx"  : ""
                    );
             break;
         case IDL: VPrint("%sPCIE%s%d%s %02d: PL Electrical idle ordered set\n", is_down ? fmtdnstr : fmtupstr, dirstr, nodenum, fmtnormstr, lane); break;
@@ -583,9 +585,9 @@ void DispTl(const pPcieModelState_t const state, const pPkt_t const pkt, const b
             else
             {
                 VPrint("%08x (32) ", tl_word2);
-                
+
             }
-            
+
             VPrint("%s=%04x TAG=%02x FBE=%04x LBE=%04x ", (tl_type & TL_TYPE_MEMLOCK) ? "LOCKED ID" : "RID", tl_id, tl_tag, tl_fbe, tl_lbe);
 
             if (!(tl_type & TL_TYPE_WRITE))
@@ -646,7 +648,7 @@ void DispTl(const pPcieModelState_t const state, const pPkt_t const pkt, const b
 
             // Display LCRC and (if present) ECRC associated with the TLP
             DispTlpCrc(prefixstr, tloffstr, dlloffstr, tl_td, pkt);
-            
+
             break;
         }
 
@@ -692,7 +694,7 @@ void DispTl(const pPcieModelState_t const state, const pPkt_t const pkt, const b
 
             uint32_t msg_code   = tl_word1 & 0xff;
             uint32_t vend_id    = tl_word2 & 0xffff;
-            uint32_t route_type = tl_type & 0x7; 
+            uint32_t route_type = tl_type & 0x7;
 
             switch(msg_code)
             {

@@ -26,7 +26,7 @@ ARCHFLAG      = -m64
 USRSIMFLAGS   =
 
 # Flags for pcie library compilation
-EXTFLAGS      = -DVPROC_VHDL -DMODELSIM
+EXTFLAGS      = -DVPROC_VHDL -DMODELSIM -DVPROC_NO_PLI
 
 # Altera PCIe simulation model definitions
 ALTQSYSNAME   = pcie1_ep_avmm.qsys

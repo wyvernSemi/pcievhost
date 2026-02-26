@@ -64,7 +64,7 @@
 // -------------------------------------------------------------------------
 
 #define PCIE_MAJOR_VER                    1
-#define PCIE_MINOR_VER                    7
+#define PCIE_MINOR_VER                    8
 #define PCIE_PATCH_VER                    0
 
 // Used in macros
@@ -548,6 +548,8 @@ EXTERN void       SendIdle                (const int Ticks, const int node);
 EXTERN void       SendOs                  (const int Type,  const int node);
 EXTERN void       SendTs                  (const int identifier, const int lane_num, const int link_num, const int n_fts, const int control,
                                            const bool is_gen2, const int node);
+EXTERN void       SendTsGen               (const int identifier, const int lane_num, const int link_num, const int n_fts, const int control,
+                                           const int gen, const int node);
                                           
 EXTERN void       WaitForCompletion       (const int node);
 EXTERN void       WaitForCompletionN      (const uint32_t count,          const int node);

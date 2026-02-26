@@ -131,7 +131,7 @@ public:
 
 #if !defined(EXCLUDE_LTSSM) && !defined(OSVVM)
     // Link initialisation
-    void       initLink             (const int linkwidth)  {InitLink(linkwidth, node);};
+    void       initLink             (const int linkwidth, const int gen = TS_DATA_RATE_GEN1)  {InitLinkGen(linkwidth, gen, node);};
 #endif
     // Queue flushing
     void       sendPacket           (void)                 {SendPacket(node);};
@@ -155,6 +155,9 @@ public:
     void       sendTs               (const int identifier, const int lane_num, const int link_num, const int n_fts, const int control,
                                      const bool is_gen2 = false)
                                                            {SendTs(identifier, lane_num, link_num, n_fts, control, is_gen2, node);};
+    void       sendTs               (const int identifier, const int lane_num, const int link_num, const int n_fts, const int control,
+                                     const int gen)
+                                                           {SendTsGen(identifier, lane_num, link_num, n_fts, control, gen, node);};
 
     void       waitForCompletion    (const uint32_t count = 1)
                                                            {WaitForCompletionN(count, node);};

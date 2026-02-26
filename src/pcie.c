@@ -1756,7 +1756,7 @@ void SendOs (const int Type, const int node)
 }
 
 // -------------------------------------------------------------------------
-// SendTs()
+// SendTs()/SnedTsGen()
 //
 // Sends a training sequence with given parameters. Identifier
 // must be either TS1_ID or TS2_ID. lane_num and link_num can
@@ -1766,12 +1766,16 @@ void SendOs (const int Type, const int node)
 //
 // -------------------------------------------------------------------------
 
-void SendTs (const int identifier, const int lane_num, const int link_num, const int n_fts, const int control, const bool is_gen2, const int node)
+
+
+void SendTsGen (const int identifier, const int lane_num, const int link_num, const int n_fts, const int control, const int gen, const int node)
 {
-    int old_draining_state = this->draining_queue;
+    int       old_draining_state                   = this->draining_queue;
     uint32_t  LinkIn  [MAX_LINK_WIDTH];
     PktData_t LinkOut [TS_LENGTH][MAX_LINK_WIDTH];
-    TS_t ts_data = {link_num, lane_num, n_fts, is_gen2 ? TS_DATA_RATE_GEN2 : TS_DATA_RATE_GEN1, control, identifier};
+    TS_t      ts_data                              = {link_num, lane_num, n_fts, gen, control, identifier};
+    
+    bool      is_gen2                              = ((gen & TS_DATA_RATE_GEN2) == TS_DATA_RATE_GEN2);
 
     // Do some checks
     if (node < 0 || node > VP_MAX_NODES)
@@ -1865,6 +1869,11 @@ void SendTs (const int identifier, const int lane_num, const int link_num, const
     }
 
     this->draining_queue = old_draining_state;
+}
+
+void SendTs (const int identifier, const int lane_num, const int link_num, const int n_fts, const int control, const bool is_gen2, const int node)
+{
+     SendTsGen (identifier, lane_num, link_num, n_fts, control, is_gen2 ? TS_DATA_RATE_GEN2 : TS_DATA_RATE_GEN1, node);
 }
 
 // -------------------------------------------------------------------------

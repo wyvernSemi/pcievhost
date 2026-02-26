@@ -24,6 +24,7 @@
 NUM_VPROC     = 2
 ARCHFLAG      = -m64
 USRSIMFLAGS   =
+USRCDIR       = usercode
 
 # Location of VProc directory. Assumes in same directory as pcieVHost.
 # Update if relocated.
@@ -37,7 +38,6 @@ VPROC_REPO    = https://github.com/wyvernSemi/vproc.git
 #
 PCIE_CLIB_DIR = ../../lib
 SRCDIR        = ../../src
-USRCDIR       = usercode
 WORKDIR       = work
 
 PLI_SO        = VProc.so
