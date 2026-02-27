@@ -74,6 +74,7 @@ typedef struct
 
 // Link initialisation
 EXTERN void InitLink             (const int linkwidth,         const int node);
+EXTERN void InitLinkGen          (const int linkwidth,         const int gen,   const int node);
 EXTERN void ConfigLinkInit       (const ConfigLinkInit_t cfg,  const int node);
 EXTERN void ConfigurePcieLtssm   (const config_t         type, const int value, const int node);
 

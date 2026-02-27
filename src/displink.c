@@ -119,7 +119,7 @@ void ContDisp (pUserConfig_t usrconf, const int node)
     if (fp == NULL)
     {
         error++;
-        VPrint("%s**ERROR**%s: ContDisp() failed to read ContDisps.hex file, No display output.\n", fmterrstr, fmtnormstr);
+        VPrint("**WARNING**: ContDisp() failed to read ContDisps.hex file, No formatted PCIe display output.\n");
     }
 
     if (!error)
@@ -373,7 +373,7 @@ void DispOS(const pPcieModelState_t const state, const int type, const pTS_t con
             snprintf(lanestr, STRBUFSIZE, "%3d", ts_data->lanenum);
             snprintf(linkstr, STRBUFSIZE, "%3d", ts_data->linknum);
 
-            VPrint("%sPCIE%s%d%s %02d: PL TS%d OS Link=%s Lane=%s N_FTS=%2d DataRate=%s %s %s %s %s %s\n",
+            VPrint("%sPCIE%s%d%s %02d: PL TS%d OS Link=%s Lane=%s N_FTS=%2d DataRate=%s %s %s %s %s %s %s %s\n",
                    (is_down ? fmtdnstr : fmtupstr),
                    dirstr, nodenum, fmtnormstr,
                    lane, (type == TS1_ID) ? 1 : 2,
@@ -383,11 +383,13 @@ void DispOS(const pPcieModelState_t const state, const int type, const pTS_t con
                    (ts_data->datarate == 6)  ? "GEN2+GEN1" :
                    (ts_data->datarate == 4)  ? "GEN2" :
                    (ts_data->datarate == 2)  ? "GEN1" : "GEN?",
-                   (ts_data->control & 0x01) ? "AssertReset" : "",
-                   (ts_data->control & 0x02) ? "DisableLink" : "",
-                   (ts_data->control & 0x04) ? "Loopback"    : "",
-                   (ts_data->control & 0x08) ? "NoScramble"  : "",
-                   (ts_data->control & 0x10) ? "ComplianceRx"  : ""
+                   (ts_data->datarate & TS_DATA_RATE_CHANGE_AUTO)  ? "AutonomousChange" : "",
+                   (ts_data->datarate & TS_DATA_RATE_CHANGE_SPEED) ? "SpeedChange" : "",
+                   (ts_data->control  & 0x01) ? "AssertReset"   : "",
+                   (ts_data->control  & 0x02) ? "DisableLink"   : "",
+                   (ts_data->control  & 0x04) ? "Loopback"      : "",
+                   (ts_data->control  & 0x08) ? "NoScramble"    : "",
+                   (ts_data->control  & 0x10) ? "ComplianceRx"  : ""
                    );
             break;
         case IDL: VPrint("%sPCIE%s%d%s %02d: PL Electrical idle ordered set\n", is_down ? fmtdnstr : fmtupstr, dirstr, nodenum, fmtnormstr, lane); break;
