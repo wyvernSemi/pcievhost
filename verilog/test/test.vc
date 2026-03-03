@@ -18,8 +18,5 @@ test_defs.v
 ../../../vproc/extradefs.v
 ../../../vproc/f_VProc.v
 
-// Display Control
-ContDisps.v
-
 // Top level test module
 test.v

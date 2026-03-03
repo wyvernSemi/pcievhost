@@ -99,8 +99,13 @@ begin
     // Maintain sync
     if (Synced)
     begin
+`ifdef VERILATOR
+        if (SerIn[0] === 1'bx)
+            Synced <= 1'b0;
+`else
         if (SerIn[0] === 1'bz || SerIn[0] === 1'bx)
             Synced <= 1'b0;
+`endif
     end
     else
     begin

@@ -1,3 +1,5 @@
+verilog work ../lib/Serialiser.v
+verilog work ../lib/clkmux.v
 verilog work ../pcieVHost/pcieVHost.v
 verilog work ../pcieVHost/pcieVHostPipex1.v
 sv      work ../../../vproc/f_VProc.v

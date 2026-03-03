@@ -5,6 +5,9 @@ test_defs.v
 // Headers with definitions
 -f ../headers/headers.vc
 
+// Library files
+../lib/Serialiser.v
+../lib/clkmux.v
 
 // PCIe Host top level
 -f ../pcieVHost/pcieVHost.vc

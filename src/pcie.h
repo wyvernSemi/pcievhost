@@ -64,7 +64,7 @@
 // -------------------------------------------------------------------------
 
 #define PCIE_MAJOR_VER                    1
-#define PCIE_MINOR_VER                    8
+#define PCIE_MINOR_VER                    9
 #define PCIE_PATCH_VER                    0
 
 // Used in macros

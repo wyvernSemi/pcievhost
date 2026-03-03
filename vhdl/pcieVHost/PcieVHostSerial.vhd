@@ -28,7 +28,7 @@ use ieee.numeric_std.all;
 use work.pcieVHost_pkg.all;
 
 -- -------------------------------------------------------------
---  PcieVhostSerial
+--  PcieVHostSerial
 -- -------------------------------------------------------------
 
 entity PcieVHostSerial is
@@ -36,7 +36,8 @@ entity PcieVHostSerial is
   generic (
     LinkWidth             : integer := 16;
     NodeNum               : integer := 8;
-    EndPoint              : integer := 0
+    EndPoint              : integer := 0;
+    Gen2Clk               : boolean := false
   );
   port (
     Clk                   : in  std_logic;
@@ -87,17 +88,55 @@ signal PLinkOut           : link_array_t(0 to MAXLINKWIDTH-1)(LANEWIDTH-1 downto
 signal LinkOutVec         : std_logic_vector (MAXLINKWIDTH-1 downto 0);
 signal LinkInVec          : std_logic_vector (MAXLINKWIDTH-1 downto 0);
 
-begin
+signal serclk_main        : std_logic := '0';
+signal serclk_div2        : std_logic := '0';
+signal serclk_sel         : std_logic := '0';
 
+begin
+  -- -------------------------------------------------------------
+  -- Internal clock selection
+  -- -------------------------------------------------------------
+  
+  P_CLKS : if not Gen2Clk generate
+    -- When using GEN1 clock rate, route port straight through to internal clock
+    serclk_main            <= SerClk;
+  else generate
+
+    -- Generate a half speed clock for GEN1
+    process(SerClk)
+    begin
+      if SerClk'event and SerClk = '1' then
+        serclk_div2        <= not serclk_div2;
+      end if;
+    end process;
+
+    -- Select between GEN1 and GEN2 clocks
+    clkmux_i : entity work.clkmux
+    port map (
+      aresetn                            => notReset,
+      clka                               => SerClk,
+      clkb                               => serclk_div2,
+      sel                                => serclk_sel,
+      clkout                             => serclk_main
+    );
+
+  end generate;
+
+  -- -------------------------------------------------------------
+  -- PcieVHost instantiation
+  -- -------------------------------------------------------------
   pvh : entity work.PcieVHost
   generic map (
     LinkWidth                          => LinkWidth,
     NodeNum                            => NodeNum,
-    EndPoint                           => EndPoint
+    EndPoint                           => EndPoint,
+    Gen2Clk                            => Gen2Clk
   )
   port map (
     Clk                                => Clk,
     notReset                           => notReset,
+
+    Gen2ClkSel                         => serclk_sel,
 
     LinkIn0                            => PLinkIn(0),
     LinkIn1                            => PLinkIn(1),
@@ -134,50 +173,56 @@ begin
     LinkOut15                          => PLinkOut(15)
   );
 
+  -- -------------------------------------------------------------
+  -- Serialiser instantiation
+  -- -------------------------------------------------------------
   serdes : entity work.Serialiser
   port map (
     SerClk                             => SerClk,
     BitReverse                         => '0',
 
-    ParIn                              => PLinkIn,
+    ParIn                              => PLinkOut,
     SerOut                             => LinkOutVec,
     SerIn                              => LinkInVec,
-    ParOut                             => PLinkOut
+    ParOut                             => PLinkIn
   );
 
-LinkOut0                               <= LinkOutVec(0);
-LinkOut1                               <= LinkOutVec(1);
-LinkOut2                               <= LinkOutVec(2);
-LinkOut3                               <= LinkOutVec(3);
-LinkOut4                               <= LinkOutVec(4);
-LinkOut5                               <= LinkOutVec(5);
-LinkOut6                               <= LinkOutVec(6);
-LinkOut7                               <= LinkOutVec(7);
-LinkOut8                               <= LinkOutVec(8);
-LinkOut9                               <= LinkOutVec(9);
-LinkOut10                              <= LinkOutVec(10);
-LinkOut11                              <= LinkOutVec(11);
-LinkOut12                              <= LinkOutVec(12);
-LinkOut13                              <= LinkOutVec(13);
-LinkOut14                              <= LinkOutVec(14);
-LinkOut15                              <= LinkOutVec(15);
+  -- -------------------------------------------------------------
+  -- Link Vector/bit conversion
+  -- -------------------------------------------------------------
+  
+  LinkOut0                             <= LinkOutVec(0);
+  LinkOut1                             <= LinkOutVec(1);
+  LinkOut2                             <= LinkOutVec(2);
+  LinkOut3                             <= LinkOutVec(3);
+  LinkOut4                             <= LinkOutVec(4);
+  LinkOut5                             <= LinkOutVec(5);
+  LinkOut6                             <= LinkOutVec(6);
+  LinkOut7                             <= LinkOutVec(7);
+  LinkOut8                             <= LinkOutVec(8);
+  LinkOut9                             <= LinkOutVec(9);
+  LinkOut10                            <= LinkOutVec(10);
+  LinkOut11                            <= LinkOutVec(11);
+  LinkOut12                            <= LinkOutVec(12);
+  LinkOut13                            <= LinkOutVec(13);
+  LinkOut14                            <= LinkOutVec(14);
+  LinkOut15                            <= LinkOutVec(15);
 
-LinkInVec(0)                           <= LinkOut0;
-LinkInVec(1)                           <= LinkOut1;
-LinkInVec(2)                           <= LinkOut2;
-LinkInVec(3)                           <= LinkOut3;
-LinkInVec(4)                           <= LinkOut4;
-LinkInVec(5)                           <= LinkOut5;
-LinkInVec(6)                           <= LinkOut6;
-LinkInVec(7)                           <= LinkOut7;
-LinkInVec(8)                           <= LinkOut8;
-LinkInVec(9)                           <= LinkOut9;
-LinkInVec(10)                          <= LinkOut10;
-LinkInVec(11)                          <= LinkOut11;
-LinkInVec(12)                          <= LinkOut12;
-LinkInVec(13)                          <= LinkOut13;
-LinkInVec(14)                          <= LinkOut14;
-LinkInVec(15)                          <= LinkOut15;
-
+  LinkInVec(0)                         <= LinkIn0;
+  LinkInVec(1)                         <= LinkIn1;
+  LinkInVec(2)                         <= LinkIn2;
+  LinkInVec(3)                         <= LinkIn3;
+  LinkInVec(4)                         <= LinkIn4;
+  LinkInVec(5)                         <= LinkIn5;
+  LinkInVec(6)                         <= LinkIn6;
+  LinkInVec(7)                         <= LinkIn7;
+  LinkInVec(8)                         <= LinkIn8;
+  LinkInVec(9)                         <= LinkIn9;
+  LinkInVec(10)                        <= LinkIn10;
+  LinkInVec(11)                        <= LinkIn11;
+  LinkInVec(12)                        <= LinkIn12;
+  LinkInVec(13)                        <= LinkIn13;
+  LinkInVec(14)                        <= LinkIn14;
+  LinkInVec(15)                        <= LinkIn15;
 
 end behavioural;

@@ -1,6 +1,6 @@
 //=============================================================
 //
-// Copyright (c) 2023 Simon Southwell. All rights reserved.
+// Copyright (c) 2023 - 2026 Simon Southwell. All rights reserved.
 //
 // Date: 8th Sep 2023
 //
@@ -26,7 +26,9 @@
 `WsTimeScale
 
 //-------------------------------------------------------------
+// Top level SystemVerilog PcieVhost test bench
 //-------------------------------------------------------------
+
 module test
 #(
   parameter VCD_DUMP       = 0,
@@ -34,89 +36,35 @@ module test
   parameter DEBUG_STOP     = 0
 );
 
-export "DPI-C" task PcieGetReset;
-
-reg     Clk;
-integer Count;
+//-------------------------------------------------------------
+// Signal declarations
+//-------------------------------------------------------------
+reg             Clk;
+integer         Count;
 
 PcieLinkLanes16 LinkUp();
 PcieLinkLanes16 LinkDown();
 
+//-------------------------------------------------------------
+// Generate a rest signal
+//-------------------------------------------------------------
+
 wire #`RegDel notReset = (Count > 10);
 
-// Bundle the links for the Disps
-wire [159:0] DownLink = {LinkDown.Lane15, LinkDown.Lane14, LinkDown.Lane13, LinkDown.Lane12,
-                         LinkDown.Lane11, LinkDown.Lane10, LinkDown.Lane9,  LinkDown.Lane8,
-                         LinkDown.Lane7,  LinkDown.Lane6,  LinkDown.Lane5,  LinkDown.Lane4,
-                         LinkDown.Lane3,  LinkDown.Lane2,  LinkDown.Lane1,  LinkDown.Lane0};
 
-wire [159:0] UpLink   = {LinkUp.Lane15,   LinkUp.Lane14,   LinkUp.Lane13,   LinkUp.Lane12,
-                         LinkUp.Lane11,   LinkUp.Lane10,   LinkUp.Lane9,    LinkUp.Lane8,
-                         LinkUp.Lane7,    LinkUp.Lane6,    LinkUp.Lane5,    LinkUp.Lane4,
-                         LinkUp.Lane3,    LinkUp.Lane2,    LinkUp.Lane1,    LinkUp.Lane0};
-
-wire [15:0] ElecIdleUp, ElecIdleDown;
-
-wire [`DispDataInBits]  DispDataIn;
-wire [`DispDataOutBits] DispDataOut;
-wire [`DispBits]        DispVal;
-
-wire [31:0] LinkWidth            = `PCIE_NUM_PHY_LANES;
-wire [31:0] NodeNumDown          = `VPCIE_HOST_NODE_NUM;
-wire [31:0] NodeNumUp            = `VPCIE_EP_NODE_NUM;
-
-wire        DisableScrambleDown  = (PIPE != 0) ? 1'b1 : 1'b0;
-wire        DisableScrambleUp    = (PIPE != 0) ? 1'b1 : 1'b0;
-wire        Disable8b10bDown     = (PIPE != 0) ? 1'b1 : 1'b0;
-wire        Disable8b10bUp       = (PIPE != 0) ? 1'b1 : 1'b0;
-wire [15:0] InvertTxPolarityDown = 16'h0000;
-wire [15:0] InvertTxPolarityUp   = 16'h0000;
+//-------------------------------------------------------------
+// Exported DPI task declartions
+//-------------------------------------------------------------
+export "DPI-C" task PcieGetReset;
 
 task PcieGetReset(output int nRstVal);
   $display("PcieGetReset");
   nRstVal = notReset;
 endtask
 
-`ifdef ENABLE_PCIEDISPLINK
-
- // Control display module
- ContDisps cd (Clk, DispVal);
-
- PcieDispLink #(`PCIE_NUM_PHY_LANES)
-   dispd (.ExtClk(Clk),
-          .Link             (DownLink[`PCIE_NUM_PHY_LANES*10-1:0]),
-          .notReset         (notReset),
-          .FwdName          ("D"),
-          .BckName          ("U"),
-          .DispDataIn       (DispDataIn),
-          .DispDataOut      (DispDataOut),
-          .DispValIn        (DispVal),
-          .LinkWidth        (LinkWidth[4:0]),
-          .DisableScramble  (DisableScrambleDown),
-          .Disable8b10b     (Disable8b10bDown),
-          .InvertTxPolarity (InvertTxPolarityDown),
-          .NodeNum          (NodeNumDown[7:0])
-          );
-
- PcieDispLink #(`PCIE_NUM_PHY_LANES)
-   dispu (.ExtClk(Clk),
-          .Link             (UpLink[`PCIE_NUM_PHY_LANES*10-1:0]),
-          .notReset         (notReset),
-          .FwdName          ("U"),
-          .BckName          ("D"),
-          .DispDataOut      (DispDataIn),
-          .DispDataIn       (DispDataOut),
-          .DispValIn        (DispVal),
-          .LinkWidth        (LinkWidth[4:0]),
-          .DisableScramble  (DisableScrambleUp),
-          .Disable8b10b     (Disable8b10bUp),
-          .InvertTxPolarity (InvertTxPolarityUp),
-          .NodeNum          (NodeNumUp[7:0])
-          );
-
-`endif
-
- // Host
+//-------------------------------------------------------------
+// Host
+//-------------------------------------------------------------
 
  PcieVhostRc #(`PCIE_NUM_PHY_LANES, `VPCIE_HOST_NODE_NUM)
    host (.Clk         (Clk),
@@ -126,7 +74,10 @@ endtask
          .LinkOut     (LinkDown)
        );
 
- // Endpoint
+//-------------------------------------------------------------
+// Endpoint
+//-------------------------------------------------------------
+
  PcieVhostEp #(`PCIE_NUM_PHY_LANES, `VPCIE_EP_NODE_NUM)
    ep   (.Clk         (Clk),
          .notReset    (notReset),
@@ -135,6 +86,9 @@ endtask
          .LinkOut     (LinkUp)
        );
 
+//-------------------------------------------------------------
+// Initialisation and clock generation
+//-------------------------------------------------------------
 initial
 begin
   // If specified, dumpa VCD file
@@ -161,6 +115,10 @@ begin
   forever # (`CLK_PERIOD/2) Clk = ~Clk;
 end
 
+//-------------------------------------------------------------
+// Counter and timeout control
+//-------------------------------------------------------------
+
 always @(posedge Clk)
 begin
     Count = Count + 1;
@@ -170,9 +128,12 @@ begin
     end
 end
 
-// Top level fatal task, which can be called from anywhere in verilog code.
-// via the `fatal definition in pciedispheader.v. Any data logging, error
-// message displays etc., on a fatal, should be placed in here.
+//-------------------------------------------------------------
+// Top level fatal task, which can be called from anywhere in
+// verilog code via the `fatal definition in test_defs.v. Any
+// data logging, error message displays etc., on a fatal, 
+// should be placed in here.
+//-------------------------------------------------------------
 task Fatal;
 begin
     $display("***FATAL ERROR...calling $finish!");

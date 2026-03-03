@@ -25,6 +25,8 @@
 #------------------------------------------------------
 
 USRSIMFLAGS   =
+USRVLOGFLAGS  =
+USRFLAGS      = -DDISPLINK10 -DDISPLINK11
 WAVESAVEFILE  = waves.gtkw
 WAVEFILE      = waves.vcd
 
@@ -51,7 +53,7 @@ ARCHFLAG      = -m64
 # Update if relocated.
 VPROC_TOP     = ../../../vproc
 
-# Define the github repository URL for the VProc virtual processor 
+# Define the github repository URL for the VProc virtual processor
 VPROC_REPO    = https://github.com/wyvernSemi/vproc.git
 
 #
@@ -94,7 +96,7 @@ endif
 # Flags for Verilator simulator
 #------------------------------------------------------
 
-SIMTOP        = test
+SIMTOP        = $(PCIE_TOP)
 
 SIMEXE        = work/V$(SIMTOP)
 FILELIST      = files.verilator
@@ -103,6 +105,7 @@ SIMFLAGS      = --binary -sv                           \
                 $(TIMINGFLAG)                          \
                 $(VCDFLAG) $(BURSTDEF)                 \
                 $(USRSIMFLAGS)                         \
+                $(USRVLOGFLAGS)                        \
                 +define+VPROC_SV                       \
                 +define+DISP_LINK_WIDE                 \
                 +incdir+../headers                     \
@@ -153,8 +156,8 @@ vproc_lib: $(VPROC_TOP) pcie_c_lib
 	         ARCHFLAG=$(ARCHFLAG)                           \
 	         MAX_NUM_VPROC=$(NUM_VPROC)                     \
 	         AUXDIR=$(CURDIR)/$(AUXDIR)                     \
-	         AUX_C="$(AUX_C)"                               \ 
-	         USRFLAGS=-I$(CURDIR)/$(SRCDIR)                 \
+	         AUX_C="$(AUX_C)"                               \
+	         USRFLAGS="-I$(CURDIR)/$(SRCDIR) $(USRFLAGS)"   \
 	         USRCDIR=$(CURDIR)/$(USRCDIR)                   \
 	         USER_C="$(USER_C)"                             \
 	         TESTDIR=$(CURDIR)                              \

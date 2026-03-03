@@ -23,13 +23,15 @@
 # User overridable variables
 NUM_VPROC     = 16
 ARCHFLAG      = -m64
-USRSIMFLAGS   = 
+USRSIMFLAGS   =
+USRFLAGS      = -DDISPLINK10 -DDISPLINK11
+USRVLOGFLAGS  = 
 
 # Location of VProc directory. Assumes in same directory as pcieVHost.
 # Update if relocated.
 VPROC_TOP     = ../../../vproc
 
-# Define the github repository URL for the VProc virtual processor 
+# Define the github repository URL for the VProc virtual processor
 VPROC_REPO    = https://github.com/wyvernSemi/vproc.git
 
 #
@@ -69,9 +71,10 @@ CC            = gcc
 C++           = g++
 CFLAGS        = $(ARCHFLAG) -fPIC                           \
                 -Wno-write-strings                          \
-                -I$(SRCDIR)                                 \
-                -I$(USRCDIR)                                \
-                -I$(VPROC_TOP)/code                         \
+                -I$(CURDIR)/$(SRCDIR)                       \
+                -I$(CURDIR)/$(USRCDIR)                      \
+                -I$(CURDIR)/$(VPROC_TOP)/code               \
+                $(USRFLAGS)                                 \
                 -DVPROC_SV                                  \
                 -D_REENTRANT
 
@@ -89,10 +92,10 @@ endif
 #------------------------------------------------------
 
 SIMEXE        = xsim
-SIMTOP        = test
+SIMTOP        = $(PCIE_TOP)
 
 # Flags for xsim
-ANALYSEFLAGS  = --prj files.prj -d DISP_LINK_WIDE -d VPROC_SV -d VIVADO -i $(VPROC_TOP) -i ../headers
+ANALYSEFLAGS  = --prj files.prj $(USRVLOGFLAGS) -d DISP_LINK_WIDE -d VPROC_SV -d VIVADO -i $(VPROC_TOP) -i ../headers
 ELABFLAGS     = -sv_lib $(PLI_SO) --debug typical $(SIMTOP)
 SIMFLAGS      = $(SIMTOP)
 
@@ -122,12 +125,12 @@ $(PCIE_MAP_V) : $(SRCDIR)/$(PCIE_MAP_C)
 #
 $(PLI_SO): vproc_lib pcie_c_lib $(wildcard $(USRCDIR)/*.[ch]*)
 	@$(C++) $(CFLAGS_SO) $(CFLAGS)                      \
-           -Wl,-whole-archive                               \
-           -lpthread                                        \
-           -L$(PCIE_CLIB_DIR) -lpcievhost                   \
-           -L$(CURDIR) -lvproc                              \
-           -Wl,-no-whole-archive                            \
-           -o $@
+	       -Wl,-whole-archive                               \
+	       -lpthread                                        \
+	       -L$(PCIE_CLIB_DIR) -lpcievhost                   \
+	       -L$(CURDIR) -lvproc                              \
+	       -Wl,-no-whole-archive                            \
+	       -o $@
 
 #
 # PCIe model library
@@ -139,18 +142,18 @@ pcie_c_lib:
 # VProc library.
 #
 vproc_lib: $(VPROC_TOP)
-	@$(MAKE) --no-print-directory                       \
+	@$(MAKE) --no-print-directory                           \
              -C $(VPROC_TOP)/test                           \
              -f makefile.vivado                             \
+             CFLAGS="$(CFLAGS)"                             \
              ARCHFLAG=$(ARCHFLAG)                           \
              MAX_NUM_VPROC=$(NUM_VPROC)                     \
 	         AUXDIR=$(CURDIR)/$(AUXDIR)                     \
 	         AUX_C="$(AUX_C)"                               \
-             USRFLAGS=-I$(CURDIR)/$(SRCDIR)                 \
-             USRCDIR=$(CURDIR)/$(USRCDIR)                   \
-             USER_C="$(USER_C)"                             \
-             TESTDIR=$(CURDIR)                              \
-             $(CURDIR)/$(VPROCLIB)
+	         USRCDIR=$(CURDIR)/$(USRCDIR)                   \
+	         USER_C="$(USER_C)"                             \
+	         TESTDIR=$(CURDIR)                              \
+	         $(CURDIR)/$(VPROCLIB)
 
 #
 # Checkout VProc from github if it doesn't exist at the specified location
@@ -177,7 +180,7 @@ sim: all
 
 run: all
 	@$(SIMEXE) -R $(SIMFLAGS)
- 
+
 rungui: all
 	@$(SIMEXE) -g --autoloadwcfg $(SIMFLAGS)
 

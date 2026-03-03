@@ -25,7 +25,12 @@
 `define __TEST_DEFS_V_
 
 // Absolute path to fatal error task
+
+`ifdef SERIALTEST
+`define fatal testser.Fatal;
+`else
 `define fatal test.Fatal;
+`endif
 
 //-------------------------------------------------------------
 // The following can be overridden on the compile command line.

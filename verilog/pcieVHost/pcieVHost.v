@@ -1,6 +1,6 @@
 //=============================================================
 //
-// Copyright (c) 2016 Simon Southwell. All rights reserved.
+// Copyright (c) 2016 - 2026 Simon Southwell. All rights reserved.
 //
 // Date: 20th Sep 2016
 //
@@ -31,51 +31,42 @@
 // PcieVhost
 //-------------------------------------------------------------
 
-module PcieVhost (Clk, notReset,
+module PcieVhost
+#(
+  parameter         LinkWidth          = 16,
+  parameter         NodeNum            = 8,
+  parameter         EndPoint           = 0,
+  parameter         DisableScrambling  = 0,
+  parameter         Disable8b10b       = 0,
+  parameter         Gen2Clk            = 0
+)
+(
+  input             Clk,
+  input             notReset,
+  output reg        Gen2ClkSel,
 
 `ifdef VERILATOR
-                  ElecIdleOut,
-                  ElecIdleIn,
+  output reg [15:0] ElecIdleOut,
+  input             ElecIdleIn,
 `endif
 
-                  LinkIn0,   LinkIn1,   LinkIn2,   LinkIn3,
-                  LinkIn4,   LinkIn5,   LinkIn6,   LinkIn7,
-                  LinkIn8,   LinkIn9,   LinkIn10,  LinkIn11,
-                  LinkIn12,  LinkIn13,  LinkIn14,  LinkIn15,
-                  LinkOut0,  LinkOut1,  LinkOut2,  LinkOut3,
-                  LinkOut4,  LinkOut5,  LinkOut6,  LinkOut7,
-                  LinkOut8,  LinkOut9,  LinkOut10, LinkOut11,
-                  LinkOut12, LinkOut13, LinkOut14, LinkOut15);
+  input       [9:0] LinkIn0,   LinkIn1,   LinkIn2,   LinkIn3,
+  input       [9:0] LinkIn4,   LinkIn5,   LinkIn6,   LinkIn7,
+  input       [9:0] LinkIn8,   LinkIn9,   LinkIn10,  LinkIn11,
+  input       [9:0] LinkIn12,  LinkIn13,  LinkIn14,  LinkIn15,
+  output      [9:0] LinkOut0,  LinkOut1,  LinkOut2,  LinkOut3,
+  output      [9:0] LinkOut4,  LinkOut5,  LinkOut6,  LinkOut7,
+  output      [9:0] LinkOut8,  LinkOut9,  LinkOut10, LinkOut11,
+  output      [9:0] LinkOut12, LinkOut13, LinkOut14, LinkOut15
+);
 
-parameter LinkWidth          = 16;
-parameter NodeNum            = 8;
-parameter EndPoint           = 0;
-parameter DisableScrambling  = 0;
-parameter Disable8b10b       = 0;
-
-input        Clk;
-input        notReset;
-
-input  [9:0] LinkIn0,   LinkIn1,   LinkIn2,   LinkIn3;
-input  [9:0] LinkIn4,   LinkIn5,   LinkIn6,   LinkIn7;
-input  [9:0] LinkIn8,   LinkIn9,   LinkIn10,  LinkIn11;
-input  [9:0] LinkIn12,  LinkIn13,  LinkIn14,  LinkIn15;
-
-output [9:0] LinkOut0,  LinkOut1,  LinkOut2,  LinkOut3;
-output [9:0] LinkOut4,  LinkOut5,  LinkOut6,  LinkOut7;
-output [9:0] LinkOut8,  LinkOut9,  LinkOut10, LinkOut11;
-output [9:0] LinkOut12, LinkOut13, LinkOut14, LinkOut15;
 
 `ifdef VERILATOR
-input [15:0] ElecIdleIn;
-output[15:0] ElecIdleOut;
-reg   [15:0] ElecIdleOut;
 `define ELECIDLE 10'b0000000000
 `else
 reg   [15:0] ElecIdleOut;
 `define ELECIDLE 10'bzzzzzzzzzz
 `endif
-
 
 reg    [9:0] Out [0:15];
 reg   [31:0] DataIn;
@@ -103,10 +94,42 @@ wire  [31:0] EP        = EndPoint;
 wire         Update;
 wire   [9:0] In [0:15];
 
- // --------------------------------
- // Virtual Processor
- // --------------------------------
- VProc vp (.Clk            (Clk),
+wire clk_main;
+reg  clk_div2;
+
+// --------------------------------
+// Internal clocks
+// --------------------------------
+generate
+  if  (Gen2Clk == 0)
+  begin
+    // When using GEN1 clock rate, route port straight through to internal clock
+    assign clk_main      = Clk;
+  end
+  else
+  begin
+    // When using a GEN2 clock, create a half speed clock
+    always @(posedge Clk)
+    begin
+        clk_div2         <= ~clk_div2;
+    end
+  
+    // Clock MUX to select between GEN1 and GEN2 clock sources
+    clkmux clkmux_i
+    (
+      .aresetn               (1'b1),
+      .clka                  (Clk),
+      .clkb                  (clk_div2),
+      .sel                   (Gen2ClkSel),
+      .clkout                (clk_main)
+    );
+  end
+endgenerate
+
+// --------------------------------
+// Virtual Processor
+// --------------------------------
+ VProc vp (.Clk            (clk_main),
            .Addr           (Addr),
            .WE             (WE),
            .RD             (RD),
@@ -119,6 +142,10 @@ wire   [9:0] In [0:15];
            .UpdateResponse (UpdateResponse),
            .Node           (Node[3:0])
            );
+
+// --------------------------------
+// Combinatorial logic
+// --------------------------------
 
 // Generate flags for electrical idle stat on input links
 `ifndef VERILATOR
@@ -134,24 +161,34 @@ wire [15:0] RxDetect   = {^LinkOut15 === 1'bx, ^LinkOut14 === 1'bx, ^LinkOut13 =
                           ^LinkOut3  === 1'bx, ^LinkOut2  === 1'bx, ^LinkOut1  === 1'bx, ^LinkOut0  === 1'bx};
 
 
+// --------------------------------
+// Initialisation
+// --------------------------------
+
 initial
 begin
     for (i = 0; i < 16; i = i + 1)
     begin
-        Out[i] = 10'h000;
+        Out[i]         = 10'h000;
     end
 
-    InvertIn       = 1'b0;
-    InvertOut      = 1'b0;
-    ReverseIn      = 1'b0;
-    ReverseOut     = 1'b0;
-    ElecIdleOut    = 16'hffff;
-    notResetLast   = 1'b0;
-    UpdateResponse = 1'b1;
-    ClkCount       = 0;
+    InvertIn           = 1'b0;
+    InvertOut          = 1'b0;
+    ReverseIn          = 1'b0;
+    ReverseOut         = 1'b0;
+    ElecIdleOut        = 16'hffff;
+    notResetLast       = 1'b0;
+    UpdateResponse     = 1'b1;
+    ClkCount           = 0;
+    Gen2ClkSel         = 1'b0;
+    clk_div2           = 1'b1;
 end
 
-always @(posedge Clk)
+// --------------------------------
+// Synchronous processes
+// --------------------------------
+
+always @(posedge clk_main)
 begin
     notResetLast <= #`RegDel notReset;
     ClkCount     <= #`RegDel ClkCount + 1;
@@ -176,12 +213,12 @@ begin
         begin
             if (WE === 1'b1)
                 Out[Addr%16] = DataOut[9:0];
-            DataIn = {22'h000000, In[Addr%16]};
+            DataIn     = {22'h000000, In[Addr%16]};
         end
 
         `RESET_STATE:
         begin
-            DataIn = {15'h0000, ~notReset};
+            DataIn     = {15'h0000, ~notReset};
         end
 
         `LINK_STATE:
@@ -190,7 +227,16 @@ begin
             begin
                 ElecIdleOut[LinkWidth-1:0] = DataOut[LinkWidth-1:0] ;
             end
-            DataIn = {RxDetect, ElecIdleIn};
+            DataIn     = {RxDetect, ElecIdleIn};
+        end
+
+        `GEN2_CLK:
+        begin
+            if (WE === 1'b1)
+            begin
+                Gen2ClkSel = DataOut[0];
+            end
+            DataIn      = {31'h00000000, Gen2ClkSel};
         end
 
         `PVH_INVERT:
@@ -215,7 +261,11 @@ begin
     UpdateResponse <= ~UpdateResponse;
 end
 
-// Map the ports to internal variables for VProc access
+// --------------------------------
+// Map the ports to internal
+// variables for VProc access
+// --------------------------------
+
 assign #`PcieVHostSampleDel In[0]  = (ReverseIn  ? LinkIn15 : LinkIn0)  ^ {10{InvertIn}};
 assign #`PcieVHostSampleDel In[1]  = (ReverseIn  ? LinkIn14 : LinkIn1)  ^ {10{InvertIn}};
 assign #`PcieVHostSampleDel In[2]  = (ReverseIn  ? LinkIn13 : LinkIn2)  ^ {10{InvertIn}};
@@ -256,32 +306,27 @@ endmodule
 // PcieVhostSerial
 //-------------------------------------------------------------
 
-module PcieVhostSerial (Clk, SerClk, notReset,
-                        LinkIn0,   LinkIn1,   LinkIn2,   LinkIn3,
-                        LinkIn4,   LinkIn5,   LinkIn6,   LinkIn7,
-                        LinkIn8,   LinkIn9,   LinkIn10,  LinkIn11,
-                        LinkIn12,  LinkIn13,  LinkIn14,  LinkIn15,
-                        LinkOut0,  LinkOut1,  LinkOut2,  LinkOut3,
-                        LinkOut4,  LinkOut5,  LinkOut6,  LinkOut7,
-                        LinkOut8,  LinkOut9,  LinkOut10, LinkOut11,
-                        LinkOut12, LinkOut13, LinkOut14, LinkOut15);
+module PcieVhostSerial
+#(
+  parameter  LinkWidth         = 16,
+  parameter  NodeNum           = 8,
+  parameter  EndPoint          = 0,
+  parameter  Gen2Clk           = 0
+)
+(
+  input      Clk,
+  input      SerClk,
+  input      notReset,
+  input      LinkIn0,    LinkIn1,    LinkIn2,    LinkIn3,
+  input      LinkIn4,    LinkIn5,    LinkIn6,    LinkIn7,
+  input      LinkIn8,    LinkIn9,    LinkIn10,   LinkIn11,
+  input      LinkIn12,   LinkIn13,   LinkIn14,   LinkIn15,
 
-parameter LinkWidth = 16;
-parameter NodeNum   = 8;
-parameter EndPoint  = 0;
-
-input      Clk;
-input      SerClk;
-input      notReset;
-input      LinkIn0,    LinkIn1,    LinkIn2,    LinkIn3;
-input      LinkIn4,    LinkIn5,    LinkIn6,    LinkIn7;
-input      LinkIn8,    LinkIn9,    LinkIn10,   LinkIn11;
-input      LinkIn12,   LinkIn13,   LinkIn14,   LinkIn15;
-
-output     LinkOut0,   LinkOut1,   LinkOut2,   LinkOut3;
-output     LinkOut4,   LinkOut5,   LinkOut6,   LinkOut7;
-output     LinkOut8,   LinkOut9,   LinkOut10,  LinkOut11;
-output     LinkOut12,  LinkOut13,  LinkOut14,  LinkOut15;
+  output     LinkOut0,   LinkOut1,   LinkOut2,   LinkOut3,
+  output     LinkOut4,   LinkOut5,   LinkOut6,   LinkOut7,
+  output     LinkOut8,   LinkOut9,   LinkOut10,  LinkOut11,
+  output     LinkOut12,  LinkOut13,  LinkOut14,  LinkOut15
+);
 
 wire [9:0] PLinkIn0,   PLinkIn1,   PLinkIn2,   PLinkIn3;
 wire [9:0] PLinkIn4,   PLinkIn5,   PLinkIn6,   PLinkIn7;
@@ -293,61 +338,119 @@ wire [9:0] PLinkOut4,  PLinkOut5,  PLinkOut6,  PLinkOut7;
 wire [9:0] PLinkOut8,  PLinkOut9,  PLinkOut10, PLinkOut11;
 wire [9:0] PLinkOut12, PLinkOut13, PLinkOut14, PLinkOut15;
 
- PcieVhost #(LinkWidth, NodeNum, EndPoint) pvh
-                   (.Clk      (Clk),
-                    .notReset (notReset),
+wire       Gen2ClkSel;
+wire       serclk_main;
+
+reg        serclk_div2;
+
+//-------------------------------------------------------------
+// Select serial clock
+//-------------------------------------------------------------
+
+generate
+// If not using GEN2 clock inputs, just pass through the input serial clock
+if (Gen2Clk == 0)
+
+  assign serclk_main = SerClk;
+
+// If using  GEN2 clocks, use a clock mux to control the serial clock speed
+// (The main clock is controlled inside the PcieVhost component.)
+else
+
+initial
+begin
+  serclk_div2 <= 1'b0;
+end
+
+// Generate a half speed serial clock
+always @(posedge SerClk)
+begin
+  serclk_div2 <= ~serclk_div2;
+end
+
+  // Clock mux to select between GEN1 (divide by 2) or GEN2 serial clocks.
+  clkmux clkmux_i
+  (
+    .aresetn          (notReset),
+    .clka             (SerClk),
+    .clkb             (serclk_div2),
+    .sel              (Gen2ClkSel),
+    .clkout           (serclk_main)
+  );
+
+endgenerate
+
+//-------------------------------------------------------------
+// Instantiate a PcieVhost component
+//-------------------------------------------------------------
+  PcieVhost
+  #(
+    .LinkWidth         (LinkWidth),
+    .NodeNum           (NodeNum),
+    .EndPoint          (EndPoint),
+    .DisableScrambling (0),
+    .Disable8b10b      (0),
+    .Gen2Clk           (Gen2Clk)
+  ) pvh
+  (
+    .Clk               (Clk),
+    .notReset          (notReset),
+    .Gen2ClkSel        (Gen2ClkSel),
 `ifdef VERILATOR
-                    .ElecIdleOut (),
-                    .ElecIdleIn  ({LinkWidth{1'b0}}),
+    .ElecIdleOut       (),
+    .ElecIdleIn        ({LinkWidth{1'b0}}),
 `endif
-                    .LinkIn0   (PLinkIn0),
-                    .LinkIn1   (PLinkIn1),
-                    .LinkIn2   (PLinkIn2),
-                    .LinkIn3   (PLinkIn3),
-                    .LinkIn4   (PLinkIn4),
-                    .LinkIn5   (PLinkIn5),
-                    .LinkIn6   (PLinkIn6),
-                    .LinkIn7   (PLinkIn7),
-                    .LinkIn8   (PLinkIn8),
-                    .LinkIn9   (PLinkIn9),
-                    .LinkIn10  (PLinkIn10),
-                    .LinkIn11  (PLinkIn11),
-                    .LinkIn12  (PLinkIn12),
-                    .LinkIn13  (PLinkIn13),
-                    .LinkIn14  (PLinkIn14),
-                    .LinkIn15  (PLinkIn15),
-                    .LinkOut0  (PLinkOut0),
-                    .LinkOut1  (PLinkOut1),
-                    .LinkOut2  (PLinkOut2),
-                    .LinkOut3  (PLinkOut3),
-                    .LinkOut4  (PLinkOut4),
-                    .LinkOut5  (PLinkOut5),
-                    .LinkOut6  (PLinkOut6),
-                    .LinkOut7  (PLinkOut7),
-                    .LinkOut8  (PLinkOut8),
-                    .LinkOut9  (PLinkOut9),
-                    .LinkOut10 (PLinkOut10),
-                    .LinkOut11 (PLinkOut11),
-                    .LinkOut12 (PLinkOut12),
-                    .LinkOut13 (PLinkOut13),
-                    .LinkOut14 (PLinkOut14),
-                    .LinkOut15 (PLinkOut15)
-                    );
+    .LinkIn0           (PLinkIn0),
+    .LinkIn1           (PLinkIn1),
+    .LinkIn2           (PLinkIn2),
+    .LinkIn3           (PLinkIn3),
+    .LinkIn4           (PLinkIn4),
+    .LinkIn5           (PLinkIn5),
+    .LinkIn6           (PLinkIn6),
+    .LinkIn7           (PLinkIn7),
+    .LinkIn8           (PLinkIn8),
+    .LinkIn9           (PLinkIn9),
+    .LinkIn10          (PLinkIn10),
+    .LinkIn11          (PLinkIn11),
+    .LinkIn12          (PLinkIn12),
+    .LinkIn13          (PLinkIn13),
+    .LinkIn14          (PLinkIn14),
+    .LinkIn15          (PLinkIn15),
+    .LinkOut0          (PLinkOut0),
+    .LinkOut1          (PLinkOut1),
+    .LinkOut2          (PLinkOut2),
+    .LinkOut3          (PLinkOut3),
+    .LinkOut4          (PLinkOut4),
+    .LinkOut5          (PLinkOut5),
+    .LinkOut6          (PLinkOut6),
+    .LinkOut7          (PLinkOut7),
+    .LinkOut8          (PLinkOut8),
+    .LinkOut9          (PLinkOut9),
+    .LinkOut10         (PLinkOut10),
+    .LinkOut11         (PLinkOut11),
+    .LinkOut12         (PLinkOut12),
+    .LinkOut13         (PLinkOut13),
+    .LinkOut14         (PLinkOut14),
+    .LinkOut15         (PLinkOut15)
+  );
 
+//-------------------------------------------------------------
+// Instantiate a serialiser
+//-------------------------------------------------------------
 
- Serialiser serdes (.SerClk     (SerClk),
-                    .BitReverse (1'b0),
+  Serialiser serdes (
+    .SerClk     (serclk_main),
+    .BitReverse (1'b0),
 
-                    .ParInVec   ({PLinkOut15, PLinkOut14, PLinkOut13, PLinkOut12, PLinkOut11, PLinkOut10, PLinkOut9, PLinkOut8,
-                                  PLinkOut7,  PLinkOut6,  PLinkOut5,  PLinkOut4,  PLinkOut3,  PLinkOut2,  PLinkOut1, PLinkOut0}),
-                    .SerOut     ({LinkOut15,  LinkOut14,  LinkOut13,  LinkOut12,  LinkOut11,  LinkOut10,  LinkOut9,  LinkOut8,
-                                  LinkOut7,   LinkOut6,   LinkOut5,   LinkOut4,   LinkOut3,   LinkOut2,   LinkOut1,  LinkOut0}),
-                    .SerIn      ({LinkIn15,   LinkIn14,   LinkIn13,   LinkIn12,   LinkIn11,   LinkIn10,   LinkIn9,   LinkIn8,
-                                  LinkIn7,    LinkIn6,    LinkIn5,    LinkIn4,    LinkIn3,    LinkIn2,    LinkIn1,   LinkIn0}),
-                    .ParOut     ({PLinkIn15,  PLinkIn14,  PLinkIn13,  PLinkIn12,  PLinkIn11,  PLinkIn10,  PLinkIn9,  PLinkIn8,
-                                  PLinkIn7,   PLinkIn6,   PLinkIn5,   PLinkIn4,   PLinkIn3,   PLinkIn2,   PLinkIn1,  PLinkIn0})
-                    );
-
+    .ParInVec   ({PLinkOut15, PLinkOut14, PLinkOut13, PLinkOut12, PLinkOut11, PLinkOut10, PLinkOut9, PLinkOut8,
+                  PLinkOut7,  PLinkOut6,  PLinkOut5,  PLinkOut4,  PLinkOut3,  PLinkOut2,  PLinkOut1, PLinkOut0}),
+    .SerOut     ({LinkOut15,  LinkOut14,  LinkOut13,  LinkOut12,  LinkOut11,  LinkOut10,  LinkOut9,  LinkOut8,
+                  LinkOut7,   LinkOut6,   LinkOut5,   LinkOut4,   LinkOut3,   LinkOut2,   LinkOut1,  LinkOut0}),
+    .SerIn      ({LinkIn15,   LinkIn14,   LinkIn13,   LinkIn12,   LinkIn11,   LinkIn10,   LinkIn9,   LinkIn8,
+                  LinkIn7,    LinkIn6,    LinkIn5,    LinkIn4,    LinkIn3,    LinkIn2,    LinkIn1,   LinkIn0}),
+    .ParOut     ({PLinkIn15,  PLinkIn14,  PLinkIn13,  PLinkIn12,  PLinkIn11,  PLinkIn10,  PLinkIn9,  PLinkIn8,
+                  PLinkIn7,   PLinkIn6,   PLinkIn5,   PLinkIn4,   PLinkIn3,   PLinkIn2,   PLinkIn1,  PLinkIn0})
+  );
 
 endmodule
 

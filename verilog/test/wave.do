@@ -1,22 +1,10 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
 add wave -noupdate /test/Clk
+add wave -noupdate /test/host/clk_main
+add wave -noupdate /test/host/clk_div2
 add wave -noupdate /test/notReset
-add wave -noupdate /test/dispd/dl/Byte
-add wave -noupdate /test/dispd/dl/ByteRaw
-add wave -noupdate /test/dispd/dl/ShiftByte
-add wave -noupdate /test/dispd/dl/NewByte
-add wave -noupdate /test/dispd/dl/Synced
-add wave -noupdate /test/dispd/dl/Control
 add wave -noupdate -radix unsigned /test/Count
-add wave -noupdate /test/DisableScrambleDown
-add wave -noupdate /test/DisableScrambleUp
-add wave -noupdate -radix hexadecimal /test/DispDataIn
-add wave -noupdate -radix hexadecimal /test/DispDataOut
-add wave -noupdate /test/DispVal
-add wave -noupdate -radix hexadecimal /test/DownLink
-add wave -noupdate /test/InvertTxPolarityDown
-add wave -noupdate /test/InvertTxPolarityUp
 add wave -noupdate -radix hexadecimal /test/LinkDown0
 add wave -noupdate -radix hexadecimal /test/LinkDown1
 add wave -noupdate -radix hexadecimal /test/LinkDown2
@@ -49,13 +37,9 @@ add wave -noupdate -radix hexadecimal /test/LinkUp12
 add wave -noupdate -radix hexadecimal /test/LinkUp13
 add wave -noupdate -radix hexadecimal /test/LinkUp14
 add wave -noupdate -radix hexadecimal /test/LinkUp15
-add wave -noupdate -radix unsigned /test/LinkWidth
-add wave -noupdate -radix unsigned /test/NodeNumDown
-add wave -noupdate -radix unsigned /test/NodeNumUp
-add wave -noupdate /test/UpLink
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {0 ps} 0}
-quietly wave cursor active 0
+WaveRestoreCursors {{Cursor 1} {5504000 ps} 0} {{Cursor 2} {5502000 ps} 0}
+quietly wave cursor active 2
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
@@ -70,4 +54,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ps} {71400 ps}
+WaveRestoreZoom {0 ps} {107794 ps}

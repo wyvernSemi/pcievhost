@@ -1,4 +1,6 @@
-../PcieSwDispLink/pcieSwDispLink.v
+../lib/Serialiser.v
+../lib/clkmux.v
+../PcieSwDispLink/PcieSwDispLink.v
 ../pcieVHost/pcieVHost.v
 ../../../vproc/f_VProc.v
 test.v

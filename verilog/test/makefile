@@ -34,7 +34,7 @@ VPROC_TOP     = ../../../vproc
 VPROC_REPO    = https://github.com/wyvernSemi/vproc.git
 
 #
-# PCIE VHost test defintions
+# PCIE VHost test definitions
 #
 PCIE_CLIB_DIR = ../../lib
 SRCDIR        = ../../src
@@ -201,6 +201,6 @@ clean: $(VPROC_TOP)
         fi
 	@$(MAKE) --no-print-directory -C $(PCIE_CLIB_DIR)  clean
 	@$(MAKE) --no-print-directory -C $(VPROC_TOP)/test TESTDIR=$(CURDIR) clean
-	@rm -rf $(PLI_SO) $(PCIE_MAP_V) work transcript
+	@rm -rf $(PLI_SO) $(PCIE_MAP_V) work transcript *.wlf
 
 

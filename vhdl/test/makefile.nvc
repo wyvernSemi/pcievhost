@@ -77,7 +77,7 @@ hdl: $(PLI_SO)
 #------------------------------------------------------
 
 run: all
-	@$(SIMEXE) -r $(SIMFLAGS) 
+	$(SIMEXE) -r $(SIMFLAGS) 
  
 rungui: all
 	@$(SIMEXE) -r  $(SIMFLAGS)

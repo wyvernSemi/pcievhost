@@ -28,19 +28,27 @@
 `WsTimeScale
 
 //-------------------------------------------------------------
+// Top level test bench file for pcieVHostPipex1
 //-------------------------------------------------------------
 module test
 #(parameter VCD_DUMP       = 0,
   parameter DEBUG_STOP     = 0
 );
 
+//-------------------------------------------------------------
+// Local parameter constants
+//-------------------------------------------------------------
 localparam RcNodeNum       = 0;
 localparam EpNodeNum       = 1;
 localparam ROOTCMPLX       = 0;
 localparam ENDPOINT        = 1;
 
-reg     Clk;
-integer Count;
+//-------------------------------------------------------------
+// Signal declarations
+//-------------------------------------------------------------
+
+reg        Clk;
+integer    Count;
 
 wire [7:0] LinkDownData;
 wire       LinkDownDataK;
@@ -50,8 +58,15 @@ wire       LinkUpDataK;
 
 wire  ElecIdleUp, ElecIdleDown;
 
+//-------------------------------------------------------------
 // Generate a reset signal
+//-------------------------------------------------------------
+
 wire #`RegDel notReset = (Count > 10);
+
+//-------------------------------------------------------------
+// Hacks for Verilator simulator
+//-------------------------------------------------------------
 
 `ifdef VERILATOR
 reg  [7:0] LinkDownDataInt;
@@ -78,6 +93,11 @@ wire [7:0] LinkUpDataInt     = LinkUpData;
 wire       LinkUpDataKInt    = LinkUpDataK;
 
 `endif
+
+//-------------------------------------------------------------
+// Instantiate a pcieVHostPipex1 as RC
+//-------------------------------------------------------------
+
     pcieVHostPipex1 #(RcNodeNum, ROOTCMPLX) rc
     (
        .pcieclk             (Clk),
@@ -88,14 +108,18 @@ wire       LinkUpDataKInt    = LinkUpDataK;
        .ElecIdleOut         (ElecIdleDown),
        .ElecIdleIn          (ElecIdleUp),
 `endif
-       
+
        .TxData              (LinkDownData),
        .TxDataK             (LinkDownDataK),
-       
+
        .RxData              (LinkUpDataInt),
        .RxDataK             (LinkUpDataKInt)
     );
-    
+
+//-------------------------------------------------------------
+// Instantiate a pcieVHostPipex1 as an Endpoint
+//-------------------------------------------------------------
+
     pcieVHostPipex1 #(EpNodeNum, ENDPOINT) ep
     (
        .pcieclk             (Clk),
@@ -105,23 +129,27 @@ wire       LinkUpDataKInt    = LinkUpDataK;
 `ifdef VERILATOR
        .ElecIdleOut         (ElecIdleUp),
        .ElecIdleIn          (ElecIdleDown),
-`endif 
- 
+`endif
+
        .TxData              (LinkUpData),
        .TxDataK             (LinkUpDataK),
-       
+
        .RxData              (LinkDownDataInt),
        .RxDataK             (LinkDownDataKInt)
     );
 
+//-------------------------------------------------------------
+// Initialisation and clock generation
+//-------------------------------------------------------------
+
 initial
 begin
-  // If specified, dump a VCD file
-  if (VCD_DUMP != 0)
-  begin
-    $dumpfile("waves.vcd");
-    $dumpvars(0, test);
-  end
+    // If specified, dump a VCD file
+    if (VCD_DUMP != 0)
+    begin
+      $dumpfile("waves.vcd");
+      $dumpvars(0, test);
+    end
 
     Clk = 1;
 
@@ -142,6 +170,9 @@ begin
     forever # (`CLK_PERIOD/2) Clk = ~Clk;
 end
 
+//-------------------------------------------------------------
+// Counter and timeout control
+//-------------------------------------------------------------
 always @(posedge Clk)
 begin
     Count = Count + 1;
@@ -151,9 +182,12 @@ begin
     end
 end
 
-// Top level fatal task, which can be called from anywhere in verilog code.
-// via the `fatal definition in pciedispheader.v. Any data logging, error
-// message displays etc., on a fatal, should be placed in here.
+//-------------------------------------------------------------
+// Top level fatal task, which can be called from anywhere in
+// verilog code via the `fatal definition in test_defs.v. Any
+// data logging, error message displays etc., on a fatal,
+// should be placed in here.
+//-------------------------------------------------------------
 task Fatal;
 begin
     $display("***FATAL ERROR...calling $finish!");

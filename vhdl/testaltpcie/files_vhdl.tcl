@@ -5,6 +5,7 @@
 ../../../vproc/f_vproc.vhd
 
 # pcieVHost VHDL
+../pcieVHost/clkmux.vhd
 ../pcieVHost/pcieVHost_pkg.vhd
 ../pcieVHost/pcieVHost.vhd
 

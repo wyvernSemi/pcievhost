@@ -25,6 +25,7 @@ NUM_VPROC     = 16
 ARCHFLAG      = -m64
 USRFLAGS      = -I$(CURDIR)/$(SRCDIR) -DEXTERN_VPI_TABLE -DDISPLINK10 -DDISPLINK11
 USRSIMFLAGS   =
+USRVLOGFLAGS  =
 
 # Location of VProc directory. Assumes in same directory as pcieVHost.
 # Update if relocated.
@@ -58,7 +59,7 @@ TOP_VC        = test.vc
 HDRDIR        = ../headers
 
 VSIMFLAGS     = $(USRSIMFLAGS) -pli $(PLI_SO) $(PCIE_TOP)
-VLOGFLAGS     = -quiet +define+DISP_LINK_WIDE -incr +incdir+$(VPROC_TOP) -f $(TOP_VC)
+VLOGFLAGS     = -quiet +acc +define+DISP_LINK_WIDE $(USRVLOGFLAGS) -incr +incdir+$(VPROC_TOP) -f $(TOP_VC)
 
 PCIE_MAP_V    = $(PCIE_MAP_C:%.h=$(HDRDIR)/%.v)
 
@@ -168,7 +169,7 @@ verilog: $(PCIE_MAP_V) $(DISPUSRC) $(PLI_SO)
 	@if [ ! -d $(WORKDIR) ]; then                               \
 	      vlib $(WORKDIR);                                      \
 	    fi
-	@vlog $(VLOGFLAGS)
+	vlog $(VLOGFLAGS)
 
 #------------------------------------------------------
 # EXECUTION RULES
@@ -207,6 +208,6 @@ clean: $(VPROC_TOP)
 	    fi
 	@$(MAKE) --no-print-directory -C $(PCIE_CLIB_DIR)  clean
 	@$(MAKE) --no-print-directory -C $(VPROC_TOP)/test TESTDIR=$(CURDIR) clean
-	@rm -rf $(PLI_SO) $(PCIE_MAP_V) $(DISPUSRC) work transcript
+	@rm -rf $(PLI_SO) $(PCIE_MAP_V) $(DISPUSRC) *.wlf work transcript
 
 

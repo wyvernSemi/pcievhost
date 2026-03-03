@@ -31,7 +31,7 @@ package pcieVHost_pkg is
   constant ELECIDLE           : std_logic_vector (9 downto 0)  := 10b"ZZZZZZZZZZ";
   constant MAXLINKWIDTH       : integer                        := 16;
   constant LANEWIDTH          : integer                        := 10;
-                              
+
   constant LINKADDR0          : std_logic_vector( 31 downto 0) := 32d"0";
   constant LINKADDR1          : std_logic_vector( 31 downto 0) := 32d"1";
   constant LINKADDR2          : std_logic_vector( 31 downto 0) := 32d"2";
@@ -48,7 +48,7 @@ package pcieVHost_pkg is
   constant LINKADDR13         : std_logic_vector( 31 downto 0) := 32d"13";
   constant LINKADDR14         : std_logic_vector( 31 downto 0) := 32d"14";
   constant LINKADDR15         : std_logic_vector( 31 downto 0) := 32d"15";
-                              
+
   constant NODENUMADDR        : std_logic_vector( 31 downto 0) := 32d"200";
   constant LANESADDR          : std_logic_vector( 31 downto 0) := 32d"201";
   constant PVH_INVERT         : std_logic_vector( 31 downto 0) := 32d"202";
@@ -58,20 +58,71 @@ package pcieVHost_pkg is
   constant RESET_STATE        : std_logic_vector( 31 downto 0) := 32d"206";
   constant DISABLE_SCRAMBLING : std_logic_vector( 31 downto 0) := 32d"207";
   constant DISABLE_8B10B      : std_logic_vector( 31 downto 0) := 32d"208";
+  constant GEN2_CLK           : std_logic_vector( 31 downto 0) := 32d"209";
 
   constant PVH_STOP           : std_logic_vector( 31 downto 0) := 32x"fffffffd";
   constant PVH_FINISH         : std_logic_vector( 31 downto 0) := 32x"fffffffe";
   constant PVH_FATAL          : std_logic_vector( 31 downto 0) := 32x"ffffffff";
-  
+
   -- 10 bit COMMA codes
   constant PCOMMA             : std_logic_vector (LANEWIDTH-1 downto 0) := 10b"1010000011";   -- 0x283
   constant NCOMMA             : std_logic_vector (LANEWIDTH-1 downto 0) := 10b"0101111100";   -- 0x17c
-                              
+
   constant PIPEDATAWIDTH      : integer := 8;
   constant PIPEKBIT           : integer := 8;
 
   function has_an_x (vec   : std_logic_vector) return boolean;
   function BitRev10 (InVal : in std_logic_vector(9 downto 0)) return std_logic_vector;
+
+  component PcieVHost is
+  generic (
+    LinkWidth                          : integer;
+    NodeNum                            : integer;
+    EndPoint                           : integer;
+    DisableScrambling                  : integer;
+    Disable8b10b                       : integer;
+    Gen2Clk                            : boolean
+  );
+
+  port (
+    Clk                                : in  std_logic;
+    notReset                           : in  std_logic;
+
+    LinkIn0                            : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn1                            : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn2                            : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn3                            : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn4                            : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn5                            : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn6                            : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn7                            : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn8                            : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn9                            : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn10                           : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn11                           : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn12                           : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn13                           : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn14                           : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn15                           : in  std_logic_vector (LANEWIDTH-1 downto 0);
+
+    LinkOut0                           : out std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkOut1                           : out std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkOut2                           : out std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkOut3                           : out std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkOut4                           : out std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkOut5                           : out std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkOut6                           : out std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkOut7                           : out std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkOut8                           : out std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkOut9                           : out std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkOut10                          : out std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkOut11                          : out std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkOut12                          : out std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkOut13                          : out std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkOut14                          : out std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkOut15                          : out std_logic_vector (LANEWIDTH-1 downto 0)
+  );
+  end component;
 
 end;
 
@@ -90,7 +141,6 @@ package body pcievhost_pkg is
     return false;
 
   end function has_an_x;
-
 
   function BitRev10 (InVal : in std_logic_vector(9 downto 0)) return std_logic_vector is
   begin

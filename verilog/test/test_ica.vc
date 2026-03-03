@@ -8,8 +8,12 @@ test_defs.v
 ../headers/pciexpress_header.v
 ../headers/pcie_vhost_map.v
 
+// Library files
+../lib/Serialiser.v
+../lib/clkmux.v
+
 // PCIe Display link
-../PcieSwDispLink/pcieSwDispLink.v
+../PcieSwDispLink/PcieSwDispLink.v
 
 // PCIe Host top level
 ../pcieVHost/pcieVHost.v

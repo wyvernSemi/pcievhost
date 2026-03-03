@@ -23,7 +23,9 @@
 NUM_VPROC      = 16
 
 USRSIMFLAGS    =
+USRVLOGFLAGS   = 
 USERCFLAGS     =
+USRFLAGS       = -DDISPLINK10 -DDISPLINK11
 
 # Location of VProc directory. Assumes in same directory as pcieVHost.
 # Update if relocated.
@@ -33,7 +35,7 @@ VPROC_TOP      = ../../../vproc
 VPROC_REPO     = https://github.com/wyvernSemi/vproc.git
 
 #
-# PCIE VHost test defintions
+# PCIE VHost test definitions
 #
 PCIE_CLIB_DIR  = ../../lib
 SRCDIR         = ../../src
@@ -58,7 +60,7 @@ AUX_C         = VUserMain.cpp
 PCIE_TOP       = test
 TOP_VC         = test_ica.vc
 HDRDIR         = ../headers
-VLOGFLAGS      = $(USRSIMFLAGS) -DDISP_LINK_WIDE -I$(VPROC_TOP) -c $(TOP_VC) -Ptest.VCD_DUMP=1
+VLOGFLAGS      = $(USRSIMFLAGS) $(USRVLOGFLAGS) -DDISP_LINK_WIDE -I$(VPROC_TOP) -c $(TOP_VC) -Ptest.VCD_DUMP=1
 VLOGDEBUGFLAGS = $(VLOGFLAGS) -Ptest.DEBUG_STOP=1
 
 #
@@ -93,6 +95,7 @@ CFLAGS         = -g -fPIC                        \
                  -I$(CURDIR)/$(USRCDIR)          \
                  -I$(CURDIR)/$(VPROC_TOP)/code   \
                  -I$(ICADIR)                     \
+                 $(USRFLAGS)                     \
                  -DICARUS                        \
                  -DVPROC_PLI_VPI                 \
                  -DEXTERN_VPI_TABLE              \
@@ -148,7 +151,7 @@ $(VPROCLIB): $(VPROC_TOP)
 	         AUX_C="$(AUX_C)"                               \
              USRCDIR=$(CURDIR)/$(USRCDIR)                   \
              USER_C="$(USER_C)"                             \
-             $(CURDIR)/$(VPROCLIB)             
+             $(CURDIR)/$(VPROCLIB)
 
 #
 # Checkout VProc from github if it doesn't exist at the specified location
@@ -161,10 +164,10 @@ $(VPROC_TOP):
 # Build the verilog
 #
 verilog: $(PLI_SO) $(VLOGFILES) $(PCIE_MAP_V)
-	@iverilog -o $(SIMEXE) $(VLOGFLAGS) -s test
+	@iverilog -o $(SIMEXE) $(VLOGFLAGS) -s $(PCIE_TOP)
 
 verilog_debug: $(VLOGFILES) $(PCIE_MAP_V)
-	@iverilog -o $(SIMEXE)  $(VLOGDEBUGFLAGS) -s test
+	@iverilog -o $(SIMEXE)  $(VLOGDEBUGFLAGS) -s $(PCIE_TOP)
 
 #------------------------------------------------------
 # EXECUTION RULES

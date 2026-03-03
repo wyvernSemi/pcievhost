@@ -51,6 +51,7 @@
 #define RESET_STATE            206
 #define DISABLE_SCRAMBLING     207
 #define DISABLE_8B10B          208
+#define GEN2_CLK               209
 
 #define PVH_STOP        0xfffffffd
 #define PVH_FINISH      0xfffffffe

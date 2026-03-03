@@ -1,3 +1,5 @@
+../lib/Serialiser.v
+../lib/clkmux.v
 ../pcieVHost/pcieVHostPipex1.v
 ../pcieVHost/pcieVHost.v
 ../../../vproc/f_VProc.v

@@ -7,6 +7,7 @@ test_defs.v
 
 // Library functions
 ../lib/Serialiser.v
+../lib/clkmux.v
 
 // PCIe Display link
 ../PcieSwDispLink/PcieSwDispLink.v
@@ -21,3 +22,4 @@ test_defs.v
 
 // Top level test module
 test.v
+testser.v

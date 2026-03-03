@@ -36,50 +36,52 @@ use work.pcieVHost_pkg.all;
 
 entity PcieVHost is
   generic (
-    LinkWidth                         : integer := 0;
-    NodeNum                           : integer := 8;
-    EndPoint                          : integer := 0;
-    DisableScrambling                 : integer := 0;
-    Disable8b10b                      : integer := 0
+    LinkWidth                          : integer := 0;
+    NodeNum                            : integer := 8;
+    EndPoint                           : integer := 0;
+    DisableScrambling                  : integer := 0;
+    Disable8b10b                       : integer := 0;
+    Gen2Clk                            : boolean := false
   );
 
   port (
-    Clk                               : in  std_logic;
-    notReset                          : in  std_logic;
+    Clk                                : in  std_logic;
+    notReset                           : in  std_logic;
+    Gen2ClkSel                         : out std_logic := '0'; -- default to GEN1 clock rate
 
-    LinkIn0                           : in  std_logic_vector (LANEWIDTH-1 downto 0);
-    LinkIn1                           : in  std_logic_vector (LANEWIDTH-1 downto 0);
-    LinkIn2                           : in  std_logic_vector (LANEWIDTH-1 downto 0);
-    LinkIn3                           : in  std_logic_vector (LANEWIDTH-1 downto 0);
-    LinkIn4                           : in  std_logic_vector (LANEWIDTH-1 downto 0);
-    LinkIn5                           : in  std_logic_vector (LANEWIDTH-1 downto 0);
-    LinkIn6                           : in  std_logic_vector (LANEWIDTH-1 downto 0);
-    LinkIn7                           : in  std_logic_vector (LANEWIDTH-1 downto 0);
-    LinkIn8                           : in  std_logic_vector (LANEWIDTH-1 downto 0);
-    LinkIn9                           : in  std_logic_vector (LANEWIDTH-1 downto 0);
-    LinkIn10                          : in  std_logic_vector (LANEWIDTH-1 downto 0);
-    LinkIn11                          : in  std_logic_vector (LANEWIDTH-1 downto 0);
-    LinkIn12                          : in  std_logic_vector (LANEWIDTH-1 downto 0);
-    LinkIn13                          : in  std_logic_vector (LANEWIDTH-1 downto 0);
-    LinkIn14                          : in  std_logic_vector (LANEWIDTH-1 downto 0);
-    LinkIn15                          : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn0                            : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn1                            : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn2                            : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn3                            : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn4                            : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn5                            : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn6                            : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn7                            : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn8                            : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn9                            : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn10                           : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn11                           : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn12                           : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn13                           : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn14                           : in  std_logic_vector (LANEWIDTH-1 downto 0);
+    LinkIn15                           : in  std_logic_vector (LANEWIDTH-1 downto 0);
 
-    LinkOut0                          : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
-    LinkOut1                          : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
-    LinkOut2                          : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
-    LinkOut3                          : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
-    LinkOut4                          : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
-    LinkOut5                          : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
-    LinkOut6                          : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
-    LinkOut7                          : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
-    LinkOut8                          : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
-    LinkOut9                          : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
-    LinkOut10                         : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
-    LinkOut11                         : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
-    LinkOut12                         : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
-    LinkOut13                         : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
-    LinkOut14                         : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
-    LinkOut15                         : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z')
+    LinkOut0                           : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
+    LinkOut1                           : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
+    LinkOut2                           : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
+    LinkOut3                           : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
+    LinkOut4                           : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
+    LinkOut5                           : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
+    LinkOut6                           : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
+    LinkOut7                           : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
+    LinkOut8                           : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
+    LinkOut9                           : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
+    LinkOut10                          : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
+    LinkOut11                          : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
+    LinkOut12                          : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
+    LinkOut13                          : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
+    LinkOut14                          : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z');
+    LinkOut15                          : out std_logic_vector (LANEWIDTH-1 downto 0) := (others => 'Z')
 
   );
 end entity;
@@ -112,15 +114,45 @@ signal ClkCount                        : integer                                
 signal LinkInVec                       : link_array_t (0 to MAXLINKWIDTH-1)(LANEWIDTH-1 downto 0);
 signal LinkOutVec                      : link_array_t (0 to MAXLINKWIDTH-1)(LANEWIDTH-1 downto 0);
 
+signal clk_div2                        : std_logic := '1';
+signal clk_main                        : std_logic := '1';
+
 begin
+
+P_CLKS : if not Gen2Clk generate
+
+  -- When using GEN1 clock rate, route port straight through to internal clock
+  clk_main                             <= Clk;
+
+else generate
+
+  -- When using a GEN2 clock, create a half speed clock
+  process (Clk)
+  begin
+    if Clk'event and Clk ='1' then
+      clk_div2                         <= not clk_div2;
+    end if;
+  end process;
+
+  -- Clock MUX to select between GEN1 and GEN2 clock sources
+  clkmux_i : entity work.clkmux
+  port map (
+    aresetn                            => '1',
+    clka                               => Clk,
+    clkb                               => clk_div2,
+    sel                                => Gen2ClkSel,
+    clkout                             => clk_main
+  );
+
+end generate;
 
   -----------------------------------------
   -- Synchronous process
   -----------------------------------------
 
-  process(Clk)
+  process(clk_main)
   begin
-    if Clk'event and Clk = '1' then
+    if clk_main'event and clk_main = '1' then
       ClkCount                         <= ClkCount + 1;
       notResetLast                     <= notReset;
     end if;
@@ -132,7 +164,7 @@ begin
 
   vproc_inst : entity work.VProc
   port map (
-    Clk                                => Clk,
+    Clk                                => clk_main,
     Addr                               => Addr,
     WE                                 => WE,
     RD                                 => RD,
@@ -159,42 +191,48 @@ begin
 
         case Addr is
 
-          when NODENUMADDR        => DataIn <= std_logic_vector(to_unsigned(NodeNum,   32));
-          when LANESADDR          => DataIn <= std_logic_vector(to_unsigned(LinkWidth, 32));
-          when EP_ADDR            => DataIn <= std_logic_vector(to_unsigned(EndPoint,  32));
-          when CLK_COUNT          => DataIn <= std_logic_vector(to_unsigned(ClkCount,  32));
-          when RESET_STATE        => DataIn <= 31x"00000000" & not notReset;
-          when DISABLE_SCRAMBLING => DataIn <= std_logic_vector(to_unsigned(DisableScrambling, 32));
-          when DISABLE_8B10B      => DataIn <= std_logic_vector(to_unsigned(Disable8b10b, 32));
-          
+          when NODENUMADDR             => DataIn <= std_logic_vector(to_unsigned(NodeNum,   32));
+          when LANESADDR               => DataIn <= std_logic_vector(to_unsigned(LinkWidth, 32));
+          when EP_ADDR                 => DataIn <= std_logic_vector(to_unsigned(EndPoint,  32));
+          when CLK_COUNT               => DataIn <= std_logic_vector(to_unsigned(ClkCount,  32));
+          when RESET_STATE             => DataIn <= 31x"00000000" & not notReset;
+          when DISABLE_SCRAMBLING      => DataIn <= std_logic_vector(to_unsigned(DisableScrambling, 32));
+          when DISABLE_8B10B           => DataIn <= std_logic_vector(to_unsigned(Disable8b10b, 32));
+
           when LINKADDR0  | LINKADDR1  | LINKADDR2  | LINKADDR3  |
                LINKADDR4  | LINKADDR5  | LINKADDR6  | LINKADDR7  |
                LINKADDR8  | LINKADDR9  | LINKADDR10 | LINKADDR11 |
                LINKADDR12 | LINKADDR13 | LINKADDR14 | LINKADDR15 =>
 
               if WE = '1' then
-                  LinkOutVec(to_integer(unsigned(Addr(3 downto 0)))) <= DataOut(LANEWIDTH-1 downto 0) xor InvertOutVec;
+                LinkOutVec(to_integer(unsigned(Addr(3 downto 0)))) <= DataOut(LANEWIDTH-1 downto 0) xor InvertOutVec;
               end if;
 
-              DataIn <= 22x"000000" & (LinkInVec(to_integer(unsigned(Addr(3 downto 0)))) xor InvertInVec);
+              DataIn                   <= 22x"000000" & (LinkInVec(to_integer(unsigned(Addr(3 downto 0)))) xor InvertInVec);
 
           when LINK_STATE  =>
               if WE = '1' then
-                ElecIdleOut <= DataOut(MAXLINKWIDTH-1 downto 0);
+                ElecIdleOut            <= DataOut(MAXLINKWIDTH-1 downto 0);
               end if;
-              DataIn <= RxDetect & ElecIdleIn;
+              DataIn                   <= RxDetect & ElecIdleIn;
+
+          when GEN2_CLK   =>
+               if WE = '1' then
+                 Gen2ClkSel               <= DataOut(0);
+               end if;
+               DataIn                  <= 31x"00000000" & Gen2ClkSel;
 
           when PVH_INVERT =>
               if WE = '1' then
-                ReverseOut   <= DataOut(3) ;
-                ReverseIn    <= DataOut(2) ;
-                InvertOut    <= DataOut(1) ;
-                InvertIn     <= DataOut(0) ;
+                ReverseOut             <= DataOut(3) ;
+                ReverseIn              <= DataOut(2) ;
+                InvertOut              <= DataOut(1) ;
+                InvertIn               <= DataOut(0) ;
               end if;
 
-              DataIn <= 28x"0000000" & ReverseOut & ReverseIn & InvertOut & InvertIn;
+              DataIn                   <= 28x"0000000" & ReverseOut & ReverseIn & InvertOut & InvertIn;
 
-          when PVH_STOP   => if WE = '1' then stop; end if;
+          when PVH_STOP   => if WE = '1' then stop;   end if;
           when PVH_FINISH => if WE = '1' then finish; end if;
           when PVH_FATAL  => if WE = '1' then report "Fatal issued by VProc" severity error; end if;
           when others     => report "***Error. PcieVHost---access to invalid address from VProc" severity error;
