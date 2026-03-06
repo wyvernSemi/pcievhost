@@ -45,6 +45,8 @@ module PcieVhost
   input             notReset,
   output reg        Gen2ClkSel,
 
+  output            ClkOut,
+
 `ifdef VERILATOR
   output reg [15:0] ElecIdleOut,
   input             ElecIdleIn,
@@ -104,27 +106,29 @@ generate
   if  (Gen2Clk == 0)
   begin
     // When using GEN1 clock rate, route port straight through to internal clock
-    assign clk_main      = Clk;
+    assign clk_main        = Clk;
   end
   else
   begin
     // When using a GEN2 clock, create a half speed clock
     always @(posedge Clk)
     begin
-        clk_div2         <= ~clk_div2;
+        clk_div2           <= ~clk_div2;
     end
-  
+
     // Clock MUX to select between GEN1 and GEN2 clock sources
     clkmux clkmux_i
     (
-      .aresetn               (1'b1),
-      .clka                  (Clk),
-      .clkb                  (clk_div2),
-      .sel                   (Gen2ClkSel),
-      .clkout                (clk_main)
+      .aresetn            (1'b1),
+      .clka               (Clk),
+      .clkb               (clk_div2),
+      .sel                (Gen2ClkSel),
+      .clkout             (clk_main)
     );
   end
 endgenerate
+
+  assign ClkOut            = clk_main;
 
 // --------------------------------
 // Virtual Processor
@@ -169,19 +173,19 @@ initial
 begin
     for (i = 0; i < 16; i = i + 1)
     begin
-        Out[i]         = 10'h000;
+        Out[i]             = 10'h000;
     end
 
-    InvertIn           = 1'b0;
-    InvertOut          = 1'b0;
-    ReverseIn          = 1'b0;
-    ReverseOut         = 1'b0;
-    ElecIdleOut        = 16'hffff;
-    notResetLast       = 1'b0;
-    UpdateResponse     = 1'b1;
-    ClkCount           = 0;
-    Gen2ClkSel         = 1'b0;
-    clk_div2           = 1'b1;
+    InvertIn               = 1'b0;
+    InvertOut              = 1'b0;
+    ReverseIn              = 1'b0;
+    ReverseOut             = 1'b0;
+    ElecIdleOut            = 16'hffff;
+    notResetLast           = 1'b0;
+    UpdateResponse         = 1'b1;
+    ClkCount               = 0;
+    Gen2ClkSel             = 1'b0;
+    clk_div2               = 1'b1;
 end
 
 // --------------------------------
@@ -190,8 +194,8 @@ end
 
 always @(posedge clk_main)
 begin
-    notResetLast <= #`RegDel notReset;
-    ClkCount     <= #`RegDel ClkCount + 1;
+    notResetLast           <= #`RegDel notReset;
+    ClkCount               <= #`RegDel ClkCount + 1;
 end
 
 always @(Update)
@@ -317,6 +321,10 @@ module PcieVhostSerial
   input      Clk,
   input      SerClk,
   input      notReset,
+  
+  output     ClkOut,
+  output     SerClkOut,
+  
   input      LinkIn0,    LinkIn1,    LinkIn2,    LinkIn3,
   input      LinkIn4,    LinkIn5,    LinkIn6,    LinkIn7,
   input      LinkIn8,    LinkIn9,    LinkIn10,   LinkIn11,
@@ -380,6 +388,8 @@ end
 
 endgenerate
 
+  assign SerClkOut         = serclk_main;
+
 //-------------------------------------------------------------
 // Instantiate a PcieVhost component
 //-------------------------------------------------------------
@@ -396,6 +406,9 @@ endgenerate
     .Clk               (Clk),
     .notReset          (notReset),
     .Gen2ClkSel        (Gen2ClkSel),
+    
+    .ClkOut            (ClkOut),
+    
 `ifdef VERILATOR
     .ElecIdleOut       (),
     .ElecIdleIn        ({LinkWidth{1'b0}}),

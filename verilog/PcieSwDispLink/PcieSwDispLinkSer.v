@@ -35,8 +35,7 @@ module PcieSwDispLinkSer
 #(
   parameter    LinkWidth = 16,
   parameter    NodeNum   = 8,
-  parameter    EndPoint  = 0,
-  parameter    Gen2Clk   = 0
+  parameter    EndPoint  = 0
 )
 (
   input        Clk,
@@ -45,63 +44,23 @@ module PcieSwDispLinkSer
   input [15:0] LinkIn
 );
 
-wire Gen2ClkSel;
-wire serclk_mux;
-wire serclk_main;
-reg  serclk_div2;
-
-//-------------------------------------------------------------
-// Select serial clock
-//-------------------------------------------------------------
-
-assign serclk_main = Gen2ClkSel ? serclk_mux : SerClk;
-
-generate
-// If not using GEN2 clock inputs, just pass through the input serial clock
-if (Gen2Clk != 0)
-
-initial
-begin
-  serclk_div2 <= 1'b0;
-end
-
-// Generate a half speed serial clock
-always @(posedge SerClk)
-begin
-  serclk_div2 <= ~serclk_div2;
-end
-
-  // Clock mux to select between GEN1 (divide by 2) or GEN2 serial clocks.
-  clkmux clkmux_i
-  (
-    .aresetn          (notReset),
-    .clka             (SerClk),
-    .clkb             (serclk_div2),
-    .sel              (Gen2ClkSel),
-    .clkout           (serclk_mux)
-  );
-
-endgenerate
-
 //-------------------------------------------------------------
 // Instantiate (wide) software display link component
 //-------------------------------------------------------------
 
 wire [159:0] PLinkVec;
 
-  PcieSwDispLink 
+  PcieSwDispLink
   #(
     .LinkWidth         (LinkWidth),
     .NodeNum           (NodeNum),
     .EP                (EndPoint),
     .DisableScrambling (0),
-    .Disable8b10b      (0),
-    .Gen2Clk           (Gen2Clk) 
+    .Disable8b10b      (0)
   ) psdl_i
   (
     .Clk               (Clk),
     .notReset          (notReset),
-    .Gen2ClkSel        (Gen2ClkSel),
 
     .LinkIn0           (PLinkVec[  9:0]),
     .LinkIn1           (PLinkVec[ 19:10]),
@@ -122,8 +81,8 @@ wire [159:0] PLinkVec;
   );
 
 
- Serialiser serdes (
-    .SerClk            (serclk_main),
+  Serialiser serdes (
+    .SerClk            (SerClk),
     .BitReverse        (1'b0),
 
     .ParInVec          (160'h0),

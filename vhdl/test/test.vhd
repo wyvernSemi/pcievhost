@@ -29,7 +29,7 @@ use std.env.all;
 use work.pcieVHost_pkg.all;
 
 -- -------------------------------------------------------------
---  Top level test bench for usbModel
+--  Top level test bench for pcieVhost
 -- -------------------------------------------------------------
 
 entity test is
@@ -79,11 +79,6 @@ nreset                     <= '1' when count >= 10 else '0';
       wait for CLK_PERIOD/2.0;
     end loop;
   end process;
-
-  -- Generate a serial clock only if serialisers are used
-  g_GENSERIALCLK : if SERIALISER /= 0 generate
-
-  end generate;
 
   -- Keep a clock count and monitor for a timeout
   process (clk)

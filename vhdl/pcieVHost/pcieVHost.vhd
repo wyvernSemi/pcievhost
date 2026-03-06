@@ -48,6 +48,7 @@ entity PcieVHost is
     Clk                                : in  std_logic;
     notReset                           : in  std_logic;
     Gen2ClkSel                         : out std_logic := '0'; -- default to GEN1 clock rate
+    ClkOut                             : out std_logic;
 
     LinkIn0                            : in  std_logic_vector (LANEWIDTH-1 downto 0);
     LinkIn1                            : in  std_logic_vector (LANEWIDTH-1 downto 0);
@@ -145,6 +146,9 @@ else generate
   );
 
 end generate;
+
+  -- Export the clock being used
+  ClkOut <= clk_main;
 
   -----------------------------------------
   -- Synchronous process

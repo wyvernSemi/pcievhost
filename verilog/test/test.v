@@ -54,12 +54,12 @@ reg          Clk;
 integer      Count;
 
 wire         notReset;
-       
+
 wire   [9:0] LinkDown0,  LinkDown1,  LinkDown2,  LinkDown3;
 wire   [9:0] LinkDown4,  LinkDown5,  LinkDown6,  LinkDown7;
 wire   [9:0] LinkDown8,  LinkDown9,  LinkDown10, LinkDown11;
 wire   [9:0] LinkDown12, LinkDown13, LinkDown14, LinkDown15;
-       
+
 wire   [9:0] LinkUp0,    LinkUp1,    LinkUp2,    LinkUp3;
 wire   [9:0] LinkUp4,    LinkUp5,    LinkUp6,    LinkUp7;
 wire   [9:0] LinkUp8,    LinkUp9,    LinkUp10,   LinkUp11;
@@ -81,12 +81,12 @@ reg    [9:0] IntLinkDown0,  IntLinkDown1,  IntLinkDown2,  IntLinkDown3;
 reg    [9:0] IntLinkDown4,  IntLinkDown5,  IntLinkDown6,  IntLinkDown7;
 reg    [9:0] IntLinkDown8,  IntLinkDown9,  IntLinkDown10, IntLinkDown11;
 reg    [9:0] IntLinkDown12, IntLinkDown13, IntLinkDown14, IntLinkDown15;
-      
+
 reg    [9:0] IntLinkUp0,    IntLinkUp1,    IntLinkUp2,    IntLinkUp3;
 reg    [9:0] IntLinkUp4,    IntLinkUp5,    IntLinkUp6,    IntLinkUp7;
 reg    [9:0] IntLinkUp8,    IntLinkUp9,    IntLinkUp10,   IntLinkUp11;
 reg    [9:0] IntLinkUp12,   IntLinkUp13,   IntLinkUp14,   IntLinkUp15;
-      
+
 wire  [15:0] ElecIdleUp, ElecIdleDown;
 
 
@@ -151,7 +151,7 @@ wire  [9:0] IntLinkDown12  = LinkDown12;
 wire  [9:0] IntLinkDown13  = LinkDown13;
 wire  [9:0] IntLinkDown14  = LinkDown14;
 wire  [9:0] IntLinkDown15  = LinkDown15;
-      
+
 wire  [9:0] IntLinkUp0     = LinkUp0;
 wire  [9:0] IntLinkUp1     = LinkUp1;
 wire  [9:0] IntLinkUp2     = LinkUp2;
@@ -172,7 +172,7 @@ wire  [9:0] IntLinkUp15    = LinkUp15;
 `endif
 
 //-------------------------------------------------------------
-// Instantiate a root complex pcieVHost 
+// Instantiate a root complex pcieVHost
 //-------------------------------------------------------------
 
   PcieVhost
@@ -187,11 +187,14 @@ wire  [9:0] IntLinkUp15    = LinkUp15;
   (
     .Clk               (Clk),
     .notReset          (notReset),
+
     .Gen2ClkSel        (),
-`ifdef VERILATOR       
+    .ClkOut            (),
+
+`ifdef VERILATOR
     .ElecIdleOut       (ElecIdleDown),
     .ElecIdleIn        (ElecIdleUp),
-`endif                 
+`endif
     .LinkIn0           (IntLinkUp0),
     .LinkIn1           (IntLinkUp1),
     .LinkIn2           (IntLinkUp2),
@@ -208,7 +211,7 @@ wire  [9:0] IntLinkUp15    = LinkUp15;
     .LinkIn13          (IntLinkUp13),
     .LinkIn14          (IntLinkUp14),
     .LinkIn15          (IntLinkUp15),
-                       
+
     .LinkOut0          (LinkDown0),
     .LinkOut1          (LinkDown1),
     .LinkOut2          (LinkDown2),
@@ -243,11 +246,14 @@ wire  [9:0] IntLinkUp15    = LinkUp15;
   (
     .Clk               (Clk),
     .notReset          (notReset),
+
     .Gen2ClkSel        (),
-`ifdef VERILATOR       
+    .ClkOut            (),
+
+`ifdef VERILATOR
     .ElecIdleOut       (ElecIdleUp),
     .ElecIdleIn        (ElecIdleDown),
-`endif                 
+`endif
     .LinkIn0           (IntLinkDown0),
     .LinkIn1           (IntLinkDown1),
     .LinkIn2           (IntLinkDown2),
@@ -264,7 +270,7 @@ wire  [9:0] IntLinkUp15    = LinkUp15;
     .LinkIn13          (IntLinkDown13),
     .LinkIn14          (IntLinkDown14),
     .LinkIn15          (IntLinkDown15),
-                       
+
     .LinkOut0          (LinkUp0),
     .LinkOut1          (LinkUp1),
     .LinkOut2          (LinkUp2),
@@ -311,7 +317,7 @@ begin
     end
 
     Count = 0;
-    
+
     // Generate a clock
     forever # (`CLK_PERIOD/2) Clk = ~Clk;
 end

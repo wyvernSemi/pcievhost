@@ -43,6 +43,9 @@ entity PcieVHostSerial is
     Clk                   : in  std_logic;
     SerClk                : in  std_logic;
     notReset              : in  std_logic;
+    
+    ClkOut                : out std_logic;
+    SerClkOut             : out std_logic;
 
     LinkIn0               : in  std_logic;
     LinkIn1               : in  std_logic;
@@ -122,6 +125,8 @@ begin
 
   end generate;
 
+  SerClkOut <= serclk_main;
+  
   -- -------------------------------------------------------------
   -- PcieVHost instantiation
   -- -------------------------------------------------------------
@@ -137,6 +142,7 @@ begin
     notReset                           => notReset,
 
     Gen2ClkSel                         => serclk_sel,
+    ClkOut                             => ClkOut,
 
     LinkIn0                            => PLinkIn(0),
     LinkIn1                            => PLinkIn(1),

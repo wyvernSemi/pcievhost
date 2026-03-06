@@ -32,7 +32,9 @@
 //-------------------------------------------------------------
 module test
 #(parameter VCD_DUMP       = 0,
-  parameter DEBUG_STOP     = 0
+  parameter DEBUG_STOP     = 0,
+  parameter PIPEDATWIDTH   = 8,
+  parameter GEN2_CLK       = 0
 );
 
 //-------------------------------------------------------------
@@ -98,11 +100,20 @@ wire       LinkUpDataKInt    = LinkUpDataK;
 // Instantiate a pcieVHostPipex1 as RC
 //-------------------------------------------------------------
 
-    pcieVHostPipex1 #(RcNodeNum, ROOTCMPLX) rc
+    pcieVHostPipex1
+    #(
+       .NodeNum             (RcNodeNum),
+       .EndPoint            (ROOTCMPLX),
+       .DataWidth           (PIPEDATWIDTH),
+       .Gen2Clk             (GEN2_CLK)
+    ) rc
     (
        .pcieclk             (Clk),
        .pclk                (Clk),
        .nreset              (notReset),
+
+       .Gen2ClkSel          (),
+       .ClkOut              (),
 
 `ifdef VERILATOR
        .ElecIdleOut         (ElecIdleDown),
@@ -120,11 +131,20 @@ wire       LinkUpDataKInt    = LinkUpDataK;
 // Instantiate a pcieVHostPipex1 as an Endpoint
 //-------------------------------------------------------------
 
-    pcieVHostPipex1 #(EpNodeNum, ENDPOINT) ep
+    pcieVHostPipex1
+    #(
+       .NodeNum             (EpNodeNum),
+       .EndPoint            (ENDPOINT),
+       .DataWidth           (PIPEDATWIDTH),
+       .Gen2Clk             (GEN2_CLK)
+    ) ep
     (
        .pcieclk             (Clk),
        .pclk                (Clk),
        .nreset              (notReset),
+
+       .Gen2ClkSel          (),
+       .ClkOut              (),
 
 `ifdef VERILATOR
        .ElecIdleOut         (ElecIdleUp),

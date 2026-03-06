@@ -37,26 +37,33 @@ module PcieSwDispLink
   parameter NodeNum            = 8,
   parameter EP                 = 0,
   parameter DisableScrambling  = 0,
-  parameter Disable8b10b       = 0,
-  parameter Gen2Clk            = 0
+  parameter Disable8b10b       = 0
 )
 (
   input       Clk,
   input       notReset,
-  output      Gen2ClkSel,
-            
+
   input [9:0] LinkIn0,   LinkIn1,   LinkIn2,   LinkIn3,
   input [9:0] LinkIn4,   LinkIn5,   LinkIn6,   LinkIn7,
   input [9:0] LinkIn8,   LinkIn9,   LinkIn10,  LinkIn11,
   input [9:0] LinkIn12,  LinkIn13,  LinkIn14,  LinkIn15
 );
 
-localparam   RC =   0;
+  PcieVhost
+  #(
+    .LinkWidth         (LinkWidth),
+    .NodeNum           (NodeNum),
+    .EndPoint          (EP),
+    .DisableScrambling (DisableScrambling),
+    .Disable8b10b      (Disable8b10b),
+    .Gen2Clk           (0)
+  ) pcievhost_i
+  (
+    .Clk             (Clk),
+    .notReset        (notReset),
 
-  PcieVhost #(LinkWidth, NodeNum, EP, DisableScrambling, Disable8b10b, Gen2Clk) pcievhost_i (
-     .Clk             (Clk),
-     .notReset        (notReset),
-     .Gen2ClkSel      (Gen2ClkSel),
+    .Gen2ClkSel      (),
+    .ClkOut          (),
 
 `ifdef VERILATOR
     .ElecIdleOut      (),

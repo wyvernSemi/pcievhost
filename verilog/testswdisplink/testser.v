@@ -29,19 +29,27 @@
 `WsTimeScale
 
 //-------------------------------------------------------------
+// Test bench top level for PcieSwDispLinkSer
 //-------------------------------------------------------------
 module testser
 #(parameter VCD_DUMP            = 0,
   parameter DEBUG_STOP          = 0,
   parameter NUMLANES            = 2
-);                              
-                                
+);
+
+//-------------------------------------------------------------
+// Local parameter constant definitions
+//-------------------------------------------------------------
+
 localparam IS_RC                = 0;
 localparam IS_EP                = 1;
 localparam DISABLE_SCRAMBLING   = 0;
 localparam DISABLE_8B10B        = 0;
 localparam GEN2_CLK             = 0;
 
+//-------------------------------------------------------------
+// Signal definitions
+//-------------------------------------------------------------
 reg     Clk;
 reg     SerClk;
 integer Count;
@@ -69,6 +77,9 @@ wire [31:0] LinkWidth            = NUMLANES;
 wire [31:0] NodeNumDown          = `VPCIE_HOST_NODE_NUM;
 wire [31:0] NodeNumUp            = `VPCIE_EP_NODE_NUM;
 
+//-------------------------------------------------------------
+// Hacks specific to Verilator
+//-------------------------------------------------------------
 
 `ifdef VERILATOR
 reg [159:0] DownLink;
@@ -180,7 +191,10 @@ wire [9:0] IntLinkUp15    = LinkUp15;
 
 `endif
 
-   Serialiser serdesdn (
+  //-------------------------------------------------------------
+  // Serialiser for RC PcieSwDispLinkSer
+  //-------------------------------------------------------------
+  Serialiser serdesdn (
     .SerClk            (SerClk),
     .BitReverse        (1'b0),
 
@@ -190,60 +204,86 @@ wire [9:0] IntLinkUp15    = LinkUp15;
     .ParOut            ()
   );
 
-  PcieSwDispLinkSer #(NUMLANES, `VPCIE_HOST_NODE_NUM+10, IS_RC, GEN2_CLK) displink10
+  //-------------------------------------------------------------
+  // PcieSwDispLinkSer instantiation
+  //-------------------------------------------------------------
+
+  PcieSwDispLinkSer
+  #(
+    .LinkWidth         (NUMLANES),
+    .NodeNum           (`VPCIE_HOST_NODE_NUM+10),
+    .EndPoint          (IS_RC)
+  ) displink10
   (
-    .Clk              (Clk),
-    .SerClk           (SerClk),
-    .notReset         (notReset),
-    .LinkIn           (LinkDownSer)
+    .Clk               (Clk),
+    .SerClk            (SerClk),
+    .notReset          (notReset),
+    .LinkIn            (LinkDownSer)
   );
 
 
- // Host
- PcieVhost #(NUMLANES, `VPCIE_HOST_NODE_NUM, IS_RC, DISABLE_SCRAMBLING, DISABLE_8B10B, GEN2_CLK)
-                                      host (.Clk              (Clk),
-                                            .notReset         (notReset),
-                                            .Gen2ClkSel       (),
+  //-------------------------------------------------------------
+  // Host
+  //-------------------------------------------------------------
+
+  PcieVhost
+  #(
+    .LinkWidth         (NUMLANES),
+    .NodeNum           (`VPCIE_HOST_NODE_NUM),
+    .EndPoint          (IS_RC),
+    .DisableScrambling (DISABLE_SCRAMBLING),
+    .Disable8b10b      (DISABLE_8B10B),
+    .Gen2Clk           (GEN2_CLK)
+  ) host
+  (
+    .Clk               (Clk),
+    .notReset          (notReset),
+    .Gen2ClkSel        (),
+    .ClkOut            (),
+
 `ifdef VERILATOR
-                                            .ElecIdleOut      (ElecIdleDown),
-                                            .ElecIdleIn       (ElecIdleUp),
+    .ElecIdleOut       (ElecIdleDown),
+    .ElecIdleIn        (ElecIdleUp),
 `endif
 
-                                            .LinkIn0          (IntLinkUp0),
-                                            .LinkIn1          (IntLinkUp1),
-                                            .LinkIn2          (IntLinkUp2),
-                                            .LinkIn3          (IntLinkUp3),
-                                            .LinkIn4          (IntLinkUp4),
-                                            .LinkIn5          (IntLinkUp5),
-                                            .LinkIn6          (IntLinkUp6),
-                                            .LinkIn7          (IntLinkUp7),
-                                            .LinkIn8          (IntLinkUp8),
-                                            .LinkIn9          (IntLinkUp9),
-                                            .LinkIn10         (IntLinkUp10),
-                                            .LinkIn11         (IntLinkUp11),
-                                            .LinkIn12         (IntLinkUp12),
-                                            .LinkIn13         (IntLinkUp13),
-                                            .LinkIn14         (IntLinkUp14),
-                                            .LinkIn15         (IntLinkUp15),
+    .LinkIn0           (IntLinkUp0),
+    .LinkIn1           (IntLinkUp1),
+    .LinkIn2           (IntLinkUp2),
+    .LinkIn3           (IntLinkUp3),
+    .LinkIn4           (IntLinkUp4),
+    .LinkIn5           (IntLinkUp5),
+    .LinkIn6           (IntLinkUp6),
+    .LinkIn7           (IntLinkUp7),
+    .LinkIn8           (IntLinkUp8),
+    .LinkIn9           (IntLinkUp9),
+    .LinkIn10          (IntLinkUp10),
+    .LinkIn11          (IntLinkUp11),
+    .LinkIn12          (IntLinkUp12),
+    .LinkIn13          (IntLinkUp13),
+    .LinkIn14          (IntLinkUp14),
+    .LinkIn15          (IntLinkUp15),
 
-                                            .LinkOut0         (LinkDown0),
-                                            .LinkOut1         (LinkDown1),
-                                            .LinkOut2         (LinkDown2),
-                                            .LinkOut3         (LinkDown3),
-                                            .LinkOut4         (LinkDown4),
-                                            .LinkOut5         (LinkDown5),
-                                            .LinkOut6         (LinkDown6),
-                                            .LinkOut7         (LinkDown7),
-                                            .LinkOut8         (LinkDown8),
-                                            .LinkOut9         (LinkDown9),
-                                            .LinkOut10        (LinkDown10),
-                                            .LinkOut11        (LinkDown11),
-                                            .LinkOut12        (LinkDown12),
-                                            .LinkOut13        (LinkDown13),
-                                            .LinkOut14        (LinkDown14),
-                                            .LinkOut15        (LinkDown15)
-                                            );
+    .LinkOut0          (LinkDown0),
+    .LinkOut1          (LinkDown1),
+    .LinkOut2          (LinkDown2),
+    .LinkOut3          (LinkDown3),
+    .LinkOut4          (LinkDown4),
+    .LinkOut5          (LinkDown5),
+    .LinkOut6          (LinkDown6),
+    .LinkOut7          (LinkDown7),
+    .LinkOut8          (LinkDown8),
+    .LinkOut9          (LinkDown9),
+    .LinkOut10         (LinkDown10),
+    .LinkOut11         (LinkDown11),
+    .LinkOut12         (LinkDown12),
+    .LinkOut13         (LinkDown13),
+    .LinkOut14         (LinkDown14),
+    .LinkOut15         (LinkDown15)
+  );
 
+  //-------------------------------------------------------------
+  // Serialiser for EP PcieSwDispLinkSer
+  //-------------------------------------------------------------
    Serialiser serdesup (
     .SerClk            (SerClk),
     .BitReverse        (1'b0),
@@ -254,58 +294,82 @@ wire [9:0] IntLinkUp15    = LinkUp15;
     .ParOut            ()
   );
 
-  PcieSwDispLinkSer #(NUMLANES, `VPCIE_EP_NODE_NUM+10, IS_EP, GEN2_CLK) displink11
+  //-------------------------------------------------------------
+  // Endpoint PcieSwDispLinkSer instantiation
+  //-------------------------------------------------------------
+  PcieSwDispLinkSer
+  #(
+    .LinkWidth         (NUMLANES),
+    .NodeNum           (`VPCIE_EP_NODE_NUM+10),
+    .EndPoint          (IS_EP)
+  ) displink11
   (
-    .Clk              (Clk),
-    .SerClk           (SerClk),
-    .notReset         (notReset),
-    .LinkIn           (LinkUpSer)
+    .Clk               (Clk),
+    .SerClk            (SerClk),
+    .notReset          (notReset),
+    .LinkIn            (LinkUpSer)
   );
 
- // Endpoint
- PcieVhost #(NUMLANES, `VPCIE_EP_NODE_NUM, IS_EP, DISABLE_SCRAMBLING, DISABLE_8B10B, GEN2_CLK)
-                                      ep   (.Clk              (Clk),
-                                            .notReset         (notReset),
-                                            .Gen2ClkSel       (),
+  //-------------------------------------------------------------
+  // Endpoint
+  //-------------------------------------------------------------
+
+  PcieVhost
+  #(
+    .LinkWidth          (NUMLANES),
+    .NodeNum            (`VPCIE_EP_NODE_NUM),
+    .EndPoint           (IS_EP),
+    .DisableScrambling  (DISABLE_SCRAMBLING),
+    .Disable8b10b       (DISABLE_8B10B),
+    .Gen2Clk            (GEN2_CLK)
+  ) ep
+  (
+    .Clk               (Clk),
+    .notReset          (notReset),
+    .Gen2ClkSel        (),
+    .ClkOut            (),
 `ifdef VERILATOR
-                                            .ElecIdleOut      (ElecIdleUp),
-                                            .ElecIdleIn       (ElecIdleDown),
+    .ElecIdleOut       (ElecIdleUp),
+    .ElecIdleIn        (ElecIdleDown),
 `endif
-                                            .LinkIn0          (IntLinkDown0),
-                                            .LinkIn1          (IntLinkDown1),
-                                            .LinkIn2          (IntLinkDown2),
-                                            .LinkIn3          (IntLinkDown3),
-                                            .LinkIn4          (IntLinkDown4),
-                                            .LinkIn5          (IntLinkDown5),
-                                            .LinkIn6          (IntLinkDown6),
-                                            .LinkIn7          (IntLinkDown7),
-                                            .LinkIn8          (IntLinkDown8),
-                                            .LinkIn9          (IntLinkDown9),
-                                            .LinkIn10         (IntLinkDown10),
-                                            .LinkIn11         (IntLinkDown11),
-                                            .LinkIn12         (IntLinkDown12),
-                                            .LinkIn13         (IntLinkDown13),
-                                            .LinkIn14         (IntLinkDown14),
-                                            .LinkIn15         (IntLinkDown15),
+    .LinkIn0           (IntLinkDown0),
+    .LinkIn1           (IntLinkDown1),
+    .LinkIn2           (IntLinkDown2),
+    .LinkIn3           (IntLinkDown3),
+    .LinkIn4           (IntLinkDown4),
+    .LinkIn5           (IntLinkDown5),
+    .LinkIn6           (IntLinkDown6),
+    .LinkIn7           (IntLinkDown7),
+    .LinkIn8           (IntLinkDown8),
+    .LinkIn9           (IntLinkDown9),
+    .LinkIn10          (IntLinkDown10),
+    .LinkIn11          (IntLinkDown11),
+    .LinkIn12          (IntLinkDown12),
+    .LinkIn13          (IntLinkDown13),
+    .LinkIn14          (IntLinkDown14),
+    .LinkIn15          (IntLinkDown15),
 
-                                            .LinkOut0         (LinkUp0),
-                                            .LinkOut1         (LinkUp1),
-                                            .LinkOut2         (LinkUp2),
-                                            .LinkOut3         (LinkUp3),
-                                            .LinkOut4         (LinkUp4),
-                                            .LinkOut5         (LinkUp5),
-                                            .LinkOut6         (LinkUp6),
-                                            .LinkOut7         (LinkUp7),
-                                            .LinkOut8         (LinkUp8),
-                                            .LinkOut9         (LinkUp9),
-                                            .LinkOut10        (LinkUp10),
-                                            .LinkOut11        (LinkUp11),
-                                            .LinkOut12        (LinkUp12),
-                                            .LinkOut13        (LinkUp13),
-                                            .LinkOut14        (LinkUp14),
-                                            .LinkOut15        (LinkUp15)
-                                            );
+    .LinkOut0          (LinkUp0),
+    .LinkOut1          (LinkUp1),
+    .LinkOut2          (LinkUp2),
+    .LinkOut3          (LinkUp3),
+    .LinkOut4          (LinkUp4),
+    .LinkOut5          (LinkUp5),
+    .LinkOut6          (LinkUp6),
+    .LinkOut7          (LinkUp7),
+    .LinkOut8          (LinkUp8),
+    .LinkOut9          (LinkUp9),
+    .LinkOut10         (LinkUp10),
+    .LinkOut11         (LinkUp11),
+    .LinkOut12         (LinkUp12),
+    .LinkOut13         (LinkUp13),
+    .LinkOut14         (LinkUp14),
+    .LinkOut15         (LinkUp15)
+  );
 
+//-------------------------------------------------------------
+// Initialisation and clock generation
+//-------------------------------------------------------------
 initial
 begin
   // If specified, dumpa VCD file
@@ -337,7 +401,9 @@ begin
     forever # (`CLK_PERIOD/20) SerClk = ~SerClk;
   join
 end
-
+//-------------------------------------------------------------
+// Counter and timeout control
+//-------------------------------------------------------------
 always @(posedge Clk)
 begin
   Count = Count + 1;
@@ -347,9 +413,12 @@ begin
   end
 end
 
-// Top level fatal task, which can be called from anywhere in verilog code.
-// via the `fatal definition in pciedispheader.v. Any data logging, error
-// message displays etc., on a fatal, should be placed in here.
+//-------------------------------------------------------------
+// Top level fatal task, which can be called from anywhere in
+// verilog code via the `fatal definition in test_defs.v. Any
+// data logging, error message displays etc., on a fatal,
+// should be placed in here.
+//-------------------------------------------------------------
 task Fatal;
 begin
   $display("***FATAL ERROR...calling $finish!");

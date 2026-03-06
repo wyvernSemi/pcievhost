@@ -42,6 +42,9 @@ module pcieVHostPipex1
   input                          pclk,    // pcieclk /(DataWidth/8), synchronous
   input                          nreset,
 
+  output                         Gen2ClkSel,
+  output                         ClkOut,
+
 `ifdef VERILATOR
   output                         ElecIdleOut,
   input                          ElecIdleIn,
@@ -74,7 +77,6 @@ wire  [DataWidth/8-1:0]      RxDataKSampleShift;
 wire  [DataWidth-1:0]        TxDataPipeShift;
 wire  [DataWidth/8-1:0]      TxDataKPipeShift;
 
-wire                         Gen2ClkSel;
 wire                         pclk_main;
 wire                         pcieclk_main;
 
@@ -218,11 +220,20 @@ end
 // PcieVhost configured with x1 link
 //-------------------------------------------------------------
 
-  PcieVhost #(LINKWIDTH, NodeNum, EndPoint, 0, 1, Gen2Clk) pcievh_i
+  PcieVhost #(
+    . LinkWidth         (LINKWIDTH),
+    . NodeNum           (NodeNum),
+    . EndPoint          (EndPoint),
+    . DisableScrambling (0),
+    . Disable8b10b      (1),
+    . Gen2Clk           (Gen2Clk)
+  ) pcievh_i
   (
     .Clk                   (pcieclk),  // Use input pcieclk clock as PcieVhost will divide inside
     .notReset              (nreset),
     .Gen2ClkSel            (Gen2ClkSel),
+
+    .ClkOut                (ClkOut),
 
 `ifdef VERILATOR
     .ElecIdleOut           (ElecIdleOutInt),

@@ -53,8 +53,8 @@ localparam GEN2_CLK           = 0;
 // Signal definitions
 //-------------------------------------------------------------
 
-reg     Clk;
-integer Count;
+reg          Clk;
+integer      Count;
 
 wire   [9:0] LinkDown0,  LinkDown1,  LinkDown2,  LinkDown3;
 wire   [9:0] LinkDown4,  LinkDown5,  LinkDown6,  LinkDown7;
@@ -66,7 +66,9 @@ wire   [9:0] LinkUp4,    LinkUp5,    LinkUp6,    LinkUp7;
 wire   [9:0] LinkUp8,    LinkUp9,    LinkUp10,   LinkUp11;
 wire   [9:0] LinkUp12,   LinkUp13,   LinkUp14,   LinkUp15;
 
-wire [15:0] ElecIdleUp, ElecIdleDown;
+wire         ClkOutRc,   ClkOutEp;
+
+wire  [15:0] ElecIdleUp, ElecIdleDown;
 
 //-------------------------------------------------------------
 // Generate a reset
@@ -181,13 +183,11 @@ wire [9:0] IntLinkUp15    = LinkUp15;
     .NodeNum           (`VPCIE_HOST_NODE_NUM+10),
     .EP                (IS_RC),
     .DisableScrambling (DISABLE_SCRAMBLING),
-    .Disable8b10b      (DISABLE_8B10B),
-    .Gen2Clk           (GEN2_CLK)
+    .Disable8b10b      (DISABLE_8B10B)
   ) displink10
   (
-    .Clk               (Clk),
+    .Clk               (ClkOutRc),
     .notReset          (notReset),
-    .Gen2ClkSel        (),
 
     .LinkIn0           (LinkDown0),
     .LinkIn1           (LinkDown1),
@@ -219,11 +219,13 @@ wire [9:0] IntLinkUp15    = LinkUp15;
     .DisableScrambling (DISABLE_SCRAMBLING),
     .Disable8b10b      (DISABLE_8B10B),
     .Gen2Clk           (GEN2_CLK)
-  ) host               
-  (                    
+  ) host
+  (
     .Clk               (Clk),
     .notReset          (notReset),
+
     .Gen2ClkSel        (),
+    .ClkOut            (ClkOutRc),
 
 `ifdef VERILATOR
     .ElecIdleOut       (ElecIdleDown),
@@ -275,13 +277,11 @@ wire [9:0] IntLinkUp15    = LinkUp15;
     .NodeNum           (`VPCIE_EP_NODE_NUM+10),
     .EP                (IS_EP),
     .DisableScrambling (DISABLE_SCRAMBLING),
-    .Disable8b10b      (DISABLE_8B10B),
-    .Gen2Clk           (GEN2_CLK)
+    .Disable8b10b      (DISABLE_8B10B)
   ) displink11
   (
-    .Clk               (Clk),
+    .Clk               (ClkOutEp),
     .notReset          (notReset),
-    .Gen2ClkSel        (), 
 
     .LinkIn0           (LinkDown0),
     .LinkIn1           (LinkDown1),
@@ -318,6 +318,7 @@ wire [9:0] IntLinkUp15    = LinkUp15;
     .Clk               (Clk),
     .notReset          (notReset),
     .Gen2ClkSel        (),
+    .ClkOut            (ClkOutEp),
 
 `ifdef VERILATOR
     .ElecIdleOut       (ElecIdleUp),

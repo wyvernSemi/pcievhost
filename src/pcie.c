@@ -1774,7 +1774,7 @@ void SendTsGen (const int identifier, const int lane_num, const int link_num, co
     uint32_t  LinkIn  [MAX_LINK_WIDTH];
     PktData_t LinkOut [TS_LENGTH][MAX_LINK_WIDTH];
     TS_t      ts_data                              = {link_num, lane_num, n_fts, gen, control, identifier};
-    
+
     bool      is_gen2                              = ((gen & TS_DATA_RATE_GEN2) == TS_DATA_RATE_GEN2);
 
     // Do some checks
@@ -2517,6 +2517,23 @@ void SetTxEnabled (const int node)
 void getPcieVersionString (char* sbuf, const int bufsize)
 {
     snprintf(sbuf, bufsize, "pcieVHost version %d.%d.%d\n", PCIE_MAJOR_VER, PCIE_MINOR_VER, PCIE_PATCH_VER);
+}
+
+// -------------------------------------------------------------------------
+// SelectGen1Clock()
+// -------------------------------------------------------------------------
+void SelectGen1Clock (const int node)
+{
+    VWrite(GEN2_CLK, 0, 1, node);
+}
+
+// -------------------------------------------------------------------------
+// SelectGen2Clock()
+// -------------------------------------------------------------------------
+
+void SelectGen2Clock (const int node)
+{
+    VWrite(GEN2_CLK, 1, 1, node);
 }
 
 // Allow reuse in other files
