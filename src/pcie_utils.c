@@ -514,16 +514,13 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
         PktData_t gotcrc = (crc[0] << 8)| crc[1];
         PktData_t expcrc = (pkt->data[5] << 8) | pkt->data[6];
 
-        type = pkt->data[1];
-        type &= ((type & 0x30) == 0x20) ? 0xff : 0xf8; // Mask VC bits
-
         DispDll(state, pkt, true);
 
         // If good CRC ...
         if (expcrc == gotcrc || state->usrconf.DisableCrcChk)
         {
             type = pkt->data[1];
-            type &= ((type & 0x30) == 0x20) ? 0xff : 0xf8; // Mask VC bits
+            type &= (type & 0xc) ? 0xf8 : 0xff; // Mask VC bits for FC DLLPs
             switch (type)
             {
             case DL_ACK:
@@ -784,7 +781,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
         else if (!state->usrconf.DisableMem && (type == TL_MRD32 || type == TL_MRD64 || type == TL_MRDLCK32 || type == TL_MRDLCK64))
         {
             bool is_locked = type == TL_MRDLCK32 || type == TL_MRDLCK64;
-            
+
             // Construct completion and add to queue
             if (type == TL_MRD32 || type == TL_MRDLCK32)
             {
@@ -1833,7 +1830,7 @@ void AddPktToQueue(const pPcieModelState_t const state, const pPkt_t const packe
         {
             state->send_p = packet;
         }
-        
+
         if (state->AckHolder.NextPkt == NULL)
         {
             state->AckHolder.NextPkt = packet;
@@ -1947,11 +1944,8 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
                     if (linkevent->OsCount[idx] == 3 || (linkevent->OsState[idx] == SKP && linkevent->OsCount[idx] == 1))
                     {
                         ProcessOS(state, linkevent, idx, linkevent->OsState[idx], NULL, state->vuser_os_cb, state->usrptr, state->thisnode);
-                        if (linkevent->OsState[idx] != SKP)
-                        {
-                            linkevent->OsState[idx] = 0;
-                            linkevent->OsCount[idx] = 0;
-                        }
+                        linkevent->OsState[idx] = 0;
+                        linkevent->OsCount[idx] = 0;
                     }
                 }
                 else
