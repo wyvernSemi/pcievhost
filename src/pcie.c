@@ -262,7 +262,7 @@ void SendPacket(const int node)
     this->draining_queue = false;
 
     // Send out any accumulated skips
-    while (this->SkipScheduled)
+    while (this->SkipScheduled && !this->usrconf.DisableSkips)
     {
         SendOs(SKP, node);
     }
