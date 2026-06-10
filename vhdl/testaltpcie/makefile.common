@@ -79,6 +79,7 @@ $(PLI_SO): pcie_c_lib vproc_lib  $(wildcard $(USRCDIR)/*.[ch]*)
             $(CFLAGS_SO) $(CFLAGS)                         \
 	       -Wl,-whole-archive                              \
 	       -lpthread                                       \
+           $(EXTLDFLAGS)                                   \
 	       -L$(PCIE_CLIB_DIR) -lpcievhost                  \
 	       -L./ -lvproc                                    \
 	       -Wl,-no-whole-archive                           \
