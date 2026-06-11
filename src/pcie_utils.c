@@ -212,7 +212,7 @@ static void UpdateConsumedFC(const pPcieModelState_t const state)
     pFlowControl_t flw = &(state->flwcntl);
     int fc_timeout[FC_NUMTYPES];
 
-    if (state->usrconf.DisableFc  || flw->fc_state[0] != INITFC_FI2)
+    if (state->usrconf.DisableFc  || flw->fc_state[0] != INITFC_FI2 || flw->fc_init_count[0] < FC_INIT_SENT_MIN)
     {
         return;
     }
@@ -616,7 +616,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
                 }
                 else
                 {
-                    RxFcInit(flw, type, GET_HDR_FC(pkt->data), GET_DATA_FC(pkt->data));
+                    RxFcInit(flw, type, GET_HDR_FC(pkt->data), GET_DATA_FC(pkt->data), state->thisnode);
                     CheckFree(pkt->data);
                     CheckFree(pkt);
                 }
@@ -1737,6 +1737,7 @@ void InitPcieState(const pPcieModelState_t const state, const int node)
             flw->RxDataCredits[fc_vc][fc_type]         = 0;
             flw->LastSentFcTime[fc_vc][fc_type]        = 0;
         }
+        flw->fc_init_count[fc_vc] = 0;
         flw->fc_state[fc_vc] = INITFC_IDLE;
         flw->rx_fc_state[fc_vc] = INITFC_IDLE;
     }
@@ -2112,6 +2113,7 @@ void TxFcInitInt (const pFlowControl_t const flw, const pUserConfig_t const usrc
         {
             SendIdle(INITFC_DELAY, node);
         }
+        flw->fc_init_count[0]++;
     }
 
     while (flw->fc_state[0] == INITFC_FI1 || flw->fc_state[0] == INITFC_FI2)
@@ -2123,9 +2125,10 @@ void TxFcInitInt (const pFlowControl_t const flw, const pUserConfig_t const usrc
         {
             SendIdle(INITFC_DELAY, node);
         }
+        flw->fc_init_count[0]++;
 
         // Ensure that at least one InitFC2 set is transmitted, even if at INITFC_FI2 already
-        if (flw->fc_state[0] == INITFC_FI2)
+        if (flw->fc_state[0] == INITFC_FI2 && flw->fc_init_count[0] >= FC_INIT_SENT_MIN)
         {
             break;
         }
@@ -2137,10 +2140,10 @@ void TxFcInitInt (const pFlowControl_t const flw, const pUserConfig_t const usrc
 //
 // -------------------------------------------------------------------------
 
-void RxFcInit (const pFlowControl_t const flw, const int type, const int hdrval, const int dataval)
+void RxFcInit (const pFlowControl_t const flw, const int type, const int hdrval, const int dataval, const int node)
 {
-    DebugVPrint("** Received InitFC type %d hdrval=%d dataval=%d rx_fc_state=%d fc_state=%d\n",
-            type, hdrval, dataval, flw->rx_fc_state[0], flw->fc_state[0]);
+    DebugVPrint("** Received InitFC type %d hdrval=%d dataval=%d rx_fc_state=%d fc_state=%d @ node %d\n",
+            type, hdrval, dataval, flw->rx_fc_state[0], flw->fc_state[0], node);
 
     if (type == DL_INITFC1_P || type == DL_INITFC2_P)
     {
@@ -2175,20 +2178,25 @@ void RxFcInit (const pFlowControl_t const flw, const int type, const int hdrval,
         }
     }
 
-    // If we have at least one of each INITFC type, move on flow control state
+    // If we have at least one of each INITFC type and sent at least FC_INIT_SENT_MIN, move on flow control state
     if (flw->rx_fc_state[0] == RCVD_ALL)
     {
-        if (flw->fc_state[0] == INITFC_IDLE)
+        if (flw->fc_state[0] == INITFC_IDLE && flw->fc_init_count[0] >= FC_INIT_SENT_MIN)
         {
             flw->fc_state[0] = INITFC_FI1;
+            flw->fc_init_count[0] = 0;
+
+            // Reset the receive flags
+            flw->rx_fc_state[0] = 0;
         }
-        else if (flw->fc_state[0] == INITFC_FI1)
+        else if (flw->fc_state[0] == INITFC_FI1 && flw->fc_init_count[0] >= FC_INIT_SENT_MIN)
         {
             flw->fc_state[0] = INITFC_FI2;
-        }
+            flw->fc_init_count[0] = 0;
 
-        // Reset the receive flags
-        flw->rx_fc_state[0] = 0;
+            // Reset the receive flags
+            flw->rx_fc_state[0] = 0;
+        }
     }
 }
 

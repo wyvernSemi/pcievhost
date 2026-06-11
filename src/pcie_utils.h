@@ -193,6 +193,7 @@ typedef struct {
     uint32_t     RxDataCredits         [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
     uint32_t     LastSentFcTime        [NUM_VIRTUAL_CHANNELS][FC_NUMTYPES];
 
+    uint32_t     fc_init_count         [NUM_VIRTUAL_CHANNELS];
     uint32_t     fc_state              [NUM_VIRTUAL_CHANNELS];
     uint32_t     rx_fc_state           [NUM_VIRTUAL_CHANNELS];
 
@@ -290,7 +291,7 @@ void        ExtractPhyInput      (const pPcieModelState_t const state, const uin
 uint32_t    CalcNewRand          (const uint32_t Seed);
 void        CheckFree            (void *ptr);
 void        TxFcInitInt          (const pFlowControl_t const flw, const pUserConfig_t usrcfg, const int node);
-void        RxFcInit             (const pFlowControl_t const flw, const int dllptype, const int hdrval, const int dataval);
+void        RxFcInit             (const pFlowControl_t const flw, const int dllptype, const int hdrval, const int dataval, const int node);
 
 #endif
 

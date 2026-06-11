@@ -65,7 +65,7 @@
 
 #define PCIE_MAJOR_VER                    1
 #define PCIE_MINOR_VER                    9
-#define PCIE_PATCH_VER                    1
+#define PCIE_PATCH_VER                    2
 
 // Used in macros
 #define BYTE_MASK                         0xff
@@ -202,6 +202,7 @@
 #define INITFC_FI2                        3
 
 #define INITFC_DELAY                      20
+#define FC_INIT_SENT_MIN                  4
 
 #define DEFAULT_MAX_PAYLOAD_SIZE          (4096/FC_DATA_CREDIT_BYTES)
 
