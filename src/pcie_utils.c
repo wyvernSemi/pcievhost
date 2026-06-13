@@ -623,8 +623,6 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
                 break;
 
             default:
-                DebugVPrint( "ProcessInput: Warning --- unsupported DLLP received (type = %x) on node %d\n", type, state->thisnode);
-                status = PKT_STATUS_UNSUPPORTED;
 
                 // Return unsupported packet to user process, if one registered. Otherwise discard.
                 if (state->vuser_cb != NULL)
@@ -633,6 +631,11 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
                 }
                 else
                 {
+                    DebugVPrint( "ProcessInput: Warning --- unsupported DLLP received (type = %x) on node %d\n", type, state->thisnode);
+                    
+                    // When processing internally, flag that DLLP is unsupported
+                    status = PKT_STATUS_UNSUPPORTED;
+
                     CheckFree(pkt->data);
                     CheckFree(pkt);
                 }
