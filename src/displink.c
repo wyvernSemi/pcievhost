@@ -328,7 +328,7 @@ void DispRaw(const pPcieModelState_t const state, const PktData_t *linkin, const
             case SKP: VPrint("SKP "); break;
             case FTS: VPrint("FTS "); break;
             case IDL: VPrint("IDL "); break;
-            case RV1: VPrint("RV1 "); break;
+            case EIE: VPrint("EIE "); break;
             case RV2: VPrint("RV2 "); break;
             case RV3: VPrint("RV3 "); break;
             default:
@@ -394,8 +394,9 @@ void DispOS(const pPcieModelState_t const state, const int type, const pTS_t con
             break;
         case IDL: VPrint("%sPCIE%s%d%s %02d: PL Electrical idle ordered set\n", is_down ? fmtdnstr : fmtupstr, dirstr, nodenum, fmtnormstr, lane); break;
         case FTS: VPrint("%sPCIE%s%d%s %02d: PL Fast training sequence ordered set\n", is_down ? fmtdnstr : fmtupstr, dirstr, nodenum, fmtnormstr, lane); break;
+        case EIE: VPrint("%sPCIE%s%d%s %02d: PL Electrical Idle Exit ordered set\n", is_down ? fmtdnstr : fmtupstr, dirstr, nodenum, fmtnormstr, lane); break;
         case SKP: VPrint("%sPCIE%s%d%s %02d: PL Skip ordered set\n", is_down ? fmtdnstr : fmtupstr, dirstr, nodenum, fmtnormstr, lane); break;
-        default:  VPrint("%sPCIE%s%d%s %02d: PL %s**Unrecognised ordered set**%s\n", is_down ? fmtdnstr : fmtupstr, dirstr, nodenum, fmtnormstr, lane, fmterrstr, fmtnormstr); break;
+        default:  VPrint("%sPCIE%s%d%s %02d: PL %s**Unrecognised ordered set (0x%03x)**%s\n", is_down ? fmtdnstr : fmtupstr, dirstr, nodenum, fmtnormstr, lane, fmterrstr, type, fmtnormstr); break;
         }
     }
 }

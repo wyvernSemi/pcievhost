@@ -124,6 +124,7 @@ typedef struct {
     uint32_t     IdleCount              [MAX_LINK_WIDTH];
     uint32_t     SkipCount              [MAX_LINK_WIDTH];
     uint32_t     FtsCount               [MAX_LINK_WIDTH];
+    uint32_t     EieCount               [MAX_LINK_WIDTH];
     uint32_t     Ts1Count               [MAX_LINK_WIDTH];
     uint32_t     Ts2Count               [MAX_LINK_WIDTH];
 

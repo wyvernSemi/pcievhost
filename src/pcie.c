@@ -1700,7 +1700,7 @@ void SendOs (const int Type, const int node)
     int lanes, sequence;
     int old_draining_state = this->draining_queue;
     uint32_t  LinkIn  [MAX_LINK_WIDTH];
-    PktData_t LinkOut [OS_LENGTH][MAX_LINK_WIDTH];
+    PktData_t LinkOut [TS_LENGTH][MAX_LINK_WIDTH];
 
     if (node < 0 || node > VP_MAX_NODES)
     {
@@ -1714,7 +1714,7 @@ void SendOs (const int Type, const int node)
         VWrite(PVH_FATAL, 0, 0, node);
     }
 
-    if (Type != IDL && Type != SKP && Type != FTS)
+    if (Type != IDL && Type != SKP && Type != FTS && Type != EIE)
     {
         VPrint( "SendOs: %s***Error --- invalid ordered set(%03x) at node %d%s\n", fmterrstr, Type, node, fmtnormstr);
         VWrite(PVH_FATAL, 0, 0, node);
@@ -1729,22 +1729,29 @@ void SendOs (const int Type, const int node)
     // Make sure RX queues, rather than sends, any transmitted replies
     this->draining_queue = true;
 
-    for (sequence = 0; sequence < OS_LENGTH; sequence++)
+    int oslen = (Type == EIE) ? TS_LENGTH : OS_LENGTH;
+
+    for (sequence = 0; sequence < oslen; sequence++)
     {
         for (lanes = 0; lanes < this->LinkWidth; lanes++)
         {
-            LinkOut[sequence][lanes] = (sequence == 0) ? COM : Type;
+            LinkOut[sequence][lanes] = (sequence == 0)                        ? COM    :
+                                       (sequence == (oslen-1) && Type == EIE) ? TS1_ID :
+                                                                                Type;
+
             LinkIn[lanes]  = VWrite(LINKADDR0+lanes, Encode(LinkOut[sequence][lanes], this->usrconf.DisableScrambling, this->usrconf.Disable8b10b,
                                     lanes, this->LinkWidth, node), lanes != this->LinkWidth-1, node);
 
             // When the last OS symbol is being output, display the OS
             if (lanes == this->LinkWidth-1)
             {
-                for(int seq; seq < OS_LENGTH; seq++)
+                for(int seq  = 0; seq < oslen; seq++)
+                {
                     DispRaw(this, LinkOut[sequence], false);
+                }
             }
 
-            if (sequence == OS_LENGTH-1)
+            if (sequence == oslen-1)
             {
                 DispOS(this, Type, NULL, lanes, false, node);
             }
@@ -2089,6 +2096,13 @@ int ResetEventCount(const int type, const int node)
             this->linkevent.FtsCount[i] = 0;
         }
     }
+    else if (type == EIE)
+    {
+        for (i = 0; i < MAX_LINK_WIDTH; i++)
+        {
+            this->linkevent.EieCount[i] = 0;
+        }
+    }
     else if (type == TS1_ID)
     {
         for (i = 0; i < MAX_LINK_WIDTH; i++)
@@ -2140,6 +2154,10 @@ int ReadEventCount (const int type, uint32_t *ts_data, const int node)
     else if (type == FTS)
     {
         ptr = this->linkevent.FtsCount;
+    }
+    else if (type == EIE)
+    {
+        ptr = this->linkevent.EieCount;
     }
     else if (type == TS1_ID)
     {

@@ -632,7 +632,7 @@ static void ProcessInput (const pPcieModelState_t const state, const pPkt_t cons
                 else
                 {
                     DebugVPrint( "ProcessInput: Warning --- unsupported DLLP received (type = %x) on node %d\n", type, state->thisnode);
-                    
+
                     // When processing internally, flag that DLLP is unsupported
                     status = PKT_STATUS_UNSUPPORTED;
 
@@ -962,6 +962,11 @@ static void ProcessOS(const pPcieModelState_t const state,
             {
                 DebugVPrint("ProcessOS: Seen FTS OS on lane %d at node %d\n", lane, node);
                 linkevent->FtsCount[lane]++;
+            }
+            else if (type == EIE)
+            {
+                DebugVPrint("ProcessOS: Seen EIE OS on lane %d at node %d\n", lane, node);
+                linkevent->EieCount[lane]++;
             }
             else if (type == TS1_ID)
             {
@@ -1750,6 +1755,7 @@ void InitPcieState(const pPcieModelState_t const state, const int node)
         linkevent->IdleCount[i]   = 0;
         linkevent->SkipCount[i]   = 0;
         linkevent->FtsCount[i]    = 0;
+        linkevent->EieCount[i]    = 0;
         linkevent->Ts1Count[i]    = 0;
         linkevent->Ts2Count[i]    = 0;
         linkevent->OsState[i]     = 0;
@@ -1919,9 +1925,9 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
         {
             // If active OS, check that we haven't had a bad OS boundary.
             if (linkevent->OsState[idx] && ((linkevent->OsCount [idx] > 15) ||
-                (linkevent->OsState [idx] == IDL && linkevent->OsCount [idx] != 3) ||
-                (linkevent->OsState [idx] == FTS && linkevent->OsCount [idx] != 3) ||
-                (linkevent->OsState [idx] == SKP && (linkevent->OsCount [idx] > 6 || linkevent->OsCount [idx] < 1))))
+               (linkevent->OsState[idx] == IDL && linkevent->OsCount [idx] != 3) ||
+               (linkevent->OsState[idx] == FTS && linkevent->OsCount [idx] != 3) ||
+               (linkevent->OsState[idx] == SKP && (linkevent->OsCount [idx] > 6 || linkevent->OsCount [idx] < 1))))
             {
                     DebugVPrint("ExtractPhyInput: Warning --- bad count for ordered sets on lane %d at node %d\n", idx, state->thisnode);
             }
@@ -1934,17 +1940,20 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
         else if (linkevent->OsState [idx])
         {
             // If last state was a Comma and incoming is an OS symbol, or last state is an OS symbol....
-            if ((linkevent->OsState [idx] == COM && (linkin[idx] == IDL || linkin[idx] == SKP || linkin[idx] == FTS) ||
-                 linkevent->OsState [idx] == IDL || linkevent->OsState [idx] == SKP || linkevent->OsState [idx] == FTS))
+            if ((linkevent->OsState[idx] == COM && (linkin[idx] == IDL || linkin[idx] == SKP || linkin[idx] == FTS || linkin[idx] == EIE) ||
+                 linkevent->OsState[idx] == IDL || linkevent->OsState[idx] == SKP || linkevent->OsState[idx] == FTS || linkevent->OsState[idx] == EIE))
             {
-                // ... and if Comma or current input is same as previous symbol, then we are continuing an OS
+                // ... and if Comma or current input is same as previous symbol
+                // then we are continuing an OS
                 if (linkevent->OsState[idx] == COM || linkin[idx] == linkevent->OsState[idx])
                 {
                     // Increment count of OS symbols
                     linkevent->OsCount[idx]++;
+
                     // Update current state to input symbol
                     linkevent->OsState[idx] = linkin[idx];
-                    // If we've seen 3 OS symbols (or just 1 for skip), then an OS event has triggered
+
+                    // If we've seen 3 OS symbols, or just 1 for skips
                     if (linkevent->OsCount[idx] == 3 || (linkevent->OsState[idx] == SKP && linkevent->OsCount[idx] == 1))
                     {
                         ProcessOS(state, linkevent, idx, linkevent->OsState[idx], NULL, state->vuser_os_cb, state->usrptr, state->thisnode);
@@ -1957,7 +1966,9 @@ void ExtractPhyInput(const pPcieModelState_t const state, const unsigned int* co
                     // Since Skip OSs can be any length from 1 to 6, don't print an error
                     // if skip is interrupted
                     if (linkevent->OsState [idx] != SKP)
+                    {
                         DebugVPrint("ExtractPhyInput: Warning --- invalid control symbols seen on lane %d at node %d\n", idx, state->thisnode);
+                    }
                     linkevent->OsState [idx] = 0;
                     linkevent->OsCount [idx] = 0;
                 }

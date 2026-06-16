@@ -44,7 +44,7 @@
 #define SKP                        0x11c // K28.0
 #define FTS                        0x13c // K28.1
 #define IDL                        0x17c // K28.3
-#define RV1                        0x1fc // K28.7
+#define EIE                        0x1fc // K28.7
 #define RV2                        0x19c // K28.4
 #define RV3                        0x1dc // K28.6
 
